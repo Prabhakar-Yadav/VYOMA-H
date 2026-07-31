@@ -1,0 +1,17 @@
+# Generated — rebuild with: python src/cli.py build
+krishi-rag/index/
+
+# Local environment
+.venv/
+__pycache__/
+*.pyc
+
+# Organisers' upstream repo (cloned separately, ~2.6 GB with Git LFS)
+suno-sutra-sw/
+
+# Local reference documents, not ours to redistribute
+*.pdf
+
+# Working notes — kept locally, not published
+krishi-rag/CHECKPOINT.md
+krishi-rag/NOTES-asr-robustness.md
