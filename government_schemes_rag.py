@@ -15,28 +15,29 @@ from typing import List, Dict, Set, Any
 from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
 
-# Set UTF-8 encoding for Windows terminal output
+# Force UTF-8 encoding for Windows terminal compatibility
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
 
 def char_ngram_tokenizer(text: str, n_min: int = 3, n_max: int = 5) -> List[str]:
-    
+    """Generates sliding character n-grams (3-5 chars) for typo-resilient BM25 searching."""
     clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', text.lower())
     padded_text = f" {clean_text} "
     ngrams = []
-    
     for n in range(n_min, n_max + 1):
         for i in range(len(padded_text) - n + 1):
             ngrams.append(padded_text[i:i + n])
-            
     return ngrams
 
 
+# Hinglish Agricultural Term Dictionary
 SYNONYM_MAP: Dict[str, List[str]] = {
     # Water / Irrigation
     "paani": ["irrigation", "sinchai", "water", "pump", "boring"],
     "pani": ["irrigation", "sinchai", "water", "pump"],
+    "tubewell": ["pmksy", "irrigation", "water", "boring"],
+    "borwel": ["pmksy", "irrigation", "water", "boring"],
     # Financial / Loans
     "paisa": ["subsidy", "financial assistance", "installment", "kist"],
     "karza": ["loan", "credit", "kcc", "subvention"],
@@ -51,16 +52,17 @@ SYNONYM_MAP: Dict[str, List[str]] = {
     "drought": ["pmfby", "fasal bima", "crop loss", "compensation"],
     "flood": ["pmfby", "fasal bima", "crop loss", "compensation"],
     "bima": ["pmfby", "insurance", "crop loss"],
-    # Mandi & Claims
+    "claim": ["pmfby", "insurance", "compensation", "settlement"],
+    "time limit": ["pmfby", "duration", "timeline", "intimation"],
+    # Mandi & Rates
     "mandi": ["e-nam", "enam", "market", "registration", "trade"],
     "bechne": ["e-nam", "market", "selling", "enam"],
-    "claim": ["pmfby", "insurance", "compensation", "settlement"],
-    "time limit": ["pmfby", "duration", "timeline", "intimation"]
+    "bhav": ["enam", "e-nam", "market price", "bidding", "rate"],
+    "dam": ["enam", "e-nam", "price", "market rate"],
+    # Machinery / Tractors
+    "tractor": ["smam", "machinery", "mechanization", "harvester"],
+    "khareedne": ["subsidy", "purchase", "machinery"]
 }
-
-OUT_OF_DOMAIN_KEYWORDS = [
-    "car", "electric car", "ev", "vehicle", "scooter", "space", "rocket", "delhi metro", "laptop"
-]
 
 SCHEME_ACRONYM_MAP: Dict[str, str] = {
     "kcc": "Kisan Credit Card Scheme low interest loan",
@@ -70,18 +72,20 @@ SCHEME_ACRONYM_MAP: Dict[str, str] = {
     "pmkisan": "PM KISAN Pradhan Mantri Kisan Samman Nidhi 6000 installment"
 }
 
+OUT_OF_DOMAIN_KEYWORDS = [
+    "car", "electric car", "ev", "vehicle", "scooter", "space", "rocket", "delhi metro", "laptop"
+]
+
+
 def expand_query(raw_query: str) -> str:
-   
+    """Expands query with Hindi/Hinglish domain terms in <1ms."""
     tokens = raw_query.lower().split()
     expanded_terms: Set[str] = set(tokens)
-    
     for token in tokens:
         if token in SCHEME_ACRONYM_MAP:
             expanded_terms.add(SCHEME_ACRONYM_MAP[token])
-            
         if token in SYNONYM_MAP:
             expanded_terms.update(SYNONYM_MAP[token])
-            
     return " ".join(expanded_terms)
 
 
@@ -104,10 +108,7 @@ def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
                     apply_info = data.get("how_to_apply", "")
                     docs = data.get("documents_required", "")
                     
-                    # Combine all scheme fields into one searchable text
                     searchable_text = f"{name} {beneficiary} {benefits} {eligibility} {apply_info} {docs}"
-                    
-                    # Generate character n-gram tokens for BM25
                     ngram_tokens = char_ngram_tokenizer(searchable_text)
                     
                     schemes.append({
@@ -121,7 +122,7 @@ def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
                         "searchable_text": searchable_text,
                         "ngram_tokens": ngram_tokens
                     })
-                except Exception as e:
+                except Exception:
                     continue
     return schemes
 
@@ -197,27 +198,22 @@ class SchemesBM25Index:
 def reciprocal_rank_fusion(vector_results: List[Dict[str, Any]], 
                            bm25_results: List[Dict[str, Any]], 
                            rrf_k: int = 60) -> List[Dict[str, Any]]:
-   
     rrf_scores = {}
     scheme_map = {}
     
-    # Process FAISS ranks
     for item in vector_results:
         s_id = item["scheme_id"]
         rank = item["rank"]
         scheme_map[s_id] = item["scheme"]
         rrf_scores[s_id] = rrf_scores.get(s_id, 0.0) + (1.0 / (rrf_k + rank))
         
-    # Process BM25 ranks
     for item in bm25_results:
         s_id = item["scheme_id"]
         rank = item["rank"]
         scheme_map[s_id] = item["scheme"]
         rrf_scores[s_id] = rrf_scores.get(s_id, 0.0) + (1.0 / (rrf_k + rank))
         
-    # Sort schemes by final combined RRF score
     sorted_schemes = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
-    
     final_results = []
     for s_id, score in sorted_schemes:
         final_results.append({
@@ -228,12 +224,12 @@ def reciprocal_rank_fusion(vector_results: List[Dict[str, Any]],
     return final_results
 
 
-class AdvancedGovernmentSchemesRAGEngine:
+class GovernmentSchemesRAGEngine:
     def __init__(self, jsonl_file: str = "schemes_dataset.jsonl"):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         jsonl_path = os.path.join(base_dir, jsonl_file)
         
-        print("[Init] Loading schemes dataset...")
+        print("[Init] Loading government schemes dataset...")
         self.schemes = load_schemes_dataset(jsonl_path)
         print(f"[Init] Loaded {len(self.schemes)} government schemes.")
         
@@ -243,17 +239,18 @@ class AdvancedGovernmentSchemesRAGEngine:
         print("[Init] Building BM25 Keyword Index (n-gram tokens)...")
         self.bm25_index = SchemesBM25Index(self.schemes)
         
-        # Warmup forward pass to prevent cold-start latency spike
+        # Warmup pass
         _ = self.vector_index.model.encode(["warmup query"], show_progress_bar=False)
-        print("[Init] Advanced RAG Engine Ready!\n")
+        print("[Init] Government Schemes RAG Engine Ready!\n")
 
-    def query_schemes(self, user_question: str, top_k: int = 3) -> Dict[str, Any]:
+    def query_schemes(self, user_question: str) -> Dict[str, Any]:
+        """Queries government schemes and returns clean farmer-focused dictionary."""
         start_time = time.time()
         
         # Step 1: Fast Query Expansion (<1ms)
         expanded_query = expand_query(user_question)
         
-        # Step 2: Dual Hybrid Search (FAISS + BM25) using expanded_query
+        # Step 2: Dual Hybrid Search (FAISS + BM25)
         vector_results = self.vector_index.search(expanded_query, top_k=5)
         bm25_results = self.bm25_index.search(expanded_query, top_k=5)
         
@@ -268,25 +265,24 @@ class AdvancedGovernmentSchemesRAGEngine:
         top_cosine_score = round(float(np.clip(raw_score, -1.0, 1.0)), 4)
         top_bm25_score = bm25_results[0]["score"] if bm25_results else 0.0
         
-        # Step 4: Out-of-Domain Filter & Dual-Condition Cutoff Check (Exact Word Matching)
+        # Step 4: Safety Fallback Gate
         query_words = set(re.findall(r'\b[a-z0-9-]+\b', user_question.lower()))
         is_out_of_domain = any(kw in query_words for kw in OUT_OF_DOMAIN_KEYWORDS)
         is_fallback = is_out_of_domain or (top_cosine_score < 0.35 and top_bm25_score < 5.0)
         
         if is_fallback:
-
             latency = time.time() - start_time
             return {
                 "status": "fallback",
                 "question": user_question,
                 "confidence_score": top_cosine_score,
-                "lcd_card": "=== NOTICE ===\nLow confidence match.\nPlease rephrase your query.",
-                "bhashini_voice_text": "Kisan bhai! Aapka sawal kripya spast roop se dobara poochein.",
-                "latency_seconds": round(latency, 4)
+                "lcd_text": "=== NOTICE ===\nLow confidence match.\nPlease rephrase your query.",
+                "voice_text": "Kisan bhai! Aapka sawal kripya spast roop se dobara poochein.",
+                "latency_ms": round(latency * 1000, 2)
             }
             
         # Format for 2.8" TFT LCD Display
-        lcd_card = (
+        lcd_text = (
             f"=== SCHEME: {best['scheme_name'][:30]} ===\n"
             f"ID: {best['scheme_id']} | Cosine: {top_cosine_score}\n"
             f"Beneficiary: {best['target_beneficiary'][:35]}\n"
@@ -304,64 +300,34 @@ class AdvancedGovernmentSchemesRAGEngine:
             f"{best['benefit_details']} Avedan karne ke liye {best['how_to_apply']}."
         )
 
-        # Smart Relevant Answer Extractor (Extracts ONLY what the user asked about)
+        # Smart Intent Extractor (Extracts ONLY what the farmer asked for)
         q_lower = user_question.lower()
         if any(w in q_lower for w in ["document", "doc", "kagaz", "paper", "proof", "certificate"]):
-            relevant_answer = f"Documents required for {best['scheme_name']}: {best['documents_required']}"
+            answer = f"Documents required for {best['scheme_name']}: {best['documents_required']}"
         elif any(w in q_lower for w in ["apply", "where", "how", "portal", "register", "avedan"]):
-            relevant_answer = f"To apply for {best['scheme_name']}: {best['how_to_apply']}"
+            answer = f"To apply for {best['scheme_name']}: {best['how_to_apply']}"
         elif any(w in q_lower for w in ["eligible", "who", "patra", "criteria"]):
-            relevant_answer = f"Eligibility criteria for {best['scheme_name']}: {best['eligibility_criteria']}"
+            answer = f"Eligibility criteria for {best['scheme_name']}: {best['eligibility_criteria']}"
         else:
-            relevant_answer = f"Under {best['scheme_name']}: {best['benefit_details']}"
-
-        # Generate Complete Natural Paragraph Answer
-        full_answer = (
-            f"Under the {best['scheme_name']} ({best['scheme_id']}), {best['benefit_details']} "
-            f"This scheme is targeted towards {best['target_beneficiary']}. "
-            f"Eligibility criteria: {best['eligibility_criteria']}. "
-            f"How to apply: {best['how_to_apply']}. "
-            f"Required documents: {best['documents_required']}."
-        )
-        
-        # Official OKF v0.2 Knowledge Record Formatter
-        okf_v02_card = {
-            "okf_version": "v0.2",
-            "knowledge_id": best["scheme_id"],
-            "title": best["scheme_name"],
-            "category": "Agricultural Government Scheme",
-            "target_audience": best["target_beneficiary"],
-            "key_facts_and_benefits": best["benefit_details"],
-            "eligibility_rules": best["eligibility_criteria"],
-            "action_steps": best["how_to_apply"],
-            "required_documents": best["documents_required"],
-            "safety_disclaimer": "Verbatim government policy record with zero LLM hallucination."
-        }
+            answer = f"Under {best['scheme_name']}: {best['benefit_details']}"
 
         latency = time.time() - start_time
         
         return {
             "status": "success",
             "question": user_question,
-            "top_scheme": {
-                "scheme_id": best["scheme_id"],
-                "scheme_name": best["scheme_name"],
-                "cosine_score": top_cosine_score,
-                "rrf_score": fused_results[0]["rrf_score"]
-            },
-            "okf_v02_card": okf_v02_card,
-            "relevant_answer": relevant_answer,
-            "full_answer": full_answer,
-            "benefit_details": best["benefit_details"],
-            "how_to_apply": best["how_to_apply"],
-            "lcd_card": lcd_card,
-            "bhashini_voice_text": voice_text,
-            "latency_seconds": round(latency, 4)
+            "scheme_id": best["scheme_id"],
+            "scheme_name": best["scheme_name"],
+            "answer": answer,
+            "lcd_text": lcd_text,
+            "voice_text": voice_text,
+            "confidence_score": top_cosine_score,
+            "latency_ms": round(latency * 1000, 2)
         }
 
 
 if __name__ == "__main__":
-    engine = AdvancedGovernmentSchemesRAGEngine()
+    engine = GovernmentSchemesRAGEngine()
     
     test_queries = [
         "How can small kisaan get 6000 rupees direct benefit transfer?",
@@ -370,15 +336,8 @@ if __name__ == "__main__":
         "How to get low interest loan using KCC card?",
         "What documents are required for PM-KISAN?",
         "random irrelevant question about space rockets",
-        "bijli ke bill se bachne ke liye kisan kya kare",
         "mandi me fasal bechne ke liye online registration kaise kare",
-        "is 4 percent interest rate valid for 3 lakh loan under KCC",
-        "crop failure claim compensation process time limit",
-        "what is the subsidy for buying a private electric car in Delhi",
-        "khet me tubewell ya borwel lagwane ke liye sarkari sahayata",
-        "fasal ka sahi dam ya bhav pata karne ke liye portal",
-        "tractor khareedne ke liye loan kaise milega",
-        "pension scheme for senior citizens above 60 years"
+        "what is the subsidy for buying a private electric car in Delhi"
     ]
     
     for q in test_queries:
@@ -387,11 +346,10 @@ if __name__ == "__main__":
         print(f"QUERY: \"{res['question']}\"")
         print(f"STATUS: {res['status'].upper()}")
         if res["status"] == "success":
-            print(f"TOP MATCH: {res['top_scheme']['scheme_name']} ({res['top_scheme']['scheme_id']})")
-            print(f"COSINE: {res['top_scheme']['cosine_score']} | RRF SCORE: {res['top_scheme']['rrf_score']}")
-            print(f"\nRELEVANT ANSWER:\n{res['relevant_answer']}\n")
+            print(f"MATCH: {res['scheme_name']} ({res['scheme_id']}) | Score: {res['confidence_score']}")
+            print(f"ANSWER:\n{res['answer']}\n")
         else:
-            print(f"CONFIDENCE: {res['confidence_score']} (Below 0.38 Cutoff)")
-            print(f"VOICE TEXT: {res['bhashini_voice_text']}")
-        print(f"LATENCY: {res['latency_seconds']}s ({round(res['latency_seconds']*1000, 2)} ms)")
+            print(f"CONFIDENCE: {res['confidence_score']} (Below Cutoff)")
+            print(f"VOICE TEXT: {res['voice_text']}")
+        print(f"LATENCY: {res['latency_ms']} ms")
         print("=========================================================\n")
