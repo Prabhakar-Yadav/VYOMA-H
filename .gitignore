@@ -1,0 +1,11 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# FAISS Binary Cache (Generated at runtime)
+*.bin
+
+# Environment & Temp
+.env
+eval_output.txt
+*.log
