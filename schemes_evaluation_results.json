@@ -1,0 +1,207 @@
+{
+  "total_test_queries": 25,
+  "average_similarity_score": 0.6075,
+  "average_latency_seconds": 0.0184,
+  "evaluations": [
+    {
+      "query_id": 1,
+      "query": "How can small farmers get 6000 rupees direct benefit transfer?",
+      "matched_scheme": "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
+      "scheme_id": "SCHEME_001",
+      "similarity_score": 0.611,
+      "latency_seconds": 0.0275
+    },
+    {
+      "query_id": 2,
+      "query": "What is the crop insurance scheme for drought and flood loss?",
+      "matched_scheme": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+      "scheme_id": "SCHEME_002",
+      "similarity_score": 0.511,
+      "latency_seconds": 0.0145
+    },
+    {
+      "query_id": 3,
+      "query": "How to get low interest loan for seeds and fertilizers using KCC?",
+      "matched_scheme": "Kisan Credit Card (KCC) Scheme",
+      "scheme_id": "SCHEME_003",
+      "similarity_score": 0.6575,
+      "latency_seconds": 0.016
+    },
+    {
+      "query_id": 4,
+      "query": "What is the subsidy for setting up solar irrigation pumps under KUSUM?",
+      "matched_scheme": "Pradhan Mantri KUSUM Yojana (PM-KUSUM Component A, B, C)",
+      "scheme_id": "SCHEME_007",
+      "similarity_score": 0.7159,
+      "latency_seconds": 0.0185
+    },
+    {
+      "query_id": 5,
+      "query": "How to register on e-NAM to sell crops directly online?",
+      "matched_scheme": "National Agriculture Market (e-NAM) Portal",
+      "scheme_id": "SCHEME_008",
+      "similarity_score": 0.6581,
+      "latency_seconds": 0.0149
+    },
+    {
+      "query_id": 6,
+      "query": "How to get a Soil Health Card for fertilizer dosage recommendation?",
+      "matched_scheme": "Soil Health Card (SHC) Scheme",
+      "scheme_id": "SCHEME_005",
+      "similarity_score": 0.6668,
+      "latency_seconds": 0.0153
+    },
+    {
+      "query_id": 7,
+      "query": "What is the monthly pension scheme of 3000 rupees for small farmers after age 60?",
+      "matched_scheme": "Pradhan Mantri Kisan Maandhan Yojana (PM-KMY)",
+      "scheme_id": "SCHEME_006",
+      "similarity_score": 0.6953,
+      "latency_seconds": 0.019
+    },
+    {
+      "query_id": 8,
+      "query": "How to get subsidy for drip and sprinkler micro irrigation systems?",
+      "matched_scheme": "Pradhan Mantri Krishi Sinchayee Yojana (PMKSY) & Per Drop More Crop",
+      "scheme_id": "SCHEME_004",
+      "similarity_score": 0.6141,
+      "latency_seconds": 0.0204
+    },
+    {
+      "query_id": 9,
+      "query": "How to get subsidy for purchasing tractors, rotavators, and farm machinery?",
+      "matched_scheme": "Sub-Mission on Agricultural Mechanization (SMAM) & Custom Hiring Centres",
+      "scheme_id": "SCHEME_009",
+      "similarity_score": 0.5622,
+      "latency_seconds": 0.021
+    },
+    {
+      "query_id": 10,
+      "query": "What is the assistance of 50,000 rupees per hectare for organic farming clusters?",
+      "matched_scheme": "Paramparagat Krishi Vikas Yojana (PKVY) & Organic Farming",
+      "scheme_id": "SCHEME_010",
+      "similarity_score": 0.6674,
+      "latency_seconds": 0.0158
+    },
+    {
+      "query_id": 11,
+      "query": "How to get a Job Card for 100 days guaranteed manual work in village?",
+      "matched_scheme": "Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA)",
+      "scheme_id": "SCHEME_011",
+      "similarity_score": 0.5057,
+      "latency_seconds": 0.0192
+    },
+    {
+      "query_id": 12,
+      "query": "What is the capital subsidy of 35% up to 10 Lakh for micro food processing units?",
+      "matched_scheme": "Pradhan Mantri Formalisation of Micro Food Processing Enterprises (PMFME)",
+      "scheme_id": "SCHEME_012",
+      "similarity_score": 0.5816,
+      "latency_seconds": 0.0188
+    },
+    {
+      "query_id": 13,
+      "query": "How to get 3% interest subvention loan for building farm warehouses and cold storage?",
+      "matched_scheme": "Agriculture Infrastructure Fund (AIF)",
+      "scheme_id": "SCHEME_013",
+      "similarity_score": 0.4418,
+      "latency_seconds": 0.0219
+    },
+    {
+      "query_id": 14,
+      "query": "What is the seed funding grant up to 25 Lakh for agri-startups under RKVY-RAFTAAR?",
+      "matched_scheme": "Rastriya Krishi Vikas Yojana (RKVY-RAFTAAR) & Agri-Startup Incubation",
+      "scheme_id": "SCHEME_014",
+      "similarity_score": 0.7478,
+      "latency_seconds": 0.0228
+    },
+    {
+      "query_id": 15,
+      "query": "What is the 60% subsidy scheme for fish farming, biofloc, and pond construction?",
+      "matched_scheme": "Pradhan Mantri Matsya Sampada Yojana (PMMSY)",
+      "scheme_id": "SCHEME_015",
+      "similarity_score": 0.5778,
+      "latency_seconds": 0.018
+    },
+    {
+      "query_id": 16,
+      "query": "How to get installment of 2000 rupees every 4 months under PM-KISAN?",
+      "matched_scheme": "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
+      "scheme_id": "SCHEME_001",
+      "similarity_score": 0.5486,
+      "latency_seconds": 0.021
+    },
+    {
+      "query_id": 17,
+      "query": "What is the premium rate of 1.5% for Rabi crops under PM crop insurance?",
+      "matched_scheme": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+      "scheme_id": "SCHEME_002",
+      "similarity_score": 0.6436,
+      "latency_seconds": 0.0188
+    },
+    {
+      "query_id": 18,
+      "query": "Can fisheries and animal husbandry farmers get Kisan Credit Card (KCC)?",
+      "matched_scheme": "Kisan Credit Card (KCC) Scheme",
+      "scheme_id": "SCHEME_003",
+      "similarity_score": 0.8032,
+      "latency_seconds": 0.0218
+    },
+    {
+      "query_id": 19,
+      "query": "How to sell extra solar electricity produced by KUSUM pumps to grid?",
+      "matched_scheme": "Pradhan Mantri KUSUM Yojana (PM-KUSUM Component A, B, C)",
+      "scheme_id": "SCHEME_007",
+      "similarity_score": 0.647,
+      "latency_seconds": 0.0137
+    },
+    {
+      "query_id": 20,
+      "query": "What is the website to check live crop mandi prices online across India?",
+      "matched_scheme": "National Agriculture Market (e-NAM) Portal",
+      "scheme_id": "SCHEME_008",
+      "similarity_score": 0.5323,
+      "latency_seconds": 0.0141
+    },
+    {
+      "query_id": 21,
+      "query": "How to test soil sample for nitrogen, phosphorus, and potassium levels?",
+      "matched_scheme": "Soil Health Card (SHC) Scheme",
+      "scheme_id": "SCHEME_005",
+      "similarity_score": 0.5086,
+      "latency_seconds": 0.0195
+    },
+    {
+      "query_id": 22,
+      "query": "Who is eligible for PM Kisan Maandhan 3000 rupees pension scheme?",
+      "matched_scheme": "Pradhan Mantri Kisan Maandhan Yojana (PM-KMY)",
+      "scheme_id": "SCHEME_006",
+      "similarity_score": 0.734,
+      "latency_seconds": 0.0135
+    },
+    {
+      "query_id": 23,
+      "query": "What is the subsidy for establishing Custom Hiring Centres for farm equipment?",
+      "matched_scheme": "Sub-Mission on Agricultural Mechanization (SMAM) & Custom Hiring Centres",
+      "scheme_id": "SCHEME_009",
+      "similarity_score": 0.7201,
+      "latency_seconds": 0.0204
+    },
+    {
+      "query_id": 24,
+      "query": "How to get 100 days wage employment for farm pond construction?",
+      "matched_scheme": "Sub-Mission on Agricultural Mechanization (SMAM) & Custom Hiring Centres",
+      "scheme_id": "SCHEME_009",
+      "similarity_score": 0.3884,
+      "latency_seconds": 0.018
+    },
+    {
+      "query_id": 25,
+      "query": "What is the loan for upgrading small jaggery, flour milling, or spice grinding business?",
+      "matched_scheme": "Pradhan Mantri Formalisation of Micro Food Processing Enterprises (PMFME)",
+      "scheme_id": "SCHEME_012",
+      "similarity_score": 0.4485,
+      "latency_seconds": 0.0155
+    }
+  ]
+}

@@ -1,0 +1,507 @@
+{
+  "total_test_queries": 50,
+  "average_similarity_score": 0.6868,
+  "average_latency_seconds": 0.0227,
+  "evaluations": [
+    {
+      "query_id": 1,
+      "category": "Science",
+      "query": "How do plants make food using sunlight?",
+      "matched_doc_id": "NCERT_4038",
+      "similarity_score": 0.5257,
+      "matched_topic": "What are the raw materials required by plants for the process of photosynthesis?",
+      "explanation": "Water, carbon dioxide, sunlight, and chlorophyll.",
+      "latency_seconds": 0.0328
+    },
+    {
+      "query_id": 2,
+      "category": "Science",
+      "query": "What is photosynthesis and why is chlorophyll important?",
+      "matched_doc_id": "NCERT_0006",
+      "similarity_score": 0.8982,
+      "matched_topic": "What is photosynthesis and why is chlorophyll important?",
+      "explanation": "Photosynthesis is the fundamental biological process by which green plants synthesize carbohydrates (food) from carbon dioxide and water in the presence of sunlight. Chlorophyll is the green pigment located inside plant chloroplasts that traps solar energy from sunlight and converts it into chemical energy, enabling plants to release fresh oxygen gas.",
+      "latency_seconds": 0.0241
+    },
+    {
+      "query_id": 3,
+      "category": "Science",
+      "query": "How does the water cycle cause rain?",
+      "matched_doc_id": "NCERT_3629",
+      "similarity_score": 0.6123,
+      "matched_topic": "Describe the 'Water Cycle' process in four steps.",
+      "explanation": "1. Evaporation: Sun's heat turns water into vapor. 2. Transpiration: Plants release water vapor. 3. Condensation: Vapor cools to form clouds. 4. Precipitation: Water falls as rain, snow, or hail.",
+      "latency_seconds": 0.017
+    },
+    {
+      "query_id": 4,
+      "category": "Science",
+      "query": "What are the three states of matter?",
+      "matched_doc_id": "NCERT_0007",
+      "similarity_score": 0.7846,
+      "matched_topic": "What are the three states of matter and their properties?",
+      "explanation": "The three fundamental states of matter are Solids, Liquids, and Gases. Solids have a definite shape and fixed volume with tightly packed particles. Liquids have a fixed volume but take the shape of their container with loosely packed particles. Gases have no fixed shape or volume, and their particles move freely with high kinetic energy.",
+      "latency_seconds": 0.0171
+    },
+    {
+      "query_id": 5,
+      "category": "Science",
+      "query": "What is the difference between physical and chemical changes?",
+      "matched_doc_id": "NCERT_2445",
+      "similarity_score": 0.7669,
+      "matched_topic": "Compare Physical and Chemical changes. (3 Marks)",
+      "explanation": "Physical Change: 1. No new substance formed. 2. Temporary/Reversible. 3. Physical properties change. Chemical Change: 1. New substance formed. 2. Permanent/Irreversible. 3. Chemical composition changes.",
+      "latency_seconds": 0.0186
+    },
+    {
+      "query_id": 6,
+      "category": "Science",
+      "query": "How do human lungs absorb oxygen?",
+      "matched_doc_id": "NCERT_3742",
+      "similarity_score": 0.5664,
+      "matched_topic": "One-Word Answers (Set 2)",
+      "explanation": "1. The term for taking in oxygen-rich air. (Answer: Inhalation)\n2. The term for giving out carbon-dioxide-rich air. (Answer: Exhalation)\n3. Large muscular sheet forming the floor of the chest cavity. (Answer: Diaphragm)\n4. Tiny air sacs in lungs where gas exchange occurs. (Answer: Alveoli)\n5. Respiration that yields alcohol. (Answer: Fermentation)",
+      "latency_seconds": 0.0134
+    },
+    {
+      "query_id": 7,
+      "category": "Science",
+      "query": "Why do stars twinkle in the night sky?",
+      "matched_doc_id": "NCERT_0008",
+      "similarity_score": 0.8187,
+      "matched_topic": "Why do stars twinkle in the night sky?",
+      "explanation": "Stars twinkle due to atmospheric refraction of starlight. As light from a distant star travels through different layers of Earth's atmosphere with varying optical densities and temperatures, the light bends continuously. This causes the apparent position and brightness of the star to fluctuate rapidly, creating the twinkling effect.",
+      "latency_seconds": 0.0125
+    },
+    {
+      "query_id": 8,
+      "category": "Science",
+      "query": "What is electric current and how does a circuit work?",
+      "matched_doc_id": "NCERT_4989",
+      "similarity_score": 0.6814,
+      "matched_topic": "Define Current, Circuit, and Switch. How are they related? (5 Marks)",
+      "explanation": "1. Current: The flow of electricity.\n2. Circuit: The complete path through which current flows.\n3. Switch: A device that opens or closes the circuit.\nRelationship: For current to flow, the circuit must be closed. The switch is the control element that determines if the circuit is open or closed. If the switch is OFF, the circuit is broken and no current flows. If the switch is ON, the circuit is complete and current flows.",
+      "latency_seconds": 0.0161
+    },
+    {
+      "query_id": 9,
+      "category": "Science",
+      "query": "How do magnets attract iron objects?",
+      "matched_doc_id": "NCERT_4803",
+      "similarity_score": 0.6666,
+      "matched_topic": "State the law of attraction and repulsion between magnets.",
+      "explanation": "Like poles (N-N or S-S) repel each other, while opposite poles (N-S) attract each other.",
+      "latency_seconds": 0.0179
+    },
+    {
+      "query_id": 10,
+      "category": "Science",
+      "query": "What is friction and how does it affect motion?",
+      "matched_doc_id": "NCERT_4671",
+      "similarity_score": 0.6737,
+      "matched_topic": "Define friction and state its primary cause.",
+      "explanation": "Friction is a contact force that opposes the relative motion between two surfaces. Its primary cause is the interlocking of microscopic irregularities (peaks and valleys) on the surfaces in contact.",
+      "latency_seconds": 0.0209
+    },
+    {
+      "query_id": 11,
+      "category": "Mathematics",
+      "query": "What is an Arithmetic Progression? Give daily life examples",
+      "matched_doc_id": "NCERT_0015",
+      "similarity_score": 0.7982,
+      "matched_topic": "What is an Arithmetic Progression? Give two examples from daily life.",
+      "explanation": "An Arithmetic Progression (AP) is a list of numbers in which each term is obtained by adding a fixed number to the preceding term. This fixed number is called the common difference (d). Daily life examples: (1) Reena's salary starting at ₹8000 with ₹500 annual increment: 8000, 8500, 9000, 9500... (2) Shakila putting ₹100 in her daughter's money box and increasing by ₹50 every year: 100, 150, 200, 250... In both cases, consecutive terms differ by a fixed amount.",
+      "latency_seconds": 0.0183
+    },
+    {
+      "query_id": 12,
+      "category": "Mathematics",
+      "query": "How to calculate percentage profit on crop yield?",
+      "matched_doc_id": "NCERT_4001",
+      "similarity_score": 0.5892,
+      "matched_topic": "NEP 2020 Application: A farmer's yield increased from 40 bags to 50 bags. Calculate the percentage increase.",
+      "explanation": "Increase = 50 - 40 = 10. % Increase = (10/40) * 100 = 25%.",
+      "latency_seconds": 0.0199
+    },
+    {
+      "query_id": 13,
+      "category": "Mathematics",
+      "query": "What is the formula for the area of a circle?",
+      "matched_doc_id": "NCERT_5600",
+      "similarity_score": 0.6717,
+      "matched_topic": "Describe the relationship between the area of a circle and its radius.",
+      "explanation": "The area of a circle is directly proportional to the square of its radius (Area = πr²). If the radius is doubled, the area increases by four times.",
+      "latency_seconds": 0.0222
+    },
+    {
+      "query_id": 14,
+      "category": "Mathematics",
+      "query": "How to solve linear equations in one variable?",
+      "matched_doc_id": "NCERT_0530",
+      "similarity_score": 0.5323,
+      "matched_topic": "What is the substitution method for solving linear equations? Give step-by-step explanation.",
+      "explanation": "The substitution method involves three steps: Step 1 — Choose either equation and express one variable in terms of the other. For example, from x + 2y = 3, write x = 3 – 2y. Step 2 — Substitute this expression into the other equation to get one equation with one variable, then solve it. Step 3 — Substitute the found value back into the expression from Step 1 to find the second variable. If substitution gives a true statement like 18 = 18, there are infinitely many solutions. If it gives a false statement like –4 = 0, there is no solution.",
+      "latency_seconds": 0.0224
+    },
+    {
+      "query_id": 15,
+      "category": "Mathematics",
+      "query": "What is the difference between prime and composite numbers?",
+      "matched_doc_id": "NCERT_4026",
+      "similarity_score": 0.8707,
+      "matched_topic": "Explain the difference between Prime and Composite numbers.",
+      "explanation": "Prime numbers are numbers that have exactly two factors: 1 and the number itself (e.g., 2, 3, 5). Composite numbers are numbers having more than two factors (e.g., 4, 6, 9). Note: 1 is neither prime nor composite.",
+      "latency_seconds": 0.0263
+    },
+    {
+      "query_id": 16,
+      "category": "Mathematics",
+      "query": "How to calculate simple interest on farm loans?",
+      "matched_doc_id": "NCERT_3330",
+      "similarity_score": 0.606,
+      "matched_topic": "What is the formula for Simple Interest?",
+      "explanation": "Simple Interest (SI) = (P × R × T) / 100, where P is the Principal, R is the Rate of interest per annum, and T is the Time period in years.",
+      "latency_seconds": 0.0232
+    },
+    {
+      "query_id": 17,
+      "category": "Mathematics",
+      "query": "What is Pythagoras theorem in geometry?",
+      "matched_doc_id": "NCERT_3124",
+      "similarity_score": 0.5555,
+      "matched_topic": "If a right-angled triangle has a hypotenuse of 5 cm and one side of 3 cm, what is the length of the third side?",
+      "explanation": "4 cm (using Pythagoras' theorem: √(5² - 3²) = √16).",
+      "latency_seconds": 0.0239
+    },
+    {
+      "query_id": 18,
+      "category": "Mathematics",
+      "query": "How to convert fractions into decimals?",
+      "matched_doc_id": "NCERT_6221",
+      "similarity_score": 0.6476,
+      "matched_topic": "Convert 3/2 into decimal form.",
+      "explanation": "Multiply numerator and denominator by 5 to make denominator 10: (3x5)/(2x5) = 15/10 = 1.5.",
+      "latency_seconds": 0.0272
+    },
+    {
+      "query_id": 19,
+      "category": "Mathematics",
+      "query": "What is ratio and proportion in crop sharing?",
+      "matched_doc_id": "NCERT_2004",
+      "similarity_score": 0.6376,
+      "matched_topic": "Identify the type: Area of cultivated land and the crop harvested.",
+      "explanation": "Direct Proportion (More land = more crop).",
+      "latency_seconds": 0.0245
+    },
+    {
+      "query_id": 20,
+      "category": "Mathematics",
+      "query": "How to calculate perimeter of a square field?",
+      "matched_doc_id": "NCERT_5438",
+      "similarity_score": 0.672,
+      "matched_topic": "What is the formula for the perimeter of a square?",
+      "explanation": "The perimeter of a square is 4 × length of a side.",
+      "latency_seconds": 0.0241
+    },
+    {
+      "query_id": 21,
+      "category": "Health & Sanitation",
+      "query": "How to purify drinking water in villages?",
+      "matched_doc_id": "NCERT_5774",
+      "similarity_score": 0.5833,
+      "matched_topic": "Suggest two methods to make water safe for drinking at home. (2 Marks)",
+      "explanation": "1. Boiling: It kills the germs present in the water. 2. Chemical Treatment: Adding chlorine tablets (Chlorination) to kill germs.",
+      "latency_seconds": 0.0255
+    },
+    {
+      "query_id": 22,
+      "category": "Health & Sanitation",
+      "query": "Why is boiling water effective against bacteria?",
+      "matched_doc_id": "NCERT_5774",
+      "similarity_score": 0.5062,
+      "matched_topic": "Suggest two methods to make water safe for drinking at home. (2 Marks)",
+      "explanation": "1. Boiling: It kills the germs present in the water. 2. Chemical Treatment: Adding chlorine tablets (Chlorination) to kill germs.",
+      "latency_seconds": 0.0251
+    },
+    {
+      "query_id": 23,
+      "category": "Health & Sanitation",
+      "query": "Why should we wash hands with soap before eating?",
+      "matched_doc_id": "NCERT_0009",
+      "similarity_score": 0.8441,
+      "matched_topic": "Why should we wash hands with soap before eating?",
+      "explanation": "Washing hands with soap and clean water removes disease-causing germs, bacteria, and viruses from skin surfaces. Soap molecules break down the fatty outer membrane of micro-organisms, washing them away and preventing waterborne and gastrointestinal infections like cholera and diarrhea.",
+      "latency_seconds": 0.0253
+    },
+    {
+      "query_id": 24,
+      "category": "Health & Sanitation",
+      "query": "How to prevent mosquito breeding and malaria?",
+      "matched_doc_id": "NCERT_0004",
+      "similarity_score": 0.8502,
+      "matched_topic": "How to prevent mosquito breeding and malaria?",
+      "explanation": "Prevent mosquito breeding by eliminating stagnant water in old tires, coolers, and pots around homes. Spraying larvicides in drains, introducing Gambusia fish in ponds, and sleeping under insecticide-treated bed nets effectively prevents vector-borne diseases like malaria and dengue.",
+      "latency_seconds": 0.0202
+    },
+    {
+      "query_id": 25,
+      "category": "Health & Sanitation",
+      "query": "What are waterborne diseases like cholera and typhoid?",
+      "matched_doc_id": "NCERT_1920",
+      "similarity_score": 0.6158,
+      "matched_topic": "Identify the 'odd one out' and give a reason: Cholera, Typhoid, Malaria, Dysentery.",
+      "explanation": "Malaria. While others are waterborne diseases caused by ingesting contaminated water, Malaria is a vector-borne disease spread by mosquitoes.",
+      "latency_seconds": 0.0219
+    },
+    {
+      "query_id": 26,
+      "category": "Health & Sanitation",
+      "query": "Why is balanced diet important for growing children?",
+      "matched_doc_id": "NCERT_5838",
+      "similarity_score": 0.7267,
+      "matched_topic": "HOTS: Why is it important for adolescents to take a balanced diet?",
+      "explanation": "Adolescence is a stage of rapid growth and development. A balanced diet (containing proteins, carbohydrates, fats, vitamins, and minerals) is essential to provide the necessary nutrients for the growth of bones, muscles, and other body parts during this crucial phase.",
+      "latency_seconds": 0.0189
+    },
+    {
+      "query_id": 27,
+      "category": "Health & Sanitation",
+      "query": "What vitamins are found in green vegetables?",
+      "matched_doc_id": "NCERT_4826",
+      "similarity_score": 0.5173,
+      "matched_topic": "Which vitamin is easily destroyed by heat during cooking?",
+      "explanation": "Vitamin C. It is therefore advised to include fresh fruits and raw vegetables in our diet.",
+      "latency_seconds": 0.0186
+    },
+    {
+      "query_id": 28,
+      "category": "Health & Sanitation",
+      "query": "How to treat dehydration using oral rehydration salts?",
+      "matched_doc_id": "NCERT_0001",
+      "similarity_score": 0.7259,
+      "matched_topic": "How to treat dehydration using oral rehydration salts?",
+      "explanation": "Dehydration caused by severe diarrhea or vomiting can be treated using Oral Rehydration Solution (ORS). ORS is prepared by mixing a packet of ORS powder (or 6 teaspoons of sugar and half teaspoon of salt) in 1 liter of clean boiled drinking water to restore body fluid and electrolyte balance.",
+      "latency_seconds": 0.0293
+    },
+    {
+      "query_id": 29,
+      "category": "Health & Sanitation",
+      "query": "Why is personal hygiene necessary in rural areas?",
+      "matched_doc_id": "NCERT_0005",
+      "similarity_score": 0.9062,
+      "matched_topic": "Why is personal hygiene necessary in rural areas?",
+      "explanation": "Personal hygiene—including regular bathing, washing hands with soap before meals and after using toilets, and wearing clean clothes—prevents bacterial and parasitic infections, reducing disease transmission in rural communities.",
+      "latency_seconds": 0.0227
+    },
+    {
+      "query_id": 30,
+      "category": "Health & Sanitation",
+      "query": "How to store food safely without refrigeration?",
+      "matched_doc_id": "NCERT_5013",
+      "similarity_score": 0.5067,
+      "matched_topic": "Why are animals considered 'stored food'? (2 Marks)",
+      "explanation": "Animals multiply naturally. If looked after, they provide milk (an important source of food) and meat whenever required, acting as a 'store' of food.",
+      "latency_seconds": 0.0241
+    },
+    {
+      "query_id": 31,
+      "category": "Agriculture & Soil",
+      "query": "What are the different types of soil in India?",
+      "matched_doc_id": "NCERT_6180",
+      "similarity_score": 0.6063,
+      "matched_topic": "Explain the geographical factor 'Soil' in population distribution. (2 Marks)",
+      "explanation": "Fertile soils provide suitable land for agriculture. Densely populated areas like the plains of Ganga and Brahmaputra in India and Hwang-He in China are examples of fertile soil regions.",
+      "latency_seconds": 0.0253
+    },
+    {
+      "query_id": 32,
+      "category": "Agriculture & Soil",
+      "query": "Why is humus good for soil fertility?",
+      "matched_doc_id": "NCERT_3236",
+      "similarity_score": 0.763,
+      "matched_topic": "Short Answer: What is the importance of Humus in soil?",
+      "explanation": "Humus is the organic component of soil, formed by the decomposition of plant and animal matter. It increases soil fertility by providing essential nutrients and improving soil structure.",
+      "latency_seconds": 0.0258
+    },
+    {
+      "query_id": 33,
+      "category": "Agriculture & Soil",
+      "query": "What is crop rotation and why is it beneficial?",
+      "matched_doc_id": "NCERT_5793",
+      "similarity_score": 0.7744,
+      "matched_topic": "Explain 'Crop Rotation' with an example.",
+      "explanation": "Crop rotation involves growing different crops alternately. For example, growing legumes (to replenish nitrogen) in one season and wheat in the next season.",
+      "latency_seconds": 0.0229
+    },
+    {
+      "query_id": 34,
+      "category": "Agriculture & Soil",
+      "query": "How does drip irrigation save water in farming?",
+      "matched_doc_id": "NCERT_2346",
+      "similarity_score": 0.8012,
+      "matched_topic": "How does 'Drip Irrigation' help in water conservation?",
+      "explanation": "Drip or trickle irrigation delivers water directly to the base of the plants through a system of pipes. This minimizes water loss due to evaporation and seepage, making it very effective in dry regions.",
+      "latency_seconds": 0.0231
+    },
+    {
+      "query_id": 35,
+      "category": "Agriculture & Soil",
+      "query": "What is composting and organic fertilizer?",
+      "matched_doc_id": "NCERT_2190",
+      "similarity_score": 0.629,
+      "matched_topic": "How do farmers treat soil that is too basic?",
+      "explanation": "If the soil is too basic, organic matter (compost) is added to it. Organic matter releases acids which neutralise the basic nature of the soil.",
+      "latency_seconds": 0.0224
+    },
+    {
+      "query_id": 36,
+      "category": "Agriculture & Soil",
+      "query": "How do earthworms help in soil aeration?",
+      "matched_doc_id": "NCERT_5874",
+      "similarity_score": 0.6153,
+      "matched_topic": "How does water assist the movement of an earthworm?",
+      "explanation": "Earthworms secrete a slimy substance (mucus) that helps in their movement over the soil.",
+      "latency_seconds": 0.0264
+    },
+    {
+      "query_id": 37,
+      "category": "Agriculture & Soil",
+      "query": "What is soil erosion and how to prevent it?",
+      "matched_doc_id": "NCERT_2179",
+      "similarity_score": 0.6731,
+      "matched_topic": "List two human activities that lead to soil erosion.",
+      "explanation": "Deforestation (cutting of trees) and overgrazing by livestock.",
+      "latency_seconds": 0.0229
+    },
+    {
+      "query_id": 38,
+      "category": "Agriculture & Soil",
+      "query": "What is Kharif and Rabi crop season?",
+      "matched_doc_id": "NCERT_4273",
+      "similarity_score": 0.7439,
+      "matched_topic": "Differentiate between Kharif and Rabi crops with respect to their sowing time.",
+      "explanation": "Kharif Crops: Sown in the rainy season (June to September). Rabi Crops: Sown in the winter season (October to March).",
+      "latency_seconds": 0.0205
+    },
+    {
+      "query_id": 39,
+      "category": "Agriculture & Soil",
+      "query": "Why do leguminous plants fix nitrogen in soil?",
+      "matched_doc_id": "NCERT_2137",
+      "similarity_score": 0.703,
+      "matched_topic": "Why do farmers grow leguminous plants like pulses in rotation with other crops?",
+      "explanation": "Leguminous plants host nitrogen-fixing bacteria that restore soil nitrogen naturally, reducing the need for chemical fertilizers.",
+      "latency_seconds": 0.0255
+    },
+    {
+      "query_id": 40,
+      "category": "Agriculture & Soil",
+      "query": "How does excessive chemical fertilizer damage land?",
+      "matched_doc_id": "NCERT_6036",
+      "similarity_score": 0.6348,
+      "matched_topic": "How do chemical fertilizers and pesticides lead to water pollution and 'Eutrophication'?",
+      "explanation": "Excess fertilizers wash into water bodies, providing nutrients for algae to grow rapidly (Algal Bloom). When algae die, decomposers use up the dissolved oxygen in the water, killing aquatic life. This process is called Eutrophication.",
+      "latency_seconds": 0.0266
+    },
+    {
+      "query_id": 41,
+      "category": "Basic Literacy",
+      "query": "What is the importance of reading and writing for farmers?",
+      "matched_doc_id": "NCERT_0002",
+      "similarity_score": 0.8691,
+      "matched_topic": "What is the importance of reading and writing for farmers?",
+      "explanation": "Basic reading and writing skills empower farmers to read fertilizer and pesticide safety labels, calculate crop production costs, verify bank loan contracts, and check fair market prices for their harvest without depending on middlemen.",
+      "latency_seconds": 0.0245
+    },
+    {
+      "query_id": 42,
+      "category": "Basic Literacy",
+      "query": "What is Gram Panchayat and how does it work?",
+      "matched_doc_id": "NCERT_3387",
+      "similarity_score": 0.7532,
+      "matched_topic": "Distinguish between the Gram Sabha and the Gram Panchayat.",
+      "explanation": "The Gram Sabha is a general body consisting of all voters in the village, while the Gram Panchayat is the elected executive body that carries out administration.",
+      "latency_seconds": 0.0293
+    },
+    {
+      "query_id": 43,
+      "category": "Basic Literacy",
+      "query": "What are the fundamental rights of Indian citizens?",
+      "matched_doc_id": "NCERT_6149",
+      "similarity_score": 0.7477,
+      "matched_topic": "Describe the different Fundamental Rights guaranteed by the Indian Constitution. (5 Marks)",
+      "explanation": "1. Right to Equality: Equality before law and prohibition of discrimination.\n2. Right to Freedom: Includes freedom of speech, assembly, and movement.\n3. Right against Exploitation: Prohibits forced labor and child labor.\n4. Right to Freedom of Religion: Freedom to practice any religion.\n5. Cultural and Educational Rights: Protects the rights of minorities to preserve their culture.\n6. Right to Constitutional Remedies: Right to approach courts for protection of rights.",
+      "latency_seconds": 0.0236
+    },
+    {
+      "query_id": 44,
+      "category": "Basic Literacy",
+      "query": "Why is solar energy important for rural villages?",
+      "matched_doc_id": "NCERT_4766",
+      "similarity_score": 0.6593,
+      "matched_topic": "Why is the provision of electricity important for rural development?",
+      "explanation": "Electricity powers irrigation pumps for farmers, provides light for students to study at night, and enables small-scale industries.",
+      "latency_seconds": 0.0224
+    },
+    {
+      "query_id": 45,
+      "category": "Basic Literacy",
+      "query": "How does rainwater harvesting help in dry areas?",
+      "matched_doc_id": "NCERT_6440",
+      "similarity_score": 0.654,
+      "matched_topic": "What is 'Rainwater Harvesting'? Mention its primary objective.",
+      "explanation": "Rainwater harvesting is the technique of collecting and storing rainwater for future use. Its primary objective is to recharge groundwater and prevent water wastage via runoff.",
+      "latency_seconds": 0.0237
+    },
+    {
+      "query_id": 46,
+      "category": "Basic Literacy",
+      "query": "What is the role of bank accounts in government schemes?",
+      "matched_doc_id": "NCERT_4738",
+      "similarity_score": 0.5177,
+      "matched_topic": "How do banks help people in urban livelihoods? (2 Marks)",
+      "explanation": "Banks provide loans to people to start their own businesses (like opening a shop) and provide a safe place for employees to save their salaries.",
+      "latency_seconds": 0.025
+    },
+    {
+      "query_id": 47,
+      "category": "Basic Literacy",
+      "query": "Why is girl child education essential for village development?",
+      "matched_doc_id": "NCERT_4429",
+      "similarity_score": 0.6331,
+      "matched_topic": "Competency-based: Why is the girl child’s education often affected in poor rural households like Thulasi’s?",
+      "explanation": "Due to poverty, children (especially girls) are often kept at home to look after siblings, help with household chores, or work in fields to increase family income.",
+      "latency_seconds": 0.0229
+    },
+    {
+      "query_id": 48,
+      "category": "Basic Literacy",
+      "query": "What is deforestation and how does it impact climate?",
+      "matched_doc_id": "NCERT_3031",
+      "similarity_score": 0.6843,
+      "matched_topic": "Explain the relationship between deforestation and the water cycle. (5 Marks)",
+      "explanation": "1. Transpiration: Trees take up groundwater and release it as vapor. Without trees, this process stops.\n2. Cloud Formation: Reduced vapor leads to less cloud formation.\n3. Rainfall: This results in decreased rainfall, which can cause droughts.\n4. Groundwater: Less rainfall and lower infiltration rates lead to a depletion of the groundwater table.\n5. Climate: The overall humidity and temperature balance of the region is disturbed.",
+      "latency_seconds": 0.0232
+    },
+    {
+      "query_id": 49,
+      "category": "Basic Literacy",
+      "query": "How does digital literacy help farmers check market prices?",
+      "matched_doc_id": "NCERT_0003",
+      "similarity_score": 0.8164,
+      "matched_topic": "How does digital literacy help farmers check market prices?",
+      "explanation": "Digital literacy allows farmers to use smartphones and government portals like e-NAM (National Agriculture Market) to check live crop mandis prices, weather forecasts, and direct benefit transfer (DBT) scheme payouts directly on their phones.",
+      "latency_seconds": 0.0235
+    },
+    {
+      "query_id": 50,
+      "category": "Basic Literacy",
+      "query": "What are renewable energy sources like wind and solar?",
+      "matched_doc_id": "NCERT_1700",
+      "similarity_score": 0.703,
+      "matched_topic": "Give two examples of Non-Conventional sources of energy.",
+      "explanation": "Solar energy and Wind energy.",
+      "latency_seconds": 0.0221
+    }
+  ]
+}
