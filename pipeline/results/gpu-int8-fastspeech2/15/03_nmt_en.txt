@@ -1,0 +1,5 @@
+HINDI IN:
+बैगन के पत्ता पर कीड़ा लग रहा है उसका उपाय होते है
+
+ENGLISH OUT (what the RAG sees):
+There is a remedy for the bug on the bay leaf.

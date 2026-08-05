@@ -1,0 +1,14 @@
+{
+  "query_english": "What to do if a potato is infected with jolsa?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: potato",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/potato-leafroll-virus",
+  "condition": "Potato leafroll and mosaic viruses",
+  "label_ids": [],
+  "confidence": 0.7257403415484501,
+  "trust_tier": "unverified",
+  "runner_up": "Potato late blight",
+  "treatments": [],
+  "spoken_text": "This could be Potato leafroll and mosaic viruses or Potato late blight. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

@@ -1,0 +1,5 @@
+HINDI IN:
+इसको ऐसे
+
+ENGLISH OUT (what the RAG sees):
+This is how it

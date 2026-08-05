@@ -1,0 +1,56 @@
+{
+  "id": 2,
+  "category": "open_ended_vague",
+  "peak_mb": 2176,
+  "peak_anon": 1771,
+  "peak_gpu": 405,
+  "wall_s": 21.79,
+  "wer": 66.7,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "भिन्दी में कौन सा रोग लाग था",
+  "english": "What disease did Bhindi contract?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.97,
+      "anon": 1771,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.25,
+      "anon": 771,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.38,
+      "anon": 642,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.59,
+      "anon": 892,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 9.6,
+      "anon": 1090,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

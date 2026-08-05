@@ -1,0 +1,510 @@
+{
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "tts": "fastspeech2",
+  "disk_mb": {
+    "asr_int8_mb": 3274.6,
+    "nmt_mb": 753.7,
+    "tts_fastspeech2_mb": 1537.2,
+    "rag_bundle_mb": 0.6,
+    "rag_index_mb": 2.4,
+    "total_mb": 5568.5
+  },
+  "model_load_seconds": 13.18,
+  "gpu_peak_mb": 4659,
+  "host_peak_rss_mb": 5465.4,
+  "snapshots": {
+    "00_baseline_before_any_model": {
+      "gpu_used_mb": 15,
+      "torch_alloc_mb": null,
+      "torch_peak_mb": null,
+      "host_rss_mb": 20.3
+    },
+    "01_after_asr_and_nmt_loaded": {
+      "gpu_used_mb": 1545,
+      "torch_alloc_mb": 0.1,
+      "torch_peak_mb": 0.1,
+      "host_rss_mb": 1974.8
+    },
+    "case01_asr": {
+      "gpu_used_mb": 1703,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 32.9,
+      "host_rss_mb": 3044.4
+    },
+    "case01_tts": {
+      "gpu_used_mb": 3941,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1207.2,
+      "host_rss_mb": 5090.8
+    },
+    "case02_asr": {
+      "gpu_used_mb": 3941,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.5,
+      "host_rss_mb": 5105.6
+    },
+    "case02_tts": {
+      "gpu_used_mb": 3941,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 451.9,
+      "host_rss_mb": 5209.5
+    },
+    "case03_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 89.4,
+      "host_rss_mb": 5209.5
+    },
+    "case03_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 370.2,
+      "host_rss_mb": 5212.4
+    },
+    "case04_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.5,
+      "host_rss_mb": 5212.4
+    },
+    "case04_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 442.5,
+      "host_rss_mb": 5240.0
+    },
+    "case05_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 92.9,
+      "host_rss_mb": 5240.0
+    },
+    "case05_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1207.2,
+      "host_rss_mb": 5275.9
+    },
+    "case06_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.4,
+      "host_rss_mb": 5275.9
+    },
+    "case06_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 468.4,
+      "host_rss_mb": 5276.6
+    },
+    "case07_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.5,
+      "host_rss_mb": 5276.6
+    },
+    "case07_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 481.5,
+      "host_rss_mb": 5277.8
+    },
+    "case08_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 103.3,
+      "host_rss_mb": 5277.8
+    },
+    "case08_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 888.2,
+      "host_rss_mb": 5320.2
+    },
+    "case09_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 89.0,
+      "host_rss_mb": 5320.2
+    },
+    "case09_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 370.2,
+      "host_rss_mb": 5321.7
+    },
+    "case10_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.4,
+      "host_rss_mb": 5321.7
+    },
+    "case10_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 886.7,
+      "host_rss_mb": 5328.6
+    },
+    "case11_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.0,
+      "host_rss_mb": 5328.6
+    },
+    "case11_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1002.1,
+      "host_rss_mb": 5363.6
+    },
+    "case12_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.4,
+      "host_rss_mb": 5363.6
+    },
+    "case12_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 459.2,
+      "host_rss_mb": 5365.2
+    },
+    "case13_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.5,
+      "host_rss_mb": 5365.4
+    },
+    "case13_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1002.1,
+      "host_rss_mb": 5367.4
+    },
+    "case14_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.5,
+      "host_rss_mb": 5367.4
+    },
+    "case14_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 458.1,
+      "host_rss_mb": 5367.6
+    },
+    "case15_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.9,
+      "host_rss_mb": 5367.6
+    },
+    "case15_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 459.7,
+      "host_rss_mb": 5368.8
+    },
+    "case16_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 92.7,
+      "host_rss_mb": 5368.8
+    },
+    "case16_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 679.4,
+      "host_rss_mb": 5376.2
+    },
+    "case17_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.3,
+      "host_rss_mb": 5376.2
+    },
+    "case17_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 432.5,
+      "host_rss_mb": 5378.4
+    },
+    "case18_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 95.3,
+      "host_rss_mb": 5378.4
+    },
+    "case18_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 462.8,
+      "host_rss_mb": 5379.8
+    },
+    "case19_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.3,
+      "host_rss_mb": 5379.8
+    },
+    "case19_tts": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 433.7,
+      "host_rss_mb": 5381.6
+    },
+    "case20_asr": {
+      "gpu_used_mb": 3943,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 87.9,
+      "host_rss_mb": 5381.6
+    },
+    "case20_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1321.1,
+      "host_rss_mb": 5381.6
+    },
+    "case21_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 91.5,
+      "host_rss_mb": 5381.6
+    },
+    "case21_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 454.4,
+      "host_rss_mb": 5381.6
+    },
+    "case22_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.7,
+      "host_rss_mb": 5381.6
+    },
+    "case22_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 966.5,
+      "host_rss_mb": 5431.5
+    },
+    "case23_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 87.7,
+      "host_rss_mb": 5431.5
+    },
+    "case23_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 720.6,
+      "host_rss_mb": 5433.0
+    },
+    "case24_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.3,
+      "host_rss_mb": 5433.0
+    },
+    "case24_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 505.3,
+      "host_rss_mb": 5434.9
+    },
+    "case25_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.8,
+      "host_rss_mb": 5434.9
+    },
+    "case25_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 498.9,
+      "host_rss_mb": 5436.8
+    },
+    "case26_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.1,
+      "host_rss_mb": 5436.8
+    },
+    "case26_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1002.1,
+      "host_rss_mb": 5436.8
+    },
+    "case27_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.7,
+      "host_rss_mb": 5436.8
+    },
+    "case27_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 498.9,
+      "host_rss_mb": 5436.8
+    },
+    "case28_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.6,
+      "host_rss_mb": 5436.8
+    },
+    "case28_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 720.6,
+      "host_rss_mb": 5436.8
+    },
+    "case29_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 87.6,
+      "host_rss_mb": 5436.8
+    },
+    "case29_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 370.2,
+      "host_rss_mb": 5436.8
+    },
+    "case30_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.4,
+      "host_rss_mb": 5436.8
+    },
+    "case30_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 468.4,
+      "host_rss_mb": 5436.8
+    },
+    "case31_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 94.2,
+      "host_rss_mb": 5436.8
+    },
+    "case31_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 432.5,
+      "host_rss_mb": 5436.8
+    },
+    "case32_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 92.7,
+      "host_rss_mb": 5436.8
+    },
+    "case32_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 510.9,
+      "host_rss_mb": 5436.8
+    },
+    "case33_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 92.6,
+      "host_rss_mb": 5436.8
+    },
+    "case33_tts": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 679.4,
+      "host_rss_mb": 5436.8
+    },
+    "case34_asr": {
+      "gpu_used_mb": 4463,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.8,
+      "host_rss_mb": 5436.8
+    },
+    "case34_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1228.6,
+      "host_rss_mb": 5436.8
+    },
+    "case35_asr": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 95.9,
+      "host_rss_mb": 5436.8
+    },
+    "case35_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 750.4,
+      "host_rss_mb": 5439.3
+    },
+    "case36_asr": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.5,
+      "host_rss_mb": 5439.3
+    },
+    "case36_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 725.5,
+      "host_rss_mb": 5441.2
+    },
+    "case37_asr": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 90.5,
+      "host_rss_mb": 5441.2
+    },
+    "case37_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 432.5,
+      "host_rss_mb": 5442.3
+    },
+    "case38_asr": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.0,
+      "host_rss_mb": 5442.3
+    },
+    "case38_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 1109.7,
+      "host_rss_mb": 5463.9
+    },
+    "case39_asr": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 88.1,
+      "host_rss_mb": 5463.9
+    },
+    "case39_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 432.5,
+      "host_rss_mb": 5465.4
+    },
+    "case40_asr": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 86.9,
+      "host_rss_mb": 5465.4
+    },
+    "case40_tts": {
+      "gpu_used_mb": 4659,
+      "torch_alloc_mb": 85.4,
+      "torch_peak_mb": 380.1,
+      "host_rss_mb": 5465.4
+    }
+  }
+}

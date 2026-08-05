@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूं में जिंक की आवश्यकता है
+
+ENGLISH OUT (what the RAG sees):
+Zinc is needed in wheat.

@@ -1,0 +1,14 @@
+{
+  "query_english": "Wheat is turning yellow which fertilizer is needed",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: wheat",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/wheat-yellow-rust",
+  "condition": "Wheat yellow rust",
+  "label_ids": [],
+  "confidence": 0.8218250367045401,
+  "trust_tier": "unverified",
+  "runner_up": "Wheat interveinal chlorosis (iron or manganese)",
+  "treatments": [],
+  "spoken_text": "This could be Wheat yellow rust, which is a disease, or it could be Wheat interveinal chlorosis (iron or manganese), which means the soil is short of food. The treatment is completely different, and a spray will not fix a shortage in the soil. Please show the plant to your nearest Krishi Vigyan Kendra before buying anything."
+}

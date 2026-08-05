@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+भिंडी में कौन से रोग लगता?
+
+ASR HEARD (int8):
+भिन्दी में कौन सा रोग लागा था
+
+WER 66.7%   CER 32.0%   0.21s

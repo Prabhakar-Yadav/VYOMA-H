@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूं में पीला पड़ रहा है कौनसी खाद चाहिए
+
+ENGLISH OUT (what the RAG sees):
+Wheat is turning yellow which fertilizer is needed

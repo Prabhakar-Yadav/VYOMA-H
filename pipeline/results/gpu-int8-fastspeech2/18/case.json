@@ -1,0 +1,40 @@
+{
+  "id": 18,
+  "category": "open_ended_vague",
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "reference_hindi": "बैगन में तनाछेदक पर चरचा।",
+  "expect": "too little information; ask for detail or refuse honestly",
+  "must_not": "must not guess a disease and prescribe",
+  "audio_seconds": 17.55,
+  "t_asr": 0.23,
+  "res_after_asr": {
+    "gpu_used_mb": 3943,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 95.3,
+    "host_rss_mb": 5378.4
+  },
+  "asr_text": "भागन बीताना छोटा छोटा",
+  "asr_wer": 100.0,
+  "asr_cer": 70.8,
+  "t_nmt_in": 0.19,
+  "english": "little bit of running",
+  "t_rag": 0.01,
+  "route": "grounded_general",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/sugarcane-early-shoot-borer",
+  "label_ids": [],
+  "answer_en": "This could be Sugarcane early shoot borer or Brinjal little leaf. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.5189800822511476,
+  "t_nmt_out": 0.19,
+  "answer_native": "यह गन्ना प्रारंभिक अंकुर छेदक या बैंगन का छोटा पत्ता हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 0.35,
+  "res_after_tts": {
+    "gpu_used_mb": 3943,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 462.8,
+    "host_rss_mb": 5379.8
+  },
+  "tts_audio_seconds": 10.19,
+  "status": "ok"
+}

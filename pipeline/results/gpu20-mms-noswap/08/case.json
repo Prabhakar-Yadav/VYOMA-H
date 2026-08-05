@@ -1,0 +1,43 @@
+{
+  "id": 8,
+  "category": "open_ended_vague",
+  "config": "gpu20-mms-noswap",
+  "asr_variant": "int8",
+  "reference_hindi": "मक्का की कौन सी वैरायटी हैं ? मक्का में लगने वाले रोगो का नाम ?",
+  "expect": "too little information; ask for detail or refuse honestly",
+  "must_not": "must not guess a disease and prescribe",
+  "audio_seconds": 29.19,
+  "t_asr": 1.99,
+  "res_after_asr": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 187.8,
+    "host_rss_mb": 4484.6
+  },
+  "asr_text": "मक्का की कौनसी वेराइटी मक्का में लगने वाले रोगों का नाम",
+  "asr_wer": 38.5,
+  "asr_cer": 13.6,
+  "t_nmt_in": 0.3,
+  "english": "Which variety of maize is known to cause diseases in maize?",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "GROUNDED",
+  "condition": "/diseases/maize-fall-armyworm",
+  "label_ids": [
+    "CIBRC-EMAM-5SG-MAIZE-001",
+    "CIBRC-CHLO-18SC-MAIZE-001"
+  ],
+  "answer_en": "Your crop has Maize fall armyworm. Use Emamectin benzoate 5% SG (sold as Proclaim). Mix 0.4 g in one litre of water. For one acre, use 80 g in 200 L of water. Do not harvest for 7 days after applying. The label has a yellow triangle. Cover your mouth and hands. Do not spray against the wind.",
+  "confidence": 0.6112554144962379,
+  "t_nmt_out": 0.38,
+  "answer_native": "आपकी फसल में मक्का फॉल आर्मीवर्म है। इमामेक्टिन बेंजोएट 5 प्रतिशत एस. जी. (घोषणा के रूप में बेचा जाता है) का उपयोग करें। एक लीटर पानी में 0.40 ग्राम मिलाएँ। एक एकड़ के लिए, 200 लीटर पानी में 80 ग्राम का उपयोग करें। लगाने के बाद 7 दिनों तक फसल न काटें। लेबल में एक पीला त्रिकोण है। अपने मुँह और हाथों को ढक लें। हवा के खिलाफ छिड़काव न करें।",
+  "t_tts": 0.1,
+  "res_after_tts": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 533.4,
+    "host_rss_mb": 4493.4
+  },
+  "tts_audio_seconds": 24.74,
+  "status": "ok"
+}

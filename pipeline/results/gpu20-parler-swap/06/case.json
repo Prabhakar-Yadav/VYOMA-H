@@ -1,0 +1,46 @@
+{
+  "id": 6,
+  "category": "open_ended_vague",
+  "config": "gpu20-parler-swap",
+  "asr_variant": "int8",
+  "reference_hindi": "गेहूं की खेती में कौन सा गेहूं रोग लगता है?",
+  "expect": "too little information; ask for detail or refuse honestly",
+  "must_not": "must not guess a disease and prescribe",
+  "audio_seconds": 9.19,
+  "t_asr": 0.31,
+  "res_after_asr": {
+    "gpu_used_mb": 1397,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 37.2,
+    "host_rss_mb": 5019.5
+  },
+  "asr_text": "गेहूं की खेती में कौन सा गेहूँ रोग लगता है ये तो बहुत",
+  "asr_wer": 40.0,
+  "asr_cer": 28.6,
+  "t_nmt_in": 0.99,
+  "english": "Which wheat disease is found in wheat cultivation?",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition": "/deficiencies/wheat-boron-deficiency",
+  "label_ids": [],
+  "answer_en": "This looks like Wheat boron deficiency. I do not have a verified treatment for it. Please ask your Krishi Vigyan Kendra before spraying anything.",
+  "confidence": 0.8371471413969993,
+  "t_nmt_out": 0.16,
+  "answer_native": "ऐसा लगता है कि गेहूं बोरान की कमी है। मेरे पास इसका कोई सत्यापित उपचार नहीं है। कृपया किसी भी चीज का छिड़काव करने से पहले अपने कृषि विज्ञान केंद्र से पूछें।",
+  "t_tts": 12.0,
+  "res_after_tts": {
+    "gpu_used_mb": 3687,
+    "torch_alloc_mb": 855.2,
+    "torch_peak_mb": 1729.3,
+    "host_rss_mb": 5019.5
+  },
+  "res_after_tts_unload": {
+    "gpu_used_mb": 1375,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 1729.3,
+    "host_rss_mb": 5019.5
+  },
+  "tts_audio_seconds": 15.26,
+  "status": "ok"
+}

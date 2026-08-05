@@ -1,0 +1,40 @@
+{
+  "id": 3,
+  "category": "covered_crop_disease",
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू में झुलसा रोग का क्या उपाय है?",
+  "expect": "diagnose or name the condition; a dose only if a CIB&RC record exists",
+  "must_not": "must not invent a dose or name a product with no label record",
+  "audio_seconds": 7.25,
+  "t_asr": 0.25,
+  "res_after_asr": {
+    "gpu_used_mb": 3943,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 89.4,
+    "host_rss_mb": 5209.5
+  },
+  "asr_text": "आलू में झुलसा रोग का क्या उपाय है उपाय",
+  "asr_wer": 12.5,
+  "asr_cer": 15.2,
+  "t_nmt_in": 0.21,
+  "english": "What is the cure for scabies in potatoes?",
+  "t_rag": 0.01,
+  "route": "model_may_answer",
+  "outcome": "OUT_OF_SCOPE",
+  "condition": null,
+  "label_ids": [],
+  "answer_en": "(model may answer this directly)",
+  "confidence": 0.0,
+  "t_nmt_out": 0.12,
+  "answer_native": "(मॉडल इसका सीधा जवाब दे सकता है)",
+  "t_tts": 0.27,
+  "res_after_tts": {
+    "gpu_used_mb": 3943,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 370.2,
+    "host_rss_mb": 5212.4
+  },
+  "tts_audio_seconds": 2.5,
+  "status": "ok"
+}

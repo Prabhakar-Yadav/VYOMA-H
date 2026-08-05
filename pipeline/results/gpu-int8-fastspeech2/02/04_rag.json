@@ -1,0 +1,14 @@
+{
+  "query_english": "What disease did Bhindi suffer from?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: okra",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/okra-jassid",
+  "condition": "Okra jassid hopper burn",
+  "label_ids": [],
+  "confidence": 0.5627432772517204,
+  "trust_tier": "unverified",
+  "runner_up": "Okra yellow vein mosaic",
+  "treatments": [],
+  "spoken_text": "This could be Okra jassid hopper burn or Okra yellow vein mosaic. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

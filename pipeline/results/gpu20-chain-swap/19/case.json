@@ -1,0 +1,56 @@
+{
+  "id": 19,
+  "category": "pest_insect",
+  "peak_mb": 2162,
+  "peak_anon": 1757,
+  "peak_gpu": 405,
+  "wall_s": 19.04,
+  "wer": 11.1,
+  "outcome": "abstained_ambiguous",
+  "label_ids": [],
+  "heard": "आम के पेड़ में कीड़ा क्यों लग जाता है",
+  "english": "Why does a mango tree get a pest?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.58,
+      "anon": 1757,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.23,
+      "anon": 771,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.51,
+      "anon": 746,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.35,
+      "anon": 802,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 7.37,
+      "anon": 781,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

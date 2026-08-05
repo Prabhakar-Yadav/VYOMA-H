@@ -1,0 +1,56 @@
+{
+  "id": 14,
+  "category": "covered_crop_disease",
+  "peak_mb": 2161,
+  "peak_anon": 1758,
+  "peak_gpu": 403,
+  "wall_s": 17.25,
+  "wer": 33.3,
+  "outcome": "abstained_ambiguous",
+  "label_ids": [],
+  "heard": "आलू के झुलसा रोक के दवा",
+  "english": "Potato peel medicine",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.58,
+      "anon": 1758,
+      "gpu": 403,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.24,
+      "anon": 770,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.38,
+      "anon": 749,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.34,
+      "anon": 800,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.71,
+      "anon": 803,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

@@ -1,0 +1,5 @@
+HINDI IN:
+आलू मुरछरा इसमें कौन खाद्य दिया जाए
+
+ENGLISH OUT (what the RAG sees):
+what food should be served with potato chutney

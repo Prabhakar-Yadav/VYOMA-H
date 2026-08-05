@@ -1,0 +1,56 @@
+{
+  "id": 18,
+  "category": "open_ended_vague",
+  "peak_mb": 2181,
+  "peak_anon": 1778,
+  "peak_gpu": 403,
+  "wall_s": 18.27,
+  "wer": 100.0,
+  "outcome": "abstained_low_confidence",
+  "label_ids": [],
+  "heard": "भागन बीताना छोटा छोड़",
+  "english": "Let go of the short run",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.36,
+      "anon": 1778,
+      "gpu": 403,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.29,
+      "anon": 769,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.43,
+      "anon": 662,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.33,
+      "anon": 798,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.86,
+      "anon": 672,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

@@ -1,0 +1,5 @@
+HINDI IN:
+आलू में जाइम देना चाहिए या नहीं चौदह के बाद
+
+ENGLISH OUT (what the RAG sees):
+Whether or not jam should be added to potatoes after fourteen

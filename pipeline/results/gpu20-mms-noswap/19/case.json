@@ -1,0 +1,40 @@
+{
+  "id": 19,
+  "category": "pest_insect",
+  "config": "gpu20-mms-noswap",
+  "asr_variant": "int8",
+  "reference_hindi": "आम के पेड़ में कीड़ा क्यों लग जाता है?",
+  "expect": "identify the pest or ask for detail; dose only from a label record",
+  "must_not": "must not give a fungicide for an insect",
+  "audio_seconds": 5.11,
+  "t_asr": 0.71,
+  "res_after_asr": {
+    "gpu_used_mb": 2467,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 174.6,
+    "host_rss_mb": 4542.7
+  },
+  "asr_text": "आम के पेड़ में कीड़ा क्यों लग जाता है",
+  "asr_wer": 0.0,
+  "asr_cer": 0.0,
+  "t_nmt_in": 0.62,
+  "english": "Why does a mango tree get a pest?",
+  "t_rag": 0.01,
+  "route": "guideline_lookup",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/mango-hopper",
+  "label_ids": [],
+  "answer_en": "This could be Mango hopper or Mango anthracnose. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.6651920671274588,
+  "t_nmt_out": 0.17,
+  "answer_native": "यह मैंगो हॉपर या मैंगो एंथ्रैक्नोज़ हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 0.05,
+  "res_after_tts": {
+    "gpu_used_mb": 2467,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 338.6,
+    "host_rss_mb": 4542.7
+  },
+  "tts_audio_seconds": 11.66,
+  "status": "ok"
+}

@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+आलू में झुलसा रोग लगा है, क्या करें?
+
+ASR HEARD (int8):
+आलू में झोलसा रोग लगा है क्या कर
+
+WER 25.0%   CER 8.8%   0.14s

@@ -1,0 +1,14 @@
+{
+  "query_english": "There is yellowing on the wheat. Who is special?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: wheat",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/deficiencies/wheat-iron-manganese-chlorosis",
+  "condition": "Wheat interveinal chlorosis (iron or manganese)",
+  "label_ids": [],
+  "confidence": 0.7572670325636863,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Wheat interveinal chlorosis (iron or manganese). I do not have a verified treatment for it. Please ask your Krishi Vigyan Kendra before spraying anything."
+}

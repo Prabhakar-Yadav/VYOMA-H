@@ -1,0 +1,14 @@
+{
+  "query_english": "Which fertilizers should be given at the time of sowing an acre of wheat?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: wheat",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/wheat-loose-smut",
+  "condition": "Wheat and barley loose smut",
+  "label_ids": [],
+  "confidence": 0.6413936390459628,
+  "trust_tier": "unverified",
+  "runner_up": "Wheat interveinal chlorosis (iron or manganese)",
+  "treatments": [],
+  "spoken_text": "This could be Wheat and barley loose smut, which is a disease, or it could be Wheat interveinal chlorosis (iron or manganese), which means the soil is short of food. The treatment is completely different, and a spray will not fix a shortage in the soil. Please show the plant to your nearest Krishi Vigyan Kendra before buying anything."
+}

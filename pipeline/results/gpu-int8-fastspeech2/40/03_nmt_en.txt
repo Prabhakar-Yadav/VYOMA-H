@@ -1,0 +1,5 @@
+HINDI IN:
+चाय के पौधे में कोकरा लग गया उस कोकर बदले में
+
+ENGLISH OUT (what the RAG sees):
+The tea plant was infested with cocoa in return.

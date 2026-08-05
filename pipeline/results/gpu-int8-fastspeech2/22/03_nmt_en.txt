@@ -1,0 +1,5 @@
+HINDI IN:
+टमाटर की फसल में कीटों से बचने के उपाय
+
+ENGLISH OUT (what the RAG sees):
+Ways to avoid pests in the tomato crop

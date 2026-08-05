@@ -1,0 +1,5 @@
+HINDI IN:
+आलू फसल में हूसब के लिए कौन सी जगह है
+
+ENGLISH OUT (what the RAG sees):
+What is the place for husks in the potato crop?

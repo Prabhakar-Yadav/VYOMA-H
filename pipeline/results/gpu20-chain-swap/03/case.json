@@ -1,0 +1,56 @@
+{
+  "id": 3,
+  "category": "covered_crop_disease",
+  "peak_mb": 2168,
+  "peak_anon": 1765,
+  "peak_gpu": 403,
+  "wall_s": 15.9,
+  "wer": 25.0,
+  "outcome": "out_of_scope_topic",
+  "label_ids": [],
+  "heard": "आलू में झुलसा रोग का क्या उपाय है उपाय",
+  "english": "What is the cure for scabies in potatoes?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.92,
+      "anon": 1765,
+      "gpu": 403,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.24,
+      "anon": 772,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 0.28,
+      "anon": 23,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.26,
+      "anon": 775,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.2,
+      "anon": 538,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

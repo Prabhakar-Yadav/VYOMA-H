@@ -1,0 +1,40 @@
+{
+  "id": 1,
+  "category": "covered_crop_disease",
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू में झुलसा रोग पर कौन सा दवा का प्रयोग करें?",
+  "expect": "diagnose or name the condition; a dose only if a CIB&RC record exists",
+  "must_not": "must not invent a dose or name a product with no label record",
+  "audio_seconds": 4.19,
+  "t_asr": 0.76,
+  "res_after_asr": {
+    "gpu_used_mb": 1703,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 32.9,
+    "host_rss_mb": 3044.4
+  },
+  "asr_text": "आलू में झूसा रोग पर कौन सा दवा का प्रयोग करें",
+  "asr_wer": 9.1,
+  "asr_cer": 4.3,
+  "t_nmt_in": 0.31,
+  "english": "Which medicine to use for Zoosa in potatoes?",
+  "t_rag": 0.72,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition": "/diseases/potato-leafroll-virus",
+  "label_ids": [],
+  "answer_en": "This looks like Potato leafroll and mosaic viruses. I do not have a verified medicine to give you for it, so please do not spray anything on guesswork. There are things you can do today. 1. Plant certified virus-free seed. This is the single decisive measure. 2. Follow the seed plot technique: raise the seed crop in the low-aphid winter window and dehaulm before aphid numbers cross the critical threshold. 3. Rogue out symptomatic plants early and repeatedly. For a spray, ask your Krishi Vigyan Kendra.",
+  "confidence": 0.5984508350491523,
+  "t_nmt_out": 0.56,
+  "answer_native": "यह आलू के पत्ते और मोज़ेक वायरस की तरह दिखता है। मेरे पास इसके लिए आपको देने के लिए कोई सत्यापित दवा नहीं है, इसलिए कृपया अनुमान लगाने पर कुछ भी छिड़काव न करें। कुछ चीज़ें हैं जो आप आज कर सकते हैं। 1. पादप प्रमाणित वायरस मुक्त बीज। यह एकमात्र निर्णायक उपाय है। 2. बीज प्लॉट तकनीक का पालन करेंः एफिड की संख्या महत्वपूर्ण सीमा को पार करने से पहले कम-एफिड सर्दियों की खिड़की में बीज फसल को ऊपर उठाएं और डीहॉल्म करें। 3. लक्षण वाले पौधों को जल्दी और बार-बार निकाल दें। स्प्रे के लिए अपने कृषि विज्ञान केंद्र से पूछें।",
+  "t_tts": 6.66,
+  "res_after_tts": {
+    "gpu_used_mb": 3941,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 1207.2,
+    "host_rss_mb": 5090.8
+  },
+  "tts_audio_seconds": 35.35,
+  "status": "ok"
+}

@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+बैगन पे कीड़ा लगा हैं,  कौन सा दवाई दे?
+
+ASR HEARD (int8):
+बेगन पे कीड़ा लगा कौन सौ दौदे
+
+WER 55.6%   CER 27.8%   0.47s

@@ -1,0 +1,5 @@
+HINDI IN:
+सरसों की खेती के लिए कितना खाद देना चाहिए प्रति कट्ठा
+
+ENGLISH OUT (what the RAG sees):
+How much manure should be given per pot for mustard cultivation?

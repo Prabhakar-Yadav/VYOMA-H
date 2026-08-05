@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+बैगन में तनाछेदक पर चरचा।
+
+ASR HEARD (int8):
+भागन बीताना छोटा छोटा
+
+WER 100.0%   CER 70.8%   1.53s

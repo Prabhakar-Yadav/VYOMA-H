@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+गेहूं में जिंक की क्यों आवश्यकता है?
+
+ASR HEARD (int8):
+गेहूं में जिंक की आवश्यकता है
+
+WER 14.3%   CER 17.1%   0.16s

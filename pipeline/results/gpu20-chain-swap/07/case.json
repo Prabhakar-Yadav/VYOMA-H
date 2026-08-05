@@ -1,0 +1,56 @@
+{
+  "id": 7,
+  "category": "deficiency_khaira",
+  "peak_mb": 2175,
+  "peak_anon": 1770,
+  "peak_gpu": 405,
+  "wall_s": 18.59,
+  "wer": 37.5,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "धान में खरा रोग कर निदान कैसे करें",
+  "english": "How to diagnose a true disease in rice",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.07,
+      "anon": 1770,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.25,
+      "anon": 771,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.4,
+      "anon": 710,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.31,
+      "anon": 803,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 6.56,
+      "anon": 847,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

@@ -1,0 +1,14 @@
+{
+  "query_english": "Medicines for potato scabies",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: potato",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/potato-late-blight",
+  "condition": "Potato late blight",
+  "label_ids": [],
+  "confidence": 0.6415489507496601,
+  "trust_tier": "unverified",
+  "runner_up": "Potato black scurf and stem canker",
+  "treatments": [],
+  "spoken_text": "This could be Potato late blight or Potato black scurf and stem canker. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

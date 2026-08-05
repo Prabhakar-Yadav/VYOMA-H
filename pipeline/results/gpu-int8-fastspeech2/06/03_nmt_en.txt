@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूं की खेती में कौन सा गेहूँ रोग लगता है ये तो बहुत
+
+ENGLISH OUT (what the RAG sees):
+Which wheat disease is found in wheat cultivation?

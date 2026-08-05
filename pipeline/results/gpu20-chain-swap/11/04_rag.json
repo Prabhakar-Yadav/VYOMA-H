@@ -1,0 +1,9 @@
+{
+  "outcome": "grounded",
+  "condition": "/diseases/potato-late-blight",
+  "label_ids": [
+    "CIBRC-CYMO-MANC-POTATO",
+    "CIBRC-MANC-75WP-POTATO"
+  ],
+  "text": "Your crop has Potato late blight. Use Cymoxanil 8% + Mancozeb 64% WP for potato late blight (sold as Curzate M8). Mix 2 to 3 g in one litre of water. For one acre, use 600 g in 200 to 300 L of water. Do not harvest for 10 days after applying. Check the coloured triangle on the container before you use it. Cover your mouth and hands. Do not spray against the wind."
+}

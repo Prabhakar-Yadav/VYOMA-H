@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+गेंहू का गेंहू का पौधा में कितना बार पानी देना चाहिए।
+
+ASR HEARD (int8):
+इसको ऐसे
+
+WER 100.0%   CER 94.2%   0.23s

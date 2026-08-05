@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूँ में पानी ज्यादा रहना पीलापन हो जाता है कैसे ठीक करे
+
+ENGLISH OUT (what the RAG sees):
+Too much water in wheat causes yellowing, here's how to fix it

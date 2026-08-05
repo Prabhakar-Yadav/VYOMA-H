@@ -1,0 +1,59 @@
+{
+  "id": 13,
+  "category": "nutrient_question",
+  "peak_mb": 2176,
+  "peak_anon": 1771,
+  "peak_gpu": 405,
+  "wall_s": 20.58,
+  "wer": 88.9,
+  "outcome": "grounded",
+  "label_ids": [
+    "CIBRC-CYMO-MANC-POTATO",
+    "CIBRC-MANC-75WP-POTATO"
+  ],
+  "heard": "आलू मुरछ कौन खाद्य दिया जाए",
+  "english": "who should feed a potato peel",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.02,
+      "anon": 1771,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.25,
+      "anon": 770,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.4,
+      "anon": 752,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.6,
+      "anon": 873,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 8.31,
+      "anon": 951,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

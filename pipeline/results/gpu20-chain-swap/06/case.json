@@ -1,0 +1,56 @@
+{
+  "id": 6,
+  "category": "open_ended_vague",
+  "peak_mb": 2177,
+  "peak_anon": 1772,
+  "peak_gpu": 405,
+  "wall_s": 17.95,
+  "wer": 50.0,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "गेहूं की खेती में कौन सा गेहूँ रोग लगता है ये तो बहुत",
+  "english": "Which wheat disease is found in wheat cultivation?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.02,
+      "anon": 1772,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.25,
+      "anon": 773,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.43,
+      "anon": 661,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.29,
+      "anon": 802,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.96,
+      "anon": 791,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

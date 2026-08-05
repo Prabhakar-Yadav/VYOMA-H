@@ -1,0 +1,5 @@
+HINDI IN:
+मूली का बीज कितना दिन तक रह सकता है घर में बिना दवा का
+
+ENGLISH OUT (what the RAG sees):
+How long can radish seed last at home without medication?

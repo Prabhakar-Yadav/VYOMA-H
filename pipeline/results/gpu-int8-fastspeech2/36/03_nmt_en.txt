@@ -1,0 +1,5 @@
+HINDI IN:
+एक एकड़ गेहूं बोने के बोते समय कौन कौन सी खाद कितनी मात्रा में देनी चाहिए हो गए बोल देनी
+
+ENGLISH OUT (what the RAG sees):
+Which fertilizers should be given at the time of sowing an acre of wheat?

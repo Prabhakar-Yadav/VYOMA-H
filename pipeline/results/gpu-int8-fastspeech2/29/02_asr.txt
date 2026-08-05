@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+गेहूं में पीलापन होना।
+
+ASR HEARD (int8):
+गेहूँ में पीलापन होना
+
+WER 25.0%   CER 4.8%   0.09s

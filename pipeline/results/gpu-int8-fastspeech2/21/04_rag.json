@@ -1,0 +1,14 @@
+{
+  "query_english": "Tell me which are the medicines for pests in wheat crop.",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: wheat",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/wheat-loose-smut",
+  "condition": "Wheat and barley loose smut",
+  "label_ids": [],
+  "confidence": 0.6139191337788061,
+  "trust_tier": "unverified",
+  "runner_up": "Wheat yellow rust",
+  "treatments": [],
+  "spoken_text": "This could be Wheat and barley loose smut or Wheat yellow rust. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

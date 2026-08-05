@@ -1,0 +1,14 @@
+{
+  "query_english": "How to protect the animal from the cold",
+  "route": "grounded_general",
+  "route_reason": "default: ground it",
+  "outcome": "ABSTAINED_LOW_CONF",
+  "condition_id": "/diseases/wheat-yellow-rust",
+  "condition": "Wheat yellow rust",
+  "label_ids": [],
+  "confidence": 0.4561901062801963,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "I am not sure what this is. Please show this plant to your nearest Krishi Vigyan Kendra. I have saved this photo."
+}

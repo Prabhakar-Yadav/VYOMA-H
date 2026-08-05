@@ -1,0 +1,56 @@
+{
+  "id": 5,
+  "category": "covered_crop_disease",
+  "peak_mb": 2190,
+  "peak_anon": 1785,
+  "peak_gpu": 405,
+  "wall_s": 21.81,
+  "wer": 14.3,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "आलू को झुलसा रोग से कैसे बचाए",
+  "english": "How to protect potatoes from scabies",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.25,
+      "anon": 1785,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.22,
+      "anon": 772,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.44,
+      "anon": 695,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.63,
+      "anon": 886,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 9.27,
+      "anon": 1079,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

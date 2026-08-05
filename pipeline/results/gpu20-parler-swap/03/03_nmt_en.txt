@@ -1,0 +1,5 @@
+HINDI IN:
+आलू में झुलसा रोग का क्या उपाय है उपाय
+
+ENGLISH OUT (what the RAG sees):
+What is the cure for scabies in potatoes?

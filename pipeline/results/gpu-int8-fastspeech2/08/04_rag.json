@@ -1,0 +1,64 @@
+{
+  "query_english": "Which variety of maize is known to cause diseases in maize?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: maize",
+  "outcome": "GROUNDED",
+  "condition_id": "/diseases/maize-fall-armyworm",
+  "condition": "Maize fall armyworm",
+  "label_ids": [
+    "CIBRC-EMAM-5SG-MAIZE-001",
+    "CIBRC-CHLO-18SC-MAIZE-001"
+  ],
+  "confidence": 0.6112554144962379,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [
+    {
+      "label_id": "CIBRC-EMAM-5SG-MAIZE-001",
+      "title": "Emamectin benzoate 5% SG",
+      "molecule": "Emamectin benzoate",
+      "formulation": "5% SG",
+      "trade_names": [
+        "Proclaim",
+        "Missile",
+        "EM-1"
+      ],
+      "dose_per_acre": "80 g",
+      "dilution_per_litre": "0.4 g",
+      "spray_volume_per_acre": "200 L",
+      "phi_days": 7,
+      "registered_crop": "maize",
+      "application_method": null,
+      "dose_per_kg_seed": null,
+      "slurry_water_per_kg_seed": null,
+      "reentry_hours": 24,
+      "toxicity_triangle": "yellow",
+      "max_applications": 2,
+      "trust_tier": "machine-confirmed"
+    },
+    {
+      "label_id": "CIBRC-CHLO-18SC-MAIZE-001",
+      "title": "Chlorantraniliprole 18.5% SC",
+      "molecule": "Chlorantraniliprole",
+      "formulation": "18.5% SC",
+      "trade_names": [
+        "Coragen",
+        "Cover",
+        "Ampligo"
+      ],
+      "dose_per_acre": "60 ml",
+      "dilution_per_litre": "0.3 ml",
+      "spray_volume_per_acre": "200 L",
+      "phi_days": 10,
+      "registered_crop": "maize",
+      "application_method": null,
+      "dose_per_kg_seed": null,
+      "slurry_water_per_kg_seed": null,
+      "reentry_hours": 12,
+      "toxicity_triangle": "blue",
+      "max_applications": 2,
+      "trust_tier": "machine-confirmed"
+    }
+  ],
+  "spoken_text": "Your crop has Maize fall armyworm. Use Emamectin benzoate 5% SG (sold as Proclaim). Mix 0.4 g in one litre of water. For one acre, use 80 g in 200 L of water. Do not harvest for 7 days after applying. The label has a yellow triangle. Cover your mouth and hands. Do not spray against the wind."
+}

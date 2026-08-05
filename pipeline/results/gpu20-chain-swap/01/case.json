@@ -1,0 +1,56 @@
+{
+  "id": 1,
+  "category": "covered_crop_disease",
+  "peak_mb": 2140,
+  "peak_anon": 1755,
+  "peak_gpu": 385,
+  "wall_s": 21.48,
+  "wer": 18.2,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "आलू में झूसा रोग पर कौन सा दवा का प्रयोग करें",
+  "english": "Which medicine to use for Zoosa in potatoes?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 7.04,
+      "anon": 1755,
+      "gpu": 385,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.23,
+      "anon": 773,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.35,
+      "anon": 641,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.6,
+      "anon": 886,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 8.26,
+      "anon": 1159,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

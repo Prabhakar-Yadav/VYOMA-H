@@ -1,0 +1,59 @@
+{
+  "id": 11,
+  "category": "covered_crop_disease",
+  "peak_mb": 2142,
+  "peak_anon": 1757,
+  "peak_gpu": 385,
+  "wall_s": 20.45,
+  "wer": 11.1,
+  "outcome": "grounded",
+  "label_ids": [
+    "CIBRC-CYMO-MANC-POTATO",
+    "CIBRC-MANC-75WP-POTATO"
+  ],
+  "heard": "आलू में झुलसा रोग के दवा का नाम बताइए",
+  "english": "Give the name of the medicine for scabies in potatoes.",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.46,
+      "anon": 1757,
+      "gpu": 385,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.24,
+      "anon": 773,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.37,
+      "anon": 756,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.52,
+      "anon": 873,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 8.86,
+      "anon": 943,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

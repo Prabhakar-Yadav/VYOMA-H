@@ -1,0 +1,5 @@
+HINDI IN:
+चना की खेती बिहार पटना में होती है और कितना डीएपी यूरिया लगता है
+
+ENGLISH OUT (what the RAG sees):
+Gram is cultivated in Bihar Patna and how much DAP urea is required.

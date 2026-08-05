@@ -1,0 +1,40 @@
+{
+  "id": 12,
+  "category": "covered_crop_disease",
+  "config": "gpu20-mms-noswap",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू में झुलसा रोग लगा है, क्या करें?",
+  "expect": "diagnose or name the condition; a dose only if a CIB&RC record exists",
+  "must_not": "must not invent a dose or name a product with no label record",
+  "audio_seconds": 5.49,
+  "t_asr": 0.22,
+  "res_after_asr": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 174.7,
+    "host_rss_mb": 4542.7
+  },
+  "asr_text": "आलू में झोलसा रोग लगा है क्या कर",
+  "asr_wer": 25.0,
+  "asr_cer": 8.8,
+  "t_nmt_in": 0.7,
+  "english": "What to do if a potato is infected with jolsa?",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/potato-leafroll-virus",
+  "label_ids": [],
+  "answer_en": "This could be Potato leafroll and mosaic viruses or Potato late blight. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.7257403415484501,
+  "t_nmt_out": 0.14,
+  "answer_native": "यह आलू के पत्ते और मोज़ेक वायरस या आलू के लेट ब्लाइट हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 0.05,
+  "res_after_tts": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 358.6,
+    "host_rss_mb": 4542.7
+  },
+  "tts_audio_seconds": 13.07,
+  "status": "ok"
+}

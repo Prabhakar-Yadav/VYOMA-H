@@ -1,0 +1,56 @@
+{
+  "id": 4,
+  "category": "covered_crop_disease",
+  "peak_mb": 2175,
+  "peak_anon": 1770,
+  "peak_gpu": 405,
+  "wall_s": 17.32,
+  "wer": 46.2,
+  "outcome": "abstained_ambiguous",
+  "label_ids": [],
+  "heard": "आलू के खेत बहुत मुरछाया हुआ है उसका पत्ता कौन सी भी चाहिए",
+  "english": "The potato field is very dry, which leaf should it be?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.07,
+      "anon": 1770,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.26,
+      "anon": 774,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.43,
+      "anon": 696,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.31,
+      "anon": 800,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.25,
+      "anon": 785,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+आलू को झुलसा रोग से कैसे बचाएं?
+
+ASR HEARD (int8):
+आलू को झुलसा रोग से कैसे बचाए
+
+WER 14.3%   CER 3.3%   1.39s

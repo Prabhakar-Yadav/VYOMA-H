@@ -1,0 +1,56 @@
+{
+  "id": 12,
+  "category": "covered_crop_disease",
+  "peak_mb": 2162,
+  "peak_anon": 1759,
+  "peak_gpu": 403,
+  "wall_s": 17.91,
+  "wer": 37.5,
+  "outcome": "abstained_ambiguous",
+  "label_ids": [],
+  "heard": "आलू में झोलसा रोग लगा है क्या कर",
+  "english": "What to do if a potato is infected with jolsa?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.69,
+      "anon": 1759,
+      "gpu": 403,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.25,
+      "anon": 773,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.47,
+      "anon": 741,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.38,
+      "anon": 803,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 6.12,
+      "anon": 796,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

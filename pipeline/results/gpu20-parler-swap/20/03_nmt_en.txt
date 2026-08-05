@@ -1,0 +1,5 @@
+HINDI IN:
+बेगन पे कीड़ा लगा कौन सौ दौदे
+
+ENGLISH OUT (what the RAG sees):
+who ran a hundred pests on a beacon

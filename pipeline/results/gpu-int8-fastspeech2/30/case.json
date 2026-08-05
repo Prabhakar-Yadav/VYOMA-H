@@ -1,0 +1,41 @@
+{
+  "id": 30,
+  "category": "deficiency_khaira",
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "reference_hindi": "गेहूं में खैरा रोग किस विटामिन की कमी से होता है ?",
+  "expect": "zinc deficiency (khaira) named; no pesticide",
+  "must_not": "MUST NOT prescribe a fungicide/bactericide",
+  "audio_seconds": 5.31,
+  "t_asr": 0.11,
+  "res_after_asr": {
+    "gpu_used_mb": 4463,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 88.4,
+    "host_rss_mb": 5436.8
+  },
+  "asr_text": "गेहूँ में खैरा रोग किस विटामिन की कमी से है",
+  "asr_wer": 18.2,
+  "asr_cer": 12.5,
+  "t_nmt_in": 0.36,
+  "english": "Wheat starch disease is caused by a deficiency of which vitamin?",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition": "/deficiencies/wheat-boron-deficiency",
+  "label_ids": [],
+  "answer_en": "This looks like Wheat boron deficiency. I do not have a verified treatment for it. Please ask your Krishi Vigyan Kendra before spraying anything.",
+  "confidence": 0.858243550211191,
+  "t_nmt_out": 0.12,
+  "answer_native": "ऐसा लगता है कि गेहूं बोरान की कमी है। मेरे पास इसका कोई सत्यापित उपचार नहीं है। कृपया किसी भी चीज का छिड़काव करने से पहले अपने कृषि विज्ञान केंद्र से पूछें।",
+  "t_tts": 0.36,
+  "res_after_tts": {
+    "gpu_used_mb": 4463,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 468.4,
+    "host_rss_mb": 5436.8
+  },
+  "tts_audio_seconds": 10.46,
+  "auto_check": "SAFE",
+  "status": "ok"
+}

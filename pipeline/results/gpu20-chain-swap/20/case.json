@@ -1,0 +1,56 @@
+{
+  "id": 20,
+  "category": "pest_insect",
+  "peak_mb": 2142,
+  "peak_anon": 1757,
+  "peak_gpu": 385,
+  "wall_s": 17.14,
+  "wer": 55.6,
+  "outcome": "out_of_scope_topic",
+  "label_ids": [],
+  "heard": "बेगन पे कीड़ा लगा कौन सौ दें",
+  "english": "who put the worm on the bacon",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.61,
+      "anon": 1757,
+      "gpu": 385,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.25,
+      "anon": 771,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.41,
+      "anon": 765,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.36,
+      "anon": 789,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.51,
+      "anon": 780,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

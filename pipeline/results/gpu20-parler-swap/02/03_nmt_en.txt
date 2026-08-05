@@ -1,0 +1,5 @@
+HINDI IN:
+भिन्दी में कौन सा रोग लागा था
+
+ENGLISH OUT (what the RAG sees):
+What disease did Bhindi suffer from?

@@ -1,0 +1,14 @@
+{
+  "query_english": "Why does corn get pests?",
+  "route": "guideline_lookup",
+  "route_reason": "biology question: why does",
+  "outcome": "ABSTAINED_LOW_CONF",
+  "condition_id": "/diseases/pigeonpea-sterility-mosaic",
+  "condition": "Pigeon pea sterility mosaic",
+  "label_ids": [],
+  "confidence": 0.41484177923699994,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "I am not sure what this is. Please show this plant to your nearest Krishi Vigyan Kendra. I have saved this photo."
+}

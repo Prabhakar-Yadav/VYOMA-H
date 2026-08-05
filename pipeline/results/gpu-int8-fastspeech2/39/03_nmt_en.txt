@@ -1,0 +1,5 @@
+HINDI IN:
+पशु को ठंड से कैसे बचाया जाए
+
+ENGLISH OUT (what the RAG sees):
+How to protect the animal from the cold
