@@ -116,7 +116,7 @@ class HybridRetriever:
         crop: str | None = None,
         concept_types: set[str] | None = None,
         visual_only: bool = False,
-        boost_source: str | None = None,
+        boost_source: str | list[str] | None = None,
         boost_factor: float = 1.15,
     ) -> list[Hit]:
         """Hybrid search with optional pre-filtering and source-type boosting.
@@ -181,7 +181,16 @@ class HybridRetriever:
             relevance[idx] = 0.65 * float(dense_all[idx]) + 0.35 * float(
                 sparse_all[idx] / norm
             )
-            if boost_source and self.chunks[idx].source_type == boost_source:
+            # boost_source may be a list. A crop problem can be an infection OR
+            # a nutrient deficiency, and the two look alike on the leaf, so both
+            # corpora have to compete on equal terms in diagnosis mode. Boosting
+            # only "diseases" made deficiencies unreachable: the device
+            # confidently prescribed copper oxychloride for textbook zinc
+            # deficiency, because the one corpus that could have corrected it
+            # was being suppressed by 15% on every query.
+            if boost_source and self.chunks[idx].source_type in (
+                    (boost_source,) if isinstance(boost_source, str)
+                    else tuple(boost_source)):
                 relevance[idx] *= boost_factor
                 fused[idx] *= boost_factor
 

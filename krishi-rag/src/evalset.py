@@ -114,7 +114,10 @@ ABSTAIN_CASES = [
     # Mango, potato, grape and chilli were removed from this list once they
     # gained verified CIB&RC treatment records — refusing them is no longer the
     # correct behaviour, and a test that demands it is testing a stale premise.
-    ("purple spots on a banana leaf with orange streaks", None),
+    #
+    # Banana left for the same reason on 2026-08-04, when Sigatoka gained
+    # CIBRC-AZOX-DIFE-BANANA. Sugarcane red rot stays: it is described in the
+    # corpus but still carries no verified label record.
     ("red rot lesions on sugarcane stalk", None),
 ]
 

@@ -8,7 +8,8 @@ crop: ginger
 local_names: [नरम गलन, naram galan, कंद सड़न]
 severity_scale: [low, moderate, severe]
 urgency: emergency
-treatments: []
+treatments:
+  - /treatments/metalaxyl-chlorothalonil-ginger.md
 sources:
   - id: iisr
     resource: https://www.indianspices.com/sites/default/files/cultivation_practices-ginger.pdf
@@ -46,9 +47,10 @@ generated: { by: human:prabhakar, at: 2026-07-31T00:00:00Z }
 
 # Treatment
 
-**No verified treatment record has been added for this crop yet.** The device
-names the condition and directs the farmer to their Krishi Vigyan Kendra rather
-than quoting a dose it cannot verify.
+See the linked CIB&RC label record for the registered product, dose and
+waiting period. The device reads those figures straight out of that record
+and never generates them.
+
 
 # Non-chemical measures
 

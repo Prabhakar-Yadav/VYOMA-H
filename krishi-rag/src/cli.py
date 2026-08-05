@@ -210,6 +210,49 @@ def cmd_eval100(args) -> int:
     return evalset100.run(retriever, by_id, verbose=not args.quiet, concepts=concepts)
 
 
+def cmd_evaldef(args) -> int:
+    """The deficiency safety suite.
+
+    Kept as its own command because its pass criterion differs from the others:
+    an UNSAFE row (a pesticide prescribed for a nutrient problem) fails the
+    build, while a VAGUE row (correct refusal, imprecise name) does not. That
+    distinction matters — the property being protected is that a farmer is
+    never sold a chemical for hunger.
+    """
+    import eval_deficiency
+
+    if not INDEX.exists():
+        print(f"No index at {INDEX}. Run: python src/cli.py build", file=sys.stderr)
+        return 1
+    return eval_deficiency.main()
+
+
+def cmd_evalall(args) -> int:
+    """Every suite, one command, one verdict. What to run before shipping."""
+    import eval_deficiency
+    from evalset import run_eval
+    import evalset100
+
+    if not INDEX.exists():
+        print(f"No index at {INDEX}. Run: python src/cli.py build", file=sys.stderr)
+        return 1
+    concepts, by_id = _load_all()
+    retriever = HybridRetriever.load(INDEX)
+
+    rc = 0
+    print("\n" + "#" * 84 + "\n# CORE BEHAVIOUR\n" + "#" * 84)
+    rc |= run_eval(retriever, by_id, verbose=not args.quiet)
+    print("\n" + "#" * 84 + "\n# CLUSTERS, RECALL AND ASR ROBUSTNESS\n" + "#" * 84)
+    rc |= evalset100.run(retriever, by_id, verbose=not args.quiet, concepts=concepts)
+    print("\n" + "#" * 84 + "\n# DEFICIENCY SAFETY\n" + "#" * 84)
+    rc |= eval_deficiency.main()
+
+    print("\n" + "#" * 84)
+    print("# ALL SUITES PASSED" if rc == 0 else "# FAILURES ABOVE — do not ship")
+    print("#" * 84)
+    return rc
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="krishi-rag")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -224,9 +267,17 @@ def main() -> int:
     ask.add_argument("--debug", action="store_true")
     ask.set_defaults(func=cmd_ask)
 
-    ev100 = sub.add_parser("eval100", help="run the 93-case cluster suite")
+    ev100 = sub.add_parser("eval100", help="run the 99-case cluster suite")
     ev100.add_argument("--quiet", action="store_true")
     ev100.set_defaults(func=cmd_eval100)
+
+    sub.add_parser("evaldef",
+                   help="deficiency safety suite (nutrient problems must never "
+                        "be answered with a pesticide)").set_defaults(func=cmd_evaldef)
+
+    evall = sub.add_parser("evalall", help="run every suite; use this before shipping")
+    evall.add_argument("--quiet", action="store_true")
+    evall.set_defaults(func=cmd_evalall)
 
     sub.add_parser("stats", help="bundle overview and integrity check").set_defaults(
         func=cmd_stats

@@ -38,6 +38,14 @@ VISUAL_SECTIONS = {"visual symptoms"}
 # right place to record confusable pairs — they are simply not embedded.
 NON_RETRIEVAL_SECTIONS = {"distinguishing from similar conditions"}
 
+# Matched as a prefix, because the exact-string set above was fragile. A
+# comparison section titled "Distinguishing from wheat yellow rust" did not
+# match, so its rust-heavy contrastive text was embedded into an iron
+# deficiency concept — pulling that concept toward rust queries, which is
+# precisely the failure this exclusion exists to prevent. Any heading that
+# begins this way is contrastive by construction.
+NON_RETRIEVAL_PREFIXES = ("distinguishing from", "telling it apart", "not to be confused")
+
 # Sections that must never be split, because a partial read changes the meaning.
 ATOMIC_SECTIONS = {"dose", "farmer-facing instruction", "safety", "constraints"}
 
@@ -126,7 +134,8 @@ def chunk_concept(concept: Concept) -> list[Chunk]:
 
     for sec in concept.sections:
         heading_key = sec.heading.strip().lower()
-        if heading_key in NON_RETRIEVAL_SECTIONS:
+        if heading_key in NON_RETRIEVAL_SECTIONS or heading_key.startswith(
+                NON_RETRIEVAL_PREFIXES):
             continue
         pieces = (
             [sec.text]

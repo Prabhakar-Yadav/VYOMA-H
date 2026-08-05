@@ -14,6 +14,7 @@ this module, where it has no opportunity to invent a number.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -47,23 +48,6 @@ class Outcome(str, Enum):
 # gate checks the crop. Asking the farmer one clarifying question is strictly
 # better than guessing a pesticide from two words.
 MIN_CONTENT_WORDS = 3
-
-_STOPWORDS = {
-    "a", "an", "the", "is", "are", "was", "were", "be", "been", "am",
-    "my", "me", "i", "we", "our", "your", "it", "its", "this", "that",
-    "these", "those", "there", "here", "some", "any", "and", "or", "but",
-    "in", "on", "at", "of", "to", "for", "with", "from", "by", "as",
-    "has", "have", "had", "do", "does", "did", "can", "will", "would",
-    "should", "not", "no", "very", "so", "if", "what", "which", "how",
-    "photo", "photograph", "picture", "image", "close", "up",
-}
-
-
-def content_words(query: str) -> list[str]:
-    """Tokens that actually carry diagnostic information."""
-    tokens = [t.strip(".,!?;:'\"()").lower() for t in query.split()]
-    return [t for t in tokens if len(t) > 2 and t not in _STOPWORDS]
-
 
 # Thresholds operate on the ABSOLUTE relevance signal from retrieval
 # (0.65 * cosine + 0.35 * normalised BM25), never on the fused RRF score. RRF is
@@ -118,6 +102,135 @@ def content_words(query: str) -> list[str]:
 # separation it was fitted to.
 MIN_RELEVANCE = 0.44
 AMBIGUITY_MARGIN = 0.035    # top-2 closer than this => genuinely confusable
+
+# Asymmetric margin for the disease-vs-deficiency case only. See the gate in
+# build_response for why it is wider than AMBIGUITY_MARGIN and one-directional.
+DEFICIENCY_CONFUSION_MARGIN = 0.11
+
+# --- symptom evidence, derived from the corpus rather than written by hand ---
+#
+# Two of the 40 real recordings still ended in a prescription after the
+# deficiency gate went in, and both failed the same way: a fertiliser question
+# lost the one word that made it a fertiliser question. "आलू में जिंक देना
+# चाहिए या नहीं" (should zinc be given to potato) reached the RAG as "whether
+# or not jam should be added to potatoes"; "कौन-कौन खाद देना चाहिए" (which
+# fertilisers should I give) arrived as "what food is a potato peel". What was
+# left was a crop name and noise, and a crop name alone is enough to rank that
+# crop's commonest disease first and hand over a dose.
+#
+# So a chemical is not handed over unless the farmer actually described
+# something. The test is whether the query uses words the corpus itself uses to
+# describe symptoms.
+#
+# A hand-written list was tried first and thrown away: it broke 12 correct
+# cases, because no list written by hand contains "winding galleries", "bushy
+# broom" or "crackle when pressed". Building the vocabulary from the bundle's
+# own symptom sections fixes that - it already contains every word the corpus
+# uses, and it grows whenever a concept is added.
+MIN_SYMPTOM_EVIDENCE = 2
+
+_SYMPTOM_SECTION_KEYS = ("what you see", "symptom", "signs", "how it looks",
+                         "what it looks like", "damage", "appearance")
+
+
+# Advice that needs no pesticide label.
+#
+# 31 of the 36 conditions that carry no verified treatment record already have
+# a "Non-chemical measures" section written - named resistant varieties,
+# roguing infected plants, sticky traps, weed hosts to clear, and in places a
+# warning that a particular spray makes things worse. All of it is safe to say
+# and none of it is a dose.
+#
+# The device was throwing every word of it away and saying "ask your Krishi
+# Vigyan Kendra" instead. Measured over 40 real recordings, 16 of 40 answers
+# were that bare referral, and it was the single commonest thing the device
+# said. A farmer who is told to pull out infected plants and hang yellow traps
+# can act today; a farmer told to travel to a KVK usually cannot.
+#
+# The safety contract is untouched. This path still returns
+# ABSTAINED_NO_LABEL, still carries no label_id, and still names no chemical -
+# it only speaks guidance the corpus already holds.
+_ADVICE_HEADINGS = ("non-chemical", "cultural", "without a chemical")
+
+# Bullets are trimmed to keep the spoken reply short. Three is about 20 seconds
+# of speech, which is already long for audio with no screen to refer back to.
+MAX_ADVICE_POINTS = 3
+
+
+def non_chemical_advice(concept: Concept) -> list[str]:
+    """Actionable points from a concept's non-chemical section, if it has one."""
+    for sec in concept.sections:
+        if not any(k in (sec.heading or "").lower() for k in _ADVICE_HEADINGS):
+            continue
+        points = []
+        for line in (sec.text or "").splitlines():
+            line = line.strip()
+            if not line.startswith(("-", "*")):
+                continue
+            line = line.lstrip("-* ").strip()
+            # Markdown emphasis and italics are for a screen, not a speaker.
+            line = re.sub(r"[*_`]+", "", line)
+            line = re.sub(r"\s+", " ", line).strip(" .")
+            if line:
+                points.append(line)
+        if points:
+            return points[:MAX_ADVICE_POINTS]
+    return []
+
+
+def build_symptom_vocab(concepts) -> frozenset[str]:
+    """Words the corpus uses to describe what a sick plant looks like.
+
+    Terms confined to a single concept are dropped - those are usually names
+    rather than descriptions. Crop names are dropped too, since naming the crop
+    is exactly what these queries already do.
+    """
+    counts: dict[str, int] = {}
+    crops: set[str] = set()
+    for c in concepts:
+        for cr in (c.frontmatter.get("crops") or []):
+            crops.update(re.findall(r"[a-z]+", str(cr).lower()))
+        for sec in c.sections:
+            head = (sec.heading or "").lower()
+            if not any(k in head for k in _SYMPTOM_SECTION_KEYS):
+                continue
+            for w in re.findall(r"[a-z]+", sec.text.lower()):
+                if len(w) > 2 and w not in _STOPWORDS:
+                    counts[w] = counts.get(w, 0) + 1
+    return frozenset({w for w, n in counts.items() if n >= 2} - crops)
+
+
+def symptom_evidence(query: str, vocab: frozenset[str]) -> int:
+    return len(set(re.findall(r"[a-z]+", query.lower())) & vocab)
+
+
+_VOCAB_CACHE: dict[int, frozenset[str]] = {}
+
+
+def _vocab_for(concepts_by_id: dict) -> frozenset[str]:
+    """Built once per corpus size. Rebuilding per query costs ~40ms."""
+    key = len(concepts_by_id)
+    v = _VOCAB_CACHE.get(key)
+    if v is None:
+        v = build_symptom_vocab(concepts_by_id.values())
+        _VOCAB_CACHE[key] = v
+    return v
+
+
+def looks_english(query: str) -> bool:
+    """Only English queries are gated on the English symptom vocabulary.
+
+    On the device the RAG only ever sees English - speech is translated before
+    retrieval. But the eval suites deliberately include Devanagari and
+    Latin-script Hindi ("peela ratua gehun mein") to test robustness, and those
+    would score zero against an English vocabulary for reasons that have
+    nothing to do with whether a symptom was described.
+    """
+    letters = re.findall(r"[A-Za-zऀ-ॿ]", query)
+    if not letters:
+        return False
+    ascii_n = sum(1 for ch in letters if ch.isascii())
+    return ascii_n / len(letters) > 0.9
 UNVERIFIED_PENALTY = 1.08   # unverified concepts must clear a higher bar
 
 
@@ -140,6 +253,23 @@ class Response:
         return self.outcome == Outcome.GROUNDED and bool(self.label_ids)
 
 
+_STOPWORDS = {
+    "a", "an", "the", "is", "are", "was", "were", "be", "been", "am",
+    "my", "me", "i", "we", "our", "your", "it", "its", "this", "that",
+    "these", "those", "there", "here", "some", "any", "and", "or", "but",
+    "in", "on", "at", "of", "to", "for", "with", "from", "by", "as",
+    "has", "have", "had", "do", "does", "did", "can", "will", "would",
+    "should", "not", "no", "very", "so", "if", "what", "which", "how",
+    "photo", "photograph", "picture", "image", "close", "up",
+}
+
+
+def content_words(query: str) -> list[str]:
+    """Tokens that actually carry diagnostic information."""
+    tokens = [t.strip(".,!?;:'\"()").lower() for t in query.split()]
+    return [t for t in tokens if len(t) > 2 and t not in _STOPWORDS]
+
+
 def _fmt_treatment(concept: Concept) -> dict:
     """Copy the prescription fields verbatim out of frontmatter. No generation."""
     fm = concept.frontmatter
@@ -153,6 +283,13 @@ def _fmt_treatment(concept: Concept) -> dict:
         "dilution_per_litre": fm.get("dilution_per_litre"),
         "spray_volume_per_acre": fm.get("spray_volume_per_acre"),
         "phi_days": fm.get("phi_days"),
+        # Not every use is a foliar spray. A seed dressing and a soil drench
+        # carry different numbers and different instructions, and reading a
+        # seed rate as a spray rate is a real-world dosing error.
+        "registered_crop": fm.get("registered_crop"),
+        "application_method": fm.get("application_method"),
+        "dose_per_kg_seed": fm.get("dose_per_kg_seed"),
+        "slurry_water_per_kg_seed": fm.get("slurry_water_per_kg_seed"),
         "reentry_hours": fm.get("reentry_hours"),
         "toxicity_triangle": fm.get("toxicity_triangle"),
         "max_applications": fm.get("max_applications_per_season"),
@@ -176,15 +313,46 @@ def _speak(condition: str, treatments: list[dict]) -> str:
             name += f" (sold as {trade[0]})"
         lines.append(f"Use {name}.")
 
-        if t.get("dilution_per_litre"):
-            lines.append(f"Mix {t['dilution_per_litre']} in one litre of water.")
-        if t.get("dose_per_acre") and t.get("spray_volume_per_acre"):
-            lines.append(
-                f"For one acre, use {t['dose_per_acre']} "
-                f"in {t['spray_volume_per_acre']} of water."
-            )
-        if t.get("phi_days") is not None:
-            lines.append(f"Do not harvest for {t['phi_days']} days after spraying.")
+        # Not every registered use is a foliar spray, and the difference is not
+        # cosmetic. Wheat loose smut lives inside the seed embryo and CANNOT be
+        # sprayed at all - it is stopped by dressing the seed before sowing or
+        # not at all. Feeding a seed treatment through the spray template
+        # produced "Do not harvest for not applicable (applied at sowing) days
+        # after spraying", which is both nonsense and an instruction to do the
+        # one thing that does not work.
+        method = (t.get("application_method") or "spray").lower()
+
+        if "seed" in method:
+            if t.get("dose_per_kg_seed"):
+                lines.append(
+                    f"This is a seed treatment, not a spray. This disease "
+                    f"cannot be sprayed. Mix {t['dose_per_kg_seed']} for every "
+                    "kilo of seed before you sow."
+                )
+            if t.get("slurry_water_per_kg_seed"):
+                lines.append(
+                    f"Use {t['slurry_water_per_kg_seed']} of water per kilo of "
+                    "seed to make the slurry."
+                )
+            lines.append("Treat the seed in shade, dry it in shade, and sow it "
+                         "within a few days.")
+            lines.append("Never feed treated seed to people or to animals.")
+        else:
+            if t.get("dilution_per_litre"):
+                lines.append(f"Mix {t['dilution_per_litre']} in one litre of water.")
+            if t.get("dose_per_acre") and t.get("spray_volume_per_acre"):
+                lines.append(
+                    f"For one acre, use {t['dose_per_acre']} "
+                    f"in {t['spray_volume_per_acre']} of water."
+                )
+            if "drench" in method:
+                lines.append("Pour this onto the soil around the plants. "
+                             "Do not spray it on the leaves.")
+            # A PHI is only meaningful when something was applied to a standing
+            # crop. Seed treatment happens before the crop exists.
+            phi = t.get("phi_days")
+            if phi is not None and str(phi).strip().replace(".", "").isdigit():
+                lines.append(f"Do not harvest for {phi} days after applying.")
         triangle = t.get("toxicity_triangle")
         if triangle == "verify_on_container":
             lines.append(
@@ -340,6 +508,29 @@ class CoverageGate:
         """
         lowered = query.lower()
         tokens = {t.strip(".,!?;:") for t in lowered.split()}
+
+        # Match singulars too. NMT hands us plurals constantly - "blight in
+        # potatoes", "whitefly in tomatoes" - and an exact token match missed
+        # every one of them. The crop filter was then never applied, and on one
+        # real recording an ONION disease outranked the potato disease for a
+        # question that said "potatoes". Six farmers asked the same potato
+        # blight question in the test set and got five different answers,
+        # partly because of this.
+        #
+        # Kept deliberately narrow. Crop names are short and there are 454 of
+        # them, so aggressive stemming would collide genuinely different crops
+        # (jau/jowar, kel/kela) that carry different diseases and different
+        # chemicals. These three rules only ever REMOVE a plural ending; they
+        # never transform one word into another root.
+        for t in list(tokens):
+            if len(t) > 4 and t.endswith("ies"):
+                tokens.add(t[:-3] + "y")      # chillies -> chilly
+            elif len(t) > 3 and t.endswith("es"):
+                tokens.add(t[:-2])            # potatoes -> potato
+                tokens.add(t[:-1])            # limes -> lime
+            elif len(t) > 3 and t.endswith("s") and not t.endswith("ss"):
+                tokens.add(t[:-1])            # beans -> bean
+
         for name, canon in self.canonical.items():
             if " " in name:
                 if name in lowered:
@@ -406,6 +597,76 @@ def lookup_treatment(label_id, concepts_by_id) -> "Response":
         ),
         debug={"lookup_failed": label_id},
     )
+
+
+_CROPMAP_CACHE: dict[int, dict[str, str]] = {}
+
+
+def _crop_aliases(concepts_by_id: dict) -> dict[str, str]:
+    """Every surface form a farmer might use -> canonical crop name."""
+    key = len(concepts_by_id)
+    m = _CROPMAP_CACHE.get(key)
+    if m is None:
+        m = {}
+        cov = concepts_by_id.get("/crops/coverage")
+        covered = (cov.frontmatter.get("covered_crops") or {}) if cov else {}
+        for canon, aliases in covered.items():
+            m[str(canon).strip().lower()] = canon
+            for a in (aliases or []):
+                m[str(a).strip().lower()] = canon
+        _CROPMAP_CACHE[key] = m
+    return m
+
+
+def registration_holds(query: str, treatments: list[dict],
+                       concepts_by_id: dict, crop: str | None) -> str | None:
+    """Return the offending crop name if a label is being used off-registration.
+
+    Crop registration on a CIB&RC label is legally binding, not advisory. A
+    product registered on wheat is not registered on radish, and offering it
+    anyway is both illegal and unsafe.
+
+    This became a real failure, not a theoretical one. A farmer asked, with
+    PERFECT speech recognition, "how long can radish seed last at home without
+    medication". Radish is not a crop we cover, so no crop filter applied, and
+    the wheat loose smut seed dressing matched on the words "seed" and
+    "medication" alone. The device offered a wheat product for radish.
+
+    So: the crop on the label has to actually appear in what the farmer said.
+    If it does not, we cannot confirm the registration applies and we do not
+    prescribe. Silence is recoverable; a wrong-crop chemical is not.
+    """
+    aliases = _crop_aliases(concepts_by_id)
+    lowered = query.lower()
+    words = set(re.findall(r"[a-z]+", lowered))
+
+    for t in treatments:
+        reg = (t.get("registered_crop") or "").strip().lower()
+        if not reg:
+            continue                      # nothing to check against
+        if crop and crop.strip().lower() == reg:
+            continue                      # router already identified this crop
+        # Accept any alias of the registered crop appearing in the query.
+        forms = {a for a, canon in aliases.items() if canon.strip().lower() == reg}
+        forms.add(reg)
+        if any((f in words) or (" " in f and f in lowered) for f in forms):
+            continue
+        return reg
+    return None
+
+
+def _no_label_text(concept: Concept) -> str:
+    """What to say when we know the condition but hold no verified dose."""
+    advice = non_chemical_advice(concept)
+    if not advice:
+        return (f"This looks like {concept.title}. "
+                "I do not have a verified treatment for it. "
+                "Please ask your Krishi Vigyan Kendra before spraying anything.")
+    body = " ".join(f"{i}. {a}." for i, a in enumerate(advice, 1))
+    return (f"This looks like {concept.title}. I do not have a verified "
+            f"medicine to give you for it, so please do not spray anything on "
+            f"guesswork. There are things you can do today. {body} "
+            "For a spray, ask your Krishi Vigyan Kendra.")
 
 
 def build_response(
@@ -520,7 +781,7 @@ def build_response(
     # boost and not a filter: the biology concepts stay reachable and will win
     # when the question is actually about biology.
     if boost_source is None and require_crop:
-        boost_source = "diseases"
+        boost_source = ["diseases", "deficiencies"]
 
     hits = retriever.search(query, top_k=top_k, crop=canonical_crop,
                             boost_source=boost_source)
@@ -566,9 +827,22 @@ def build_response(
     # Aggregate by MAX, not sum. Summing rewards concepts that happen to have
     # more chunks in the corpus rather than better evidence — a long document
     # would out-score a short, exactly-correct one purely on length.
+    # Deficiency is a first-class diagnosis, not a disease.
+    #
+    # A farmer describing brown spots and stunting may be looking at infection
+    # OR at hunger, and the two are indistinguishable from the words alone.
+    # While only Pest and Disease could be diagnosed here, zinc deficiency in
+    # rice was answered with "Rice bacterial leaf blight, use copper
+    # oxychloride" - a fungicide-class product for a problem no spray can fix,
+    # costing the farmer money and the crop anyway.
+    #
+    # Deficiency concepts carry no treatments, so a deficiency winning here
+    # produces a diagnosis with no label_id. That is the correct outcome, and
+    # the existing "no label_id, no prescription" rule turns it into an honest
+    # "this is not a disease, do not spray, get a soil test" answer for free.
     condition_scores: dict[str, float] = {}
     for hit in hits:
-        if hit.chunk.concept_type not in {"Pest", "Disease"}:
+        if hit.chunk.concept_type not in {"Pest", "Disease", "Deficiency"}:
             continue
         cid = hit.chunk.concept_id
         condition_scores[cid] = max(condition_scores.get(cid, 0.0), hit.relevance)
@@ -682,6 +956,46 @@ def build_response(
             debug=debug,
         )
 
+    # Disease-vs-deficiency confusion. Wider than AMBIGUITY_MARGIN, and
+    # deliberately one-directional, because the two mistakes do not cost the
+    # same. Selling a fungicide to a farmer whose crop is actually short of
+    # zinc takes his money AND leaves the real problem untreated; suggesting a
+    # soil check when it turns out to be rust costs him a few days. So a
+    # deficiency sitting close behind a disease blocks the prescription, while
+    # a disease sitting close behind a deficiency does not (that path never
+    # prescribes anyway - deficiency concepts carry no label record).
+    #
+    # 0.11 is measured, not guessed. Across the eval suites the lowest gap on a
+    # correct grounded disease answer is 0.149 ("rice leaf turning straw colour
+    # from the tip"); the three real-audio failures sit at 0.042, 0.070 and
+    # 0.079. Nothing falls in between, and 0.11 is the middle of that gap.
+    if len(ranked) > 1 and concept.type in {"Disease", "Pest"}:
+        for rid, rscore in ranked[1:]:
+            other = concepts_by_id.get(rid)
+            if other is None or other.type != "Deficiency":
+                continue
+            if top_score - rscore >= DEFICIENCY_CONFUSION_MARGIN:
+                break
+            debug["deficiency_gap"] = round(top_score - rscore, 4)
+            debug["deficiency_runner"] = rid
+            return Response(
+                outcome=Outcome.ABSTAINED_AMBIGUOUS,
+                condition=concept.title,
+                condition_id=top_id,
+                confidence=top_score,
+                trust_tier=concept.trust_tier,
+                runner_up=other.title,
+                spoken_text=(
+                    f"This could be {concept.title}, which is a disease, or it "
+                    f"could be {other.title}, which means the soil is short of "
+                    "food. The treatment is completely different, and a spray "
+                    "will not fix a shortage in the soil. Please show the plant "
+                    "to your nearest Krishi Vigyan Kendra before buying anything."
+                ),
+                debug=debug,
+            )
+            break
+
     # Resolve linked Treatment concepts. This is the grounding step.
     treatments: list[dict] = []
     for link in concept.treatments:
@@ -699,10 +1013,56 @@ def build_response(
             condition_id=top_id,
             confidence=top_score,
             trust_tier=concept.trust_tier,
+            spoken_text=_no_label_text(concept),
+            debug=debug,
+        )
+
+    # A symptom-evidence gate used to sit here and has been REMOVED. Recorded
+    # so nobody rebuilds it:
+    #
+    # It required the query to contain at least 2 words from a vocabulary
+    # harvested out of the corpus's own symptom sections, on the theory that a
+    # crop name alone should never buy a pesticide. It did fix the two cases it
+    # was built for (a fertiliser question whose key word ASR had destroyed).
+    #
+    # It also blocked the single most common thing a farmer says:
+    #
+    #   "आलू में झुलसा रोग के दवा का नाम बताइए"  (case 11, 0.0% WER)
+    #   -> "Name the medicine for blight in potatoes"      scored 0
+    #   "आलू में झुलसा रोग लगा है, क्या करें?"    (case 12)
+    #   -> "What to do if the potato is infected"          scored 1
+    #
+    # Naming the disease IS describing the problem. The farmer does not have to
+    # narrate spots and colours when they already know what it is. A vocabulary
+    # of symptom *descriptions* cannot see that, and title matching does not
+    # rescue it either - NMT rendered झुलसा (blight) as "scabies", so the query
+    # shared no words with the concept it correctly matched.
+    #
+    # Confidence does not separate the two groups either, measured:
+    #   case 11 legitimate 0.531   case 26 bad 0.535   case 13 bad 0.631
+    #
+    # Blocking "my crop has blight, what medicine" to catch a mangled fertiliser
+    # question trades the device's core purpose for a rare edge case. The
+    # remaining exposure is real and is documented in COMPARISON.md, but it
+    # needs ASR that keeps entity words, or intent classification in the router
+    # - not another retrieval-side gate.
+
+    # Off-registration guard. The last thing checked before a chemical is named.
+    off = registration_holds(query, treatments, concepts_by_id, crop)
+    if off:
+        debug["off_registration"] = off
+        return Response(
+            outcome=Outcome.ABSTAINED_NO_LABEL,
+            condition=concept.title,
+            condition_id=top_id,
+            confidence=top_score,
+            trust_tier=concept.trust_tier,
             spoken_text=(
-                f"This looks like {concept.title}. "
-                "I do not have a verified treatment for it. "
-                "Please ask your Krishi Vigyan Kendra before spraying anything."
+                f"The medicine I have on record for this is registered for "
+                f"{off}, and I cannot tell that your crop is {off}. Using it on "
+                "a crop it is not registered for is unsafe and not allowed. "
+                "Please tell me which crop this is, or ask your Krishi Vigyan "
+                "Kendra."
             ),
             debug=debug,
         )

@@ -120,7 +120,11 @@ class RouteDecision:
     reason: str
     crop: str | None = None
     product: str | None = None
-    boost_source: str | None = None
+    # A crop problem may be an infection OR a nutrient deficiency, and the two
+    # are indistinguishable from a farmer's words alone, so diagnosis routes
+    # boost both corpora. A single string is still accepted for the routes that
+    # genuinely want one corpus (treatments, guidelines, entomology).
+    boost_source: str | list[str] | None = None
     matched: list[str] = field(default_factory=list)
     # Confidence of the entity match that drove the decision. 1.0 for an exact
     # hit. Below phonetic.CONFIDENT the caller must treat the match as a guess
@@ -181,7 +185,8 @@ def route(
     # 1. A photograph can only be about crop diagnosis. Nothing else takes images.
     if has_image:
         return RouteDecision(
-            Route.DIAGNOSE, "image present", crop=crop, boost_source="diseases"
+            Route.DIAGNOSE, "image present", crop=crop,
+            boost_source=["diseases", "deficiencies"]
         )
 
     # 2. A named product goes straight to the label record. Exact list, exact match.
@@ -266,7 +271,7 @@ def route(
     if named_crop:
         return RouteDecision(
             Route.DIAGNOSE, f"crop named: {named_crop}",
-            crop=named_crop, boost_source="diseases",
+            crop=named_crop, boost_source=["diseases", "deficiencies"],
         )
 
     # Phonetic crop match, deliberately much stricter than for products.
@@ -285,7 +290,7 @@ def route(
             return RouteDecision(
                 Route.DIAGNOSE,
                 "crop heard as '{}' ({:.0%})".format(heard, score),
-                crop=value, boost_source="diseases",
+                crop=value, boost_source=["diseases", "deficiencies"],
                 entity_confidence=score, heard_as=heard,
             )
 

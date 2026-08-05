@@ -8,7 +8,8 @@ crop: banana
 local_names: [पत्ती धब्बा रोग, patti dhabba rog, sigatoka]
 severity_scale: [low, moderate, severe]
 urgency: high
-treatments: []
+treatments:
+  - /treatments/azoxystrobin-difenoconazole-banana.md
 sources:
   - id: tnau-fruit
     resource: https://agritech.tnau.ac.in/crop_protection/crop_prot_crop_diseases.html
@@ -41,9 +42,10 @@ Builds over weeks and strips the canopy, shrinking the bunch within one season. 
 
 # Treatment
 
-**No verified treatment record has been added for this crop yet.** The device
-names the condition and directs the farmer to their Krishi Vigyan Kendra rather
-than quoting a dose it cannot verify.
+See the linked CIB&RC label record for the registered product, dose and
+waiting period. The device reads those figures straight out of that record
+and never generates them.
+
 
 # Non-chemical measures
 

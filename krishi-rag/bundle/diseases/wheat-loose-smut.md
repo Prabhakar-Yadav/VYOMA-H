@@ -8,7 +8,8 @@ crop: wheat
 local_names: [कंडुआ, kandua, खुला कंडुआ, कांगियारी]
 severity_scale: [low, moderate, severe]
 urgency: moderate
-treatments: []
+treatments:
+  - /treatments/carboxin-thiram-wheat-seed.md
 sources:
   - id: pau
     resource: https://pau.edu/content/ccil/pf/pp_rabi.pdf
@@ -47,9 +48,10 @@ Nothing can be done in the standing crop; the outcome was fixed when the seed wa
 
 # Treatment
 
-**No verified treatment record has been added for this crop yet.** The device
-names the condition and directs the farmer to their Krishi Vigyan Kendra rather
-than quoting a dose it cannot verify.
+See the linked CIB&RC label record for the registered product, dose and
+waiting period. The device reads those figures straight out of that record
+and never generates them.
+
 
 # Non-chemical measures
 
