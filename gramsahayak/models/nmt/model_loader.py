@@ -53,7 +53,18 @@ from inference.engine import Model, iso_to_flores  # noqa: E402 -- needs the sys
 DEFAULT_CHECKPOINT_ROOT = os.path.join(
     os.path.dirname(_NMT_DIR), "checkpoints", "indic-trans2-nmt"
 )
-REQUIRED_MODELS = {"en-indic", "indic-en", "indic-indic"}
+# IndicTrans2 ships three separate ct2 models (en->indic, indic->en, indic<->indic) --
+# no shared model covers all directions. This project's actual pipeline only ever calls
+# NMT as <lang>->EN or EN-><lang> (confirmed directly: every real call site in
+# orchestrator.py/test_orchestrated_pipeline.py passes "EN" as one side, never two Indic
+# languages against each other) -- so indic-indic is real, unused weight, both on disk
+# (~310MB, the largest of the three ct2_int8_model directories) and in loaded RAM at
+# runtime, on the one device (Jetson, 7GB budget) where that actually matters. REQUIRED
+# is a hard load() precondition; OPTIONAL is loaded only if present, silently skipped
+# otherwise -- _route_translate() raises a clear error if an indic<->indic call is ever
+# actually attempted without it loaded, rather than a confusing KeyError.
+REQUIRED_MODELS = {"en-indic", "indic-en"}
+OPTIONAL_MODELS = {"indic-indic"}
 INDIC_LANGUAGES = set(iso_to_flores.keys())
 
 
@@ -106,6 +117,15 @@ class NMTEngine:
                 input_lang_code_format="iso",
                 model_type="ctranslate2",
             )
+        for folder in OPTIONAL_MODELS:
+            model_path = os.path.join(self.checkpoint_root, folder, "ct2_int8_model")
+            if os.path.exists(model_path):
+                models[folder] = Model(
+                    model_path,
+                    device=self.device,
+                    input_lang_code_format="iso",
+                    model_type="ctranslate2",
+                )
         self.models = models
 
     def unload(self):
@@ -116,6 +136,15 @@ class NMTEngine:
 
     def _route_translate(self, text: str, src: str, tgt: str) -> str:
         if src in INDIC_LANGUAGES and tgt in INDIC_LANGUAGES:
+            if "indic-indic" not in self.models:
+                raise RuntimeError(
+                    f"indic-indic translation ({src} -> {tgt}) requested, but that model "
+                    "wasn't loaded -- it's optional and this project's real pipeline never "
+                    "calls it (every real translation goes through EN as the pivot "
+                    "language). If you genuinely need direct Indic<->Indic translation, "
+                    "copy the indic-indic/ct2_int8_model/ directory into this checkpoint's "
+                    "root and reload."
+                )
             return self.models["indic-indic"].paragraphs_batch_translate__multilingual(
                 [[text, src, tgt]]
             )[0]
