@@ -80,9 +80,23 @@ import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, GenerationConfig
 from parler_tts import ParlerTTSForConditionalGeneration, ParlerTTSConfig
-from torchao.quantization import quantize_, Int4WeightOnlyConfig
 from accelerate import init_empty_weights
 from huggingface_hub import snapshot_download
+# torchao is NOT imported at module level, on purpose -- confirmed a real problem, not
+# theoretical: on at least one real device (Jetson, JetPack 6.2 / torch 2.11.0 from the
+# Jetson AI Lab index), torchao 0.13.0 itself fails to import (its own internal
+# `torch._inductor.kernel.flex_attention` reference doesn't exist in that torch build).
+# Since `transformers.modeling_utils` imports torchao unconditionally the moment ANY model
+# loads via `AutoModel`/`PreTrainedModel.from_pretrained()` (to register it as an available
+# quantizer backend) -- not just when Parler-TTS's quantized path is actually used -- a
+# broken torchao install used to take down this ENTIRE module at import time, which in turn
+# broke every other TTS engine (mms_tts) and even unrelated components (ASR) that import
+# anything from this package, since Python must execute this module (and __init__.py) before
+# any of its siblings can be reached. Importing torchao lazily, inside load() where it's
+# actually used, means: this class can always be *defined* regardless of whether torchao
+# works on the target device; only calling QuantizedParlerTTS().load() -- i.e. actually using
+# the Parler-TTS fallback -- can fail on a broken torchao, with a clear error at that point
+# instead of poisoning the whole package's importability.
 
 CHECKPOINT_REPO_ID = "hazardscarn10/indic-parler-tts-awq-int4"
 GROUP_SIZE = 64
@@ -136,6 +150,12 @@ class QuantizedParlerTTS:
         contacted at all. No base model download, ever."""
         if self.is_loaded:
             return
+
+        # See the module-level comment (top of file) for why this import is here, not at
+        # module scope -- lets the whole tts_exports package stay importable (mms_tts, ASR,
+        # everything else) even on a device where torchao itself is broken, only failing
+        # here, with a clear traceback, if something actually tries to use Parler-TTS.
+        from torchao.quantization import quantize_, Int4WeightOnlyConfig
 
         checkpoint_dir = self.checkpoint_dir or snapshot_download(repo_id=self.checkpoint_repo_id)
 
