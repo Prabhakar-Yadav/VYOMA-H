@@ -1,0 +1,236 @@
+{
+  "workers": {
+    "asr": {
+      "load_time_sec_serverside": {
+        "n": 3,
+        "mean": 5.088,
+        "min": 4.831,
+        "max": 5.396,
+        "values": [
+          4.831,
+          5.396,
+          5.035
+        ]
+      },
+      "load_time_sec_wallclock": {
+        "n": 3,
+        "mean": 6.641,
+        "min": 6.012,
+        "max": 7.2,
+        "values": [
+          6.012,
+          7.2,
+          6.712
+        ]
+      },
+      "soft_unload_time_sec_wallclock": {
+        "n": 3,
+        "mean": 0.966,
+        "min": 0.868,
+        "max": 1.065,
+        "values": [
+          0.967,
+          1.065,
+          0.868
+        ]
+      },
+      "full_unload_time_sec_wallclock": {
+        "n": 3,
+        "mean": 0.953,
+        "min": 0.816,
+        "max": 1.169,
+        "values": [
+          0.816,
+          0.873,
+          1.169
+        ]
+      },
+      "peak_rss_gb": 3.204,
+      "peak_vram_gb": 0.0
+    },
+    "nmt": {
+      "load_time_sec_serverside": {
+        "n": 3,
+        "mean": 0.749,
+        "min": 0.69,
+        "max": 0.838,
+        "values": [
+          0.717,
+          0.69,
+          0.838
+        ]
+      },
+      "load_time_sec_wallclock": {
+        "n": 3,
+        "mean": 3.296,
+        "min": 3.126,
+        "max": 3.443,
+        "values": [
+          3.318,
+          3.443,
+          3.126
+        ]
+      },
+      "soft_unload_time_sec_wallclock": {
+        "n": 3,
+        "mean": 0.446,
+        "min": 0.445,
+        "max": 0.446,
+        "values": [
+          0.445,
+          0.446,
+          0.446
+        ]
+      },
+      "full_unload_time_sec_wallclock": {
+        "n": 3,
+        "mean": 0.58,
+        "min": 0.514,
+        "max": 0.622,
+        "values": [
+          0.514,
+          0.622,
+          0.606
+        ]
+      },
+      "peak_rss_gb": 1.612,
+      "peak_vram_gb": 0.0
+    },
+    "tts": {
+      "load_time_sec_serverside": {
+        "n": 3,
+        "mean": 3.319,
+        "min": 3.318,
+        "max": 3.319,
+        "values": [
+          3.319,
+          3.319,
+          3.318
+        ]
+      },
+      "load_time_sec_wallclock": {
+        "n": 3,
+        "mean": 7.45,
+        "min": 7.431,
+        "max": 7.469,
+        "values": [
+          7.431,
+          7.449,
+          7.469
+        ]
+      },
+      "soft_unload_time_sec_wallclock": {
+        "n": 3,
+        "mean": 0.522,
+        "min": 0.498,
+        "max": 0.566,
+        "values": [
+          0.566,
+          0.501,
+          0.498
+        ]
+      },
+      "full_unload_time_sec_wallclock": {
+        "n": 3,
+        "mean": 0.534,
+        "min": 0.511,
+        "max": 0.546,
+        "values": [
+          0.546,
+          0.545,
+          0.511
+        ]
+      },
+      "peak_rss_gb": 1.269,
+      "peak_vram_gb": 0.863
+    }
+  },
+  "ollama": {
+    "qwen3.5:2b": {
+      "load_time_sec": {
+        "n": 3,
+        "mean": 5.436,
+        "min": 5.125,
+        "max": 5.809,
+        "values": [
+          5.809,
+          5.374,
+          5.125
+        ]
+      },
+      "unload_time_sec": {
+        "n": 3,
+        "mean": 0.72,
+        "min": 0.578,
+        "max": 1.003,
+        "values": [
+          1.003,
+          0.578,
+          0.579
+        ]
+      },
+      "size_gb": 2.647,
+      "num_ctx": 16384
+    },
+    "nomic-embed-text": {
+      "load_time_sec": {
+        "n": 3,
+        "mean": 2.456,
+        "min": 2.431,
+        "max": 2.491,
+        "values": [
+          2.491,
+          2.431,
+          2.445
+        ]
+      },
+      "unload_time_sec": {
+        "n": 3,
+        "mean": 0.262,
+        "min": 0.229,
+        "max": 0.326,
+        "values": [
+          0.231,
+          0.326,
+          0.229
+        ]
+      },
+      "size_gb": 0.323,
+      "num_ctx": null
+    },
+    "qwen3.5:0.8b": {
+      "load_time_sec": {
+        "n": 3,
+        "mean": 5.388,
+        "min": 5.032,
+        "max": 5.653,
+        "values": [
+          5.032,
+          5.653,
+          5.479
+        ]
+      },
+      "unload_time_sec": {
+        "n": 3,
+        "mean": 0.485,
+        "min": 0.469,
+        "max": 0.513,
+        "values": [
+          0.469,
+          0.513,
+          0.472
+        ]
+      },
+      "size_gb": 1.331,
+      "num_ctx": 16384
+    }
+  },
+  "context_window_blowup": {
+    "model": "qwen3.5:2b",
+    "default_context_length": 262144,
+    "default_vram_gb": 6.8,
+    "configured_num_ctx": 16384,
+    "configured_vram_gb": 2.647,
+    "multiplier": 2.6
+  }
+}

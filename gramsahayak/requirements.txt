@@ -1,0 +1,61 @@
+# gramsahayak/ -- deployable pipeline (api_server + agent + models). Curated to direct,
+# top-level imports actually used by this package's own code (verified via AST scan of every
+# .py file under agent/, api_server/, models/, and test_orchestrated_pipeline.py) -- not a
+# raw `pip freeze`. Versions pinned below match what's proven working on the dev machine this
+# was built on (NVIDIA GB10, torch 2.13.0/CUDA); re-verify on your actual target device,
+# especially torch/torchao on Jetson -- see the note below.
+
+# --- Web API (api_server/) ---
+fastapi==0.141.1
+uvicorn==0.52.1
+httpx==0.28.1
+pydantic==2.13.4
+psutil==7.2.2
+requests==2.34.2
+
+# --- Agent (agent/) ---
+ollama==0.6.2
+
+# --- ASR (models/asr/) ---
+onnxruntime==1.23.2
+librosa==0.11.0
+
+# --- NMT (models/nmt/) -- IndicTrans2 ct2-int8 ---
+ctranslate2==4.6.3
+sentencepiece==0.2.2
+indic-nlp-library==0.92
+mosestokenizer==1.2.1
+sacremoses==0.1.1
+nltk==3.10.0
+regex==2026.7.19
+
+# --- TTS: mms_tts (models/mms_tts/, default engine) + parler (models/tts_exports/,
+# fallback for the 8 India languages MMS-TTS has no checkpoint for -- see
+# api_server/config.MMS_TTS_UNSUPPORTED_INDIAN_LANGUAGES) ---
+# transformers is pinned EXACTLY, not a range -- parler_tts's own generation code breaks
+# under transformers>=5.x (see the vendored TECHNICAL_REPORT.md referenced in
+# models/tts_exports/model_loader.py).
+transformers==4.46.1
+parler_tts @ git+https://github.com/huggingface/parler-tts.git@d108732cd57788ec86bc857d99a6cabd66663d68
+huggingface_hub>=0.30
+accelerate>=1.0  # needed for init_empty_weights() -- builds parler's model skeleton on a
+# meta device with no weight download, real or random (models/tts_exports/model_loader.py)
+soundfile>=0.12
+sounddevice>=0.4  # optional at runtime (play() methods only) but required for
+# test_orchestrated_pipeline.py's live playback -- needs a working audio device/PortAudio;
+# omit or ignore install failures on a headless box, everything else still works via
+# synthesize()/synthesize_to_file()
+
+numpy==2.2.6
+tqdm==4.70.0
+
+# --- torch / torchao -- NOT meaningfully pinned here, platform-specific ---
+# Every engine above needs torch; parler's AWQ+int4 quantization also needs torchao. Neither
+# has one correct version across platforms -- this dev machine's torch build was installed
+# separately (CUDA-specific), and a Jetson needs NVIDIA's own JetPack/L4T-matched torch wheel,
+# NOT a generic `pip install torch`. Install torch for your actual target device FIRST
+# (see NVIDIA's Jetson PyTorch install docs for your JetPack version), then torchao to match
+# (functional minimums verified by the parler_tts source repo: torch>=2.10, torchao>=0.17.0 --
+# see https://github.com/pytorch/ao#installation for a matching torchao build).
+# torch>=2.10
+# torchao>=0.17.0

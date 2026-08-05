@@ -1,0 +1,15 @@
+# Self-contained on purpose -- this package is meant to be copied/committed into different
+# repos (see README.md), so its own ignore rules travel with it instead of relying on
+# whichever outer repo's root .gitignore happens to be present.
+
+__pycache__/
+*.py[cod]
+
+# Downloaded model checkpoints (large binary artifacts, fetched by setup/download_models.py --
+# not committed). .gitkeep stays tracked so the empty directory survives a fresh clone.
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+
+# Generated pipeline output audio (regenerate via test_orchestrated_pipeline.py as needed)
+sample_audio/pipeline_outputs/*
+!sample_audio/pipeline_outputs/.gitkeep
