@@ -275,7 +275,32 @@ class MemoryOrchestrator:
             self._unload(candidate, reason=f"Rule 6: freeing room for {name}")
             projected -= freed
 
-    def _prepare_budget_for_tts_peak(self):
+    def _predict_tts_peak_bytes(self, text_char_count=None):
+        """Length-scaled mms_tts peak estimate, replacing a flat constant that turned out to
+        be measured at exactly one specific length. config.py's mms_tts block documents two
+        real data points, both real live/direct runs: 430 chars -> 2.53GB combined RSS+VRAM,
+        800 chars -> 3.67GB. That's a 45% peak increase for an 86% length increase -- real,
+        meaningful content-dependence, not "far less content-dependent" as this method's
+        caller originally assumed (that assumption is what let a genuinely long Hindi answer
+        -- multi-section, numbered dosages, comfortably 1200+ chars -- get waved through as
+        "projected 5.01GB fits budget" by the flat 3.7GB constant, immediately followed by a
+        real device crash/reboot; the flat-constant version of this function never saw the
+        text at all, only config.py's one fixed number).
+
+        Linear fit from those two points: ~1.2GB baseline + ~3.08MB/char. +30% safety margin
+        on top -- only two real data points is not enough to trust a tight fit, and separately
+        observed peaks have varied 3.47-4.74GB against the *same* flat 3.7GB estimate on
+        answers of similar length (see TTS_ENGINE_TIMING_RESULTS.md), so real variance beyond
+        pure char-count exists too (phoneme complexity, language, etc.) -- err conservative.
+
+        Falls back to the flat config constant if text_char_count isn't known (defensive
+        default matching the old behavior, e.g. if a caller doesn't pass it through)."""
+        if text_char_count is None:
+            return config.PREDICTED_LOAD_COST_BYTES["tts_peak_batch3"]
+        predicted_gb = 1.2 + 0.00308 * text_char_count
+        return int(predicted_gb * 1e9 * 1.3)
+
+    def _prepare_budget_for_tts_peak(self, text_char_count=None):
         """Rules 2, 7, and 8: proactive eviction before TTS ramps from steady to peak.
 
         Rule 8 was originally unconditional for every TTS engine, added after real evidence
@@ -289,15 +314,15 @@ class MemoryOrchestrator:
         for that engine, the one mitigation that doesn't depend on chunk count or content
         length.
 
-        **Revised for mms_tts (config.TTS_ENGINE)**: MMS-TTS's real peak is an order of
-        magnitude smaller and far less content-dependent than Parler's (no autoregressive
-        KV-cache growth -- confirmed real, MMS_TTS_EVALUATION.md sections 7/10: ~3.7GB
-        combined RSS+VRAM worst case vs. Parler's ~4.46-5.2GB). Blindly evicting Agent on
-        every single turn was costing a real ~5-7.5s reload for no memory reason whenever
-        there was already enough headroom -- so for mms_tts, Agent is only evicted if the
-        actual projected total (with Agent still resident) would exceed budget. If there's
-        room, Agent stays loaded straight through TTS and into the next turn (zero reload
-        cost); if it's a genuine memory crunch, this falls back to evicting it, same as
+        **Revised for mms_tts (config.TTS_ENGINE)**: originally treated as "far less
+        content-dependent" than Parler based on MMS_TTS_EVALUATION.md's isolated benchmarks,
+        which is why this used to check the flat 3.7GB constant regardless of actual answer
+        length. That assumption didn't survive a real long answer -- see
+        _predict_tts_peak_bytes's docstring for the real crash this caused and the real two-
+        point data (430/800 chars) showing genuine, non-trivial length scaling. Agent is only
+        evicted if the *length-scaled* projected total (with Agent still resident) would
+        exceed budget -- if there's room, Agent stays loaded straight through TTS and into
+        the next turn (zero reload cost); if not, this falls back to evicting it, same as
         Parler always does.
         """
         if self._nmt_output_cached and self._is_loaded("nmt"):
@@ -306,8 +331,10 @@ class MemoryOrchestrator:
             self._unload("embedder", reason="Rule 7: embedder is on-demand only, freeing before TTS peak")
 
         tts_engine = config.WORKERS["tts"]["engine"]
-        tts_peak = config.PREDICTED_LOAD_COST_BYTES["tts_peak_batch3"]  # engine-specific,
-        # via config._TTS_ENGINE_CONFIGS[tts_engine] flattened into WORKERS["tts"]
+        tts_peak = (
+            self._predict_tts_peak_bytes(text_char_count) if tts_engine == "mms_tts"
+            else config.PREDICTED_LOAD_COST_BYTES["tts_peak_batch3"]
+        )
 
         if self._is_loaded("agent"):
             if tts_engine != "mms_tts":
@@ -497,10 +524,10 @@ class MemoryOrchestrator:
         self._log(f"        agent turn: {time.perf_counter() - t0:.2f}s")
         return result
 
-    def run_tts(self, language, infer_fn, batch_size=None):
+    def run_tts(self, language, infer_fn, batch_size=None, text_char_count=None):
         batch_size = batch_size or config.WORKERS["tts"]["default_batch_size"]
         self._log(f"--- stage: TTS ({language}, batch_size={batch_size}) " + "-" * 40)
-        self._prepare_budget_for_tts_peak()
+        self._prepare_budget_for_tts_peak(text_char_count)
         self._enforce_complementary("tts")
 
         tts_state = self._worker_status("tts").get("state")

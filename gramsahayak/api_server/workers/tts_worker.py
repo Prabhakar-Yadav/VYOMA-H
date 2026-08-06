@@ -10,13 +10,22 @@ engine's settings to the same keys the rest of the codebase already reads). See
 `dev/agents/MMS_TTS_EVALUATION.md` for the real, measured comparison that made `mms_tts`
 the default.
 
-**Why mms_tts's `/infer` path has no batching/chunking, unlike parler's**: MMS-TTS (VITS)
-is a non-autoregressive, single-forward-pass model -- no `max_new_tokens` cap to chunk
-against, no autoregressive decode loop for batching to speed up. Confirmed directly: one
-plain `synthesize()` call handles a real 883-char multi-paragraph Hindi answer (the same
-real answer `test_streaming_tts_only.py` uses) in 1.64s, producing 64.78s of audio (RTF
-0.025), peak 1.24GB/1.66GB -- see MMS_TTS_EVALUATION.md section 7. `chunk_text()` /
-`StreamingTTS` / `batch_size` all remain parler-only machinery.
+**mms_tts's `/infer` path DOES chunk now, on the input-text side -- this reverses an earlier
+design decision.** The original reasoning (VITS is non-autoregressive, no `max_new_tokens`
+cap to chunk *generation* against) is true but was conflated with a different question: does
+*peak memory* stay bounded regardless of how long the input text is? It doesn't -- confirmed
+by a real device crash on a genuinely long (1200+ char) Hindi answer: the one-call-does-
+everything design meant peak memory scaled with total text length (config.py's mms_tts block
+documents two real single-call data points, 430 chars -> 2.53GB vs. 800 chars -> 3.67GB, a
+real, meaningful scaling relationship, not the near-flat one originally assumed from a single
+883-char measurement). Fix: reuse `chunk_text()` (the same sentence-boundary chunker
+parler's path already used) to split input text into ~180-char pieces and call `synthesize()`
+once per chunk, concatenating the results -- peak memory per call is now bounded by one
+chunk's size, not the whole answer, regardless of how long the answer gets. Also makes
+`/infer_stream` for mms_tts genuinely incremental (previously always exactly one chunk,
+i.e. fake streaming) -- generation is much faster than playback (RTF ~0.025 measured on the
+883-char case), so a caller using `/infer_stream` can now play chunk N while chunk N+1 is
+still generating, the same real benefit parler's streaming path already had.
 
 **Per-language fallback to Parler-TTS, when engine="mms_tts"**: MMS-TTS does not have real
 checkpoints for every one of India's 22 8th-Schedule languages -- confirmed directly against
@@ -150,11 +159,15 @@ def _engine_factory():
 
 
 def _infer_mms_tts(engine, payload: dict) -> dict:
-    """`engine` is a _HybridMmsParlerEngine. Dispatches per-language to MMS-TTS (single
-    forward pass, no chunking/batching) or, for the 8 confirmed-unsupported India languages,
-    to a lazily-loaded Parler-TTS fallback (via synthesize_long() -- paragraph-chunked, no
-    batching -- this is a rare fallback path, not the hot path StreamingTTS optimizes)."""
+    """`engine` is a _HybridMmsParlerEngine. Dispatches per-language to MMS-TTS -- chunked
+    into ~180-char sentence-boundary pieces (chunk_text(), same chunker parler's path uses),
+    one synthesize() call per chunk, concatenated -- or, for the 8 confirmed-unsupported
+    India languages, to a lazily-loaded Parler-TTS fallback (via synthesize_long() --
+    paragraph-chunked, no batching -- this is a rare fallback path, not the hot path
+    StreamingTTS optimizes). See this module's own docstring for why mms_tts chunks its
+    input text now, despite VITS having no autoregressive generation to chunk against."""
     from models.mms_tts import MmsTtsInferencer
+    from models.tts_exports.streaming import chunk_text
 
     text = payload.get("text")
     language = payload.get("language")
@@ -166,14 +179,23 @@ def _infer_mms_tts(engine, payload: dict) -> dict:
     if supported:
         lang_engine = engine.mms.get(code)
         tts = MmsTtsInferencer(lang_engine)
-        audio, sample_rate = tts.synthesize(text)
+        chunks = chunk_text(text, sentence_lang=code) or [text]
+        audio_parts = []
+        sample_rate = None
+        for chunk in chunks:
+            chunk_audio, sample_rate = tts.synthesize(chunk)
+            audio_parts.append(chunk_audio)
+        audio = audio_parts[0] if len(audio_parts) == 1 else np.concatenate(audio_parts)
         engine_used = "mms_tts"
+        num_chunks_used = len(chunks)
     else:
         from models.tts_exports.inference import TTSInferencer
         parler_engine = engine.ensure_parler()
         parler_tts = TTSInferencer(parler_engine)
         audio, sample_rate = parler_tts.synthesize_long(text, language=language)
         engine_used = "parler_fallback"
+        num_chunks_used = 1  # parler_fallback's internal paragraph chunking (synthesize_long)
+        # isn't surfaced here -- kept for response-shape parity, unchanged from before
 
     buf = io.BytesIO()
     sf.write(buf, audio, sample_rate, format="WAV")
@@ -183,8 +205,7 @@ def _infer_mms_tts(engine, payload: dict) -> dict:
         "sample_rate": sample_rate,
         "language": language,
         "engine": engine_used,
-        "num_chunks": 1,  # mms_tts is always one call; parler_fallback's internal paragraph
-        # chunking (synthesize_long) isn't surfaced here -- kept for response-shape parity
+        "num_chunks": num_chunks_used,
     }
 
 
@@ -298,13 +319,17 @@ def _stream_parler(engine, payload, engine_label="parler"):
 
 
 def _stream_mms_tts(engine, payload):
-    """Generator version of _infer_mms_tts -- used by `/infer_stream`. mms_tts itself has
-    nothing to stream (VITS's single forward pass yields the complete answer or nothing --
-    see MMS_TTS_EVALUATION.md), so this always yields exactly one item for a supported
-    language. The fallback-to-Parler path for the 8 unsupported languages genuinely does
-    have multiple chunks to stream though, so it delegates to `_stream_parler` rather than
-    collecting everything the way `_infer_mms_tts`'s fallback branch does."""
+    """Generator version of _infer_mms_tts -- used by `/infer_stream`. Now genuinely
+    incremental for a supported language (previously always exactly one chunk -- see this
+    module's own docstring for why that changed): chunks the input text the same way
+    `_infer_mms_tts` does and yields one item per chunk as it's synthesized, instead of one
+    call over the whole answer. Generation is much faster than playback (RTF ~0.025 measured
+    on an 883-char case), so a real caller (streaming.py's play_http_stream()) can be playing
+    chunk N while chunk N+1 is still generating. The fallback-to-Parler path for the 8
+    unsupported languages already had multiple real chunks to stream, so it still delegates
+    to `_stream_parler` rather than duplicating that logic."""
     from models.mms_tts import MmsTtsInferencer
+    from models.tts_exports.streaming import chunk_text
 
     text = payload.get("text")
     language = payload.get("language")
@@ -316,13 +341,17 @@ def _stream_mms_tts(engine, payload):
     if supported:
         lang_engine = engine.mms.get(code)
         tts = MmsTtsInferencer(lang_engine)
-        audio, sample_rate = tts.synthesize(text)
-        yield {
-            "chunk_index": 0, "total_chunks": 1, "total_chars": len(text),
-            "chunk_chars": len(text), "sample_rate": sample_rate,
-            "audio_base64": _b64_wav(audio, sample_rate),
-            "language": language, "engine": "mms_tts",
-        }
+        chunks = chunk_text(text, sentence_lang=code) or [text]
+        total = len(chunks)
+        total_chars = sum(len(c) for c in chunks) or 1
+        for idx, chunk in enumerate(chunks):
+            audio, sample_rate = tts.synthesize(chunk)
+            yield {
+                "chunk_index": idx, "total_chunks": total, "total_chars": total_chars,
+                "chunk_chars": len(chunk), "sample_rate": sample_rate,
+                "audio_base64": _b64_wav(audio, sample_rate),
+                "language": language, "engine": "mms_tts",
+            }
     else:
         parler_engine = engine.ensure_parler()
         yield from _stream_parler(parler_engine, payload, engine_label="parler_fallback")

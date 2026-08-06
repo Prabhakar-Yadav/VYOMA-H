@@ -235,9 +235,11 @@ def run_full_pipeline(language, orch, agent, play=True, with_image=False, stream
         }
 
     if stream_tts:
-        tts_result = orch.run_tts(cfg["tts_name"], _tts_call_streaming, batch_size=tts_batch_size)
+        tts_result = orch.run_tts(cfg["tts_name"], _tts_call_streaming, batch_size=tts_batch_size,
+                                   text_char_count=len(target_text))
     else:
-        tts_result = orch.run_tts(cfg["tts_name"], _tts_call, batch_size=tts_batch_size)
+        tts_result = orch.run_tts(cfg["tts_name"], _tts_call, batch_size=tts_batch_size,
+                                   text_char_count=len(target_text))
 
     out_dir = Path(AGENTS_DIR) / "sample_audio" / "pipeline_outputs"
     out_dir.mkdir(parents=True, exist_ok=True)
