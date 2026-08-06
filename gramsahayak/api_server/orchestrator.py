@@ -341,12 +341,51 @@ class MemoryOrchestrator:
     # Pipeline-stage API -- what the demo script actually calls
     # ------------------------------------------------------------------
 
+    def preload_asr(self, reason="Rule 10: golden-window preload after TTS eviction"):
+        """Fires ASR's load in a background thread the moment TTS is freed at the end of a
+        turn, instead of waiting cold for the next turn's run_asr() call -- overlaps ASR's
+        real ~35-55s load time (dominated by CUDA/onnxruntime graph compilation on Jetson,
+        not I/O -- confirmed real, see the direct-load timings this was measured from) with
+        whatever gap exists before the next turn actually starts: on real hardware, the pause
+        while waiting for the next spoken question; in --all test runs, the explicit
+        inter-language buffer (see test_orchestrated_pipeline.py). Mirrors Rule 5's pattern
+        for TTS (same `_load_async` + worker-status-polling mechanism, not Rule 9's
+        thread+Event pattern -- that one exists only because Agent isn't a WORKER_COMPONENT
+        with its own /status endpoint to poll). No-op if ASR is already loaded or preloading.
+
+        Budget check uses whatever's resident right now -- typically just Agent, since TTS
+        was just evicted and NMT/embedder are already evicted earlier in the turn by Rules
+        2/7. Agent(0.8b, ~1.3GB) + ASR's own load peak (~4.2GB observed climbing during CUDA
+        graph compile) comfortably fits the 7.0GB budget -- this is the same pairing Rule 9's
+        preload_agent already treats as safe, just triggered from the other end of a turn.
+
+        If the next turn turns out not to need ASR at all (e.g. English input, which skips
+        ASR/NMT entirely), this preload goes unused -- Rule 1's complementary-pair eviction
+        (asr/tts) cleans it up automatically the moment that turn's TTS stage loads. Costs one
+        wasted load/evict cycle in that case, not a correctness or memory problem.
+        """
+        state = self._worker_status("asr").get("state")
+        if state in ("loaded", "loading"):
+            return
+        snap = self.snapshot()
+        predicted = config.PREDICTED_LOAD_COST_BYTES["asr"]
+        if snap["available_bytes"] < predicted:
+            self._log(f"        skipping asr preload -- only {snap['available_bytes'] / 1e9:.2f}GB available")
+            return
+        self._load_async("asr", reason=reason)
+
     def run_asr(self, language, infer_fn):
         self._log(f"--- stage: ASR ({language}) " + "-" * 40)
         self._enforce_complementary("asr")
         self._make_room_for("asr")
-        if not self._is_loaded("asr"):
+        asr_state = self._worker_status("asr").get("state")
+        if asr_state == "loading":
+            self._log("        ASR was preloading during the previous turn's downtime -- waiting on it now")
+            self._await_async_load("asr")
+        elif asr_state != "loaded":
             self._load("asr", reason=f"transcribing {language} input")
+        else:
+            self._log("        ASR already fully loaded (golden-window preload paid off, zero wait)")
         self._snapshot_line("ready")
         t0 = time.perf_counter()
         result = infer_fn()
@@ -476,6 +515,7 @@ class MemoryOrchestrator:
             f"~{peak_bytes[0] / 1e9:.2f}GB (predicted ~{predicted_peak / 1e9:.2f}GB for tts alone at batch={batch_size})"
         )
         self._unload("tts", reason="turn complete, freeing TTS")
+        self.preload_asr()
         return result
 
     def teardown(self):

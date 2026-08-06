@@ -46,6 +46,29 @@ OLLAMA_COMPARISON_MODEL = "qwen3.5:2b"
 # (more headroom for longer tool-calling conversations) -- re-tune based on real usage.
 OLLAMA_NUM_CTX = 8192 * 2
 
+# Agent's `think` level for ollama.chat() -- live, adjustable, same as the vars above. Options
+# and what was actually measured with them (5-6 repeated identical calls each, real Jetson +
+# this dev machine, qwen3.5:0.8b, see agent/agent.py's class docstring for the incident this
+# came from):
+#   False   -- fastest (~7s/turn observed), but confirmed to sometimes return a completely
+#              EMPTY final `.content` on this small a model -- it generates real tokens with
+#              think="low" but not False; False itself hasn't reproduced empty content in
+#              testing, but see the "medium" note below for why it's not the pick anyway.
+#   "low"   -- confirmed on real Jetson hardware to sometimes return an EMPTY `.content` while
+#              putting everything into `.thinking` instead (the model never closes its
+#              reasoning phase) -- this is the bug that silently broke NMT downstream
+#              (translating an empty string). Do not use.
+#   "medium" -- 0/6 empty-content failures across repeated tests, real substantive answers,
+#              ~10-20s/turn observed. Best reliability-for-latency tradeoff found so far --
+#              current default.
+#   "high"  -- also 0/6 empty-content failures, marginally more thorough answers, but ~14-29s/
+#              turn observed (up to ~4x slower than False) -- not worth it over "medium" unless
+#              answer quality becomes a real problem.
+# Re-tune this per model if OLLAMA_MODELS[0] ever changes -- these numbers are qwen3.5:0.8b-
+# specific, not a general Ollama/qwen3.5 property (qwen3.5:2b's think="low" was previously
+# validated as reliable, see run_pipeline_live_demo.py).
+AGENT_THINK = "medium"
+
 # Which TTS engine the pipeline actually uses -- live, adjustable, exactly like
 # OLLAMA_NUM_CTX above (not a one-time build choice). "mms_tts" (default) or "parler".
 #

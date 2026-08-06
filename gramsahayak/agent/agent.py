@@ -381,22 +381,23 @@ class GramSahayakAgent:
     it occupies while resident, only how long a turn takes and how many round-trips happen
     before `run_turn()` returns.
 
-    think=False by default: confirmed directly on real Jetson hardware that qwen3.5:0.8b
-    (the current OLLAMA_MODELS[0] -- see config.py for why it's not the larger 2b anymore)
-    with think="low" unreliably produces an EMPTY final `.content` -- it generates real
-    tokens, but they land entirely in `.thinking` and the model never actually closes its
-    reasoning phase to emit a real answer (reproduced 100% of the time it happened, confirmed
-    via 5 repeated identical calls locally: think=False came back with real, non-empty
-    content every single time, think="low" did not). This silently broke the pipeline
-    (`turn_messages[-1].content` came back "", which then hit NMT's `EN->hi` call with an
-    empty string, one 500 error hiding a completely different real cause). qwen3.5:2b's
-    think="low" was validated as working in run_pipeline_live_demo.py -- this only reflects
-    0.8b's weaker reliability, not a defect in "low" thinking mode itself; re-enable it
-    explicitly (`GramSahayakAgent(think="low")`) if the model is ever bumped back up.
+    think defaults to config.AGENT_THINK ("medium" as of this writing) -- confirmed directly
+    on real Jetson hardware that qwen3.5:0.8b (the current OLLAMA_MODELS[0] -- see config.py
+    for why it's not the larger 2b anymore) with think="low" unreliably produces an EMPTY
+    final `.content` -- it generates real tokens, but they land entirely in `.thinking` and
+    the model never actually closes its reasoning phase to emit a real answer. This silently
+    broke the pipeline (`turn_messages[-1].content` came back "", which then hit NMT's
+    `EN->hi` call with an empty string, one 500 error hiding a completely different real
+    cause). "medium"/"high" didn't reproduce that failure across repeated testing (0/6 each)
+    -- "medium" was picked as the default since it matched "high"'s reliability at roughly
+    half the latency cost. See config.py's AGENT_THINK comment for the full real numbers
+    behind this choice, and re-tune per model if OLLAMA_MODELS[0] ever changes -- qwen3.5:2b's
+    think="low" was previously validated as reliable (run_pipeline_live_demo.py), this is
+    0.8b-specific.
     """
 
     def __init__(self, model=None, vision_model=DEFAULT_VISION_MODEL, num_ctx=None,
-                 keep_alive=-1, temperature=0.2, think=False, max_tool_iterations=5):
+                 keep_alive=-1, temperature=0.2, think=None, max_tool_iterations=5):
         self.model = model or config.OLLAMA_MODELS[0]
         # Defaults to the same model as .model (not a separate resident model) -- see
         # DEFAULT_VISION_MODEL's comment above for why that's a memory decision, not just
@@ -405,7 +406,9 @@ class GramSahayakAgent:
         self.num_ctx = num_ctx if num_ctx is not None else config.OLLAMA_NUM_CTX
         self.keep_alive = keep_alive
         self.temperature = temperature
-        self.think = think
+        # None (not passed) -> config.AGENT_THINK; explicit False is a real, distinct value
+        # (fastest, no thinking at all) so it must not be treated the same as "unset".
+        self.think = think if think is not None else config.AGENT_THINK
         self.max_tool_iterations = max_tool_iterations
 
     def _chat_options(self):

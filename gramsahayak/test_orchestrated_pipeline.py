@@ -296,7 +296,17 @@ def main():
         orch._snapshot_line("startup")
 
         languages = list(LANGUAGES) if args.all else [args.language]
-        for lang in languages:
+        # 10s gap between languages in --all mode -- real device usage never has turns land
+        # back-to-back with zero pause; a farmer has to start speaking again after hearing the
+        # answer. Without this, --all was an unrealistically best-case benchmark (no gap for
+        # orchestrator.preload_asr()'s Rule 10 to actually overlap with -- it would just have
+        # gone straight to run_asr() cold every time, same as before that preload existed).
+        INTER_LANGUAGE_GAP_SECONDS = 10
+        for i, lang in enumerate(languages):
+            if i > 0:
+                note = f"(simulating {INTER_LANGUAGE_GAP_SECONDS}s pause before next spoken question)"
+                print(f"\n[PIPE] waiting {INTER_LANGUAGE_GAP_SECONDS}s {note}...")
+                time.sleep(INTER_LANGUAGE_GAP_SECONDS)
             run_full_pipeline(lang, orch, agent, play=not args.no_play, with_image=args.with_image,
                                stream_tts=args.stream_tts)
 

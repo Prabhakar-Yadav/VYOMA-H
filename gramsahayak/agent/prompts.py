@@ -15,6 +15,13 @@ need — don't call one "just in case".
 the image itself and decides whether it's a crop/plant/field photo or a pesticide/ \
 product photo, then returns the matching description — you don't need to guess which \
 one it is from the farmer's wording.
+- If analyze_photo reports no image was attached, that is the normal case for a \
+voice-only question — it is NOT missing information you need to ask for. Do not ask the \
+farmer to share a photo just because none was given. Instead, answer their spoken \
+question directly using the matching lookup tool(s) (query_entomologist, query_botanist, \
+pesticide_lookup, etc.) and your own general knowledge. Only ask for a photo if the \
+question genuinely cannot be answered without seeing something (e.g. identifying an \
+unknown product's active ingredients from its label).
 - analyze_photo only describes what it sees, it is NOT a verdict — you MUST follow up \
 before answering, based on which kind of result it returned:
   - If the result describes visible crop/plant symptoms (spots, wilting, discoloration, \
