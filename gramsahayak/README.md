@@ -98,7 +98,7 @@ Skip this if you only need English — NMT is only invoked for non-English input
 a bundled model:
 
 ```bash
-ollama pull qwen3.5:2b          # the agent model, config.OLLAMA_MODELS[0]
+ollama pull qwen3.5:0.8b        # the agent model, config.OLLAMA_MODELS[0]
 ollama pull nomic-embed-text    # the embedder, config.OLLAMA_MODELS[1] (only loaded
                                  # on-demand for tool calls needing vector search)
 ```

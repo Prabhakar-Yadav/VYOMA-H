@@ -17,14 +17,20 @@ GATEWAY_PORT = 11400
 
 OLLAMA_HOST = "http://localhost:11434"
 # "qwen3:0.8b" from earlier notes isn't a real tag (confirmed: no such manifest on the
-# registry). Agent model is now qwen3.5:2b (bumped up from qwen3.5:0.8b once num_ctx's real
-# cost was measured and the budget had room). nomic-embed-text is an embedding model, served
-# over /api/embed rather than /api/generate (see test_timing.py) but it's still one of the
-# two models this pipeline's agent step actually needs resident.
-OLLAMA_MODELS = ["qwen3.5:2b", "nomic-embed-text"]
-# Smaller comparison point, not part of the pipeline -- used in test_timing.py to see how
-# load/unload time scales with model size (kept from before the agent model was bumped up).
-OLLAMA_COMPARISON_MODEL = "qwen3.5:0.8b"
+# registry). Agent model is back down to qwen3.5:0.8b (was bumped to qwen3.5:2b earlier when
+# the dev machine's budget had room; reverted on real Jetson hardware after a confirmed real
+# OOM/reboot -- Agent stays resident across turns by design (Rule 9 preload + no eviction
+# before ASR load), and 2b's real footprint (2.647GB, TIMING_RESULTS.md) plus ASR's own
+# multi-GB load spike pushed the device past its 7.6GB physical ceiling into swap thrashing
+# and a hard reset. 0.8b's real footprint is 1.331GB -- see TIMING_RESULTS.md for both. Note:
+# load/unload *time* is essentially identical between the two sizes in that same benchmark
+# (~5.4s either way) -- this change buys memory headroom, not faster reloads.
+# nomic-embed-text is an embedding model, served over /api/embed rather than /api/generate
+# (see test_timing.py) but it's still one of the two models this pipeline's agent step needs.
+OLLAMA_MODELS = ["qwen3.5:0.8b", "nomic-embed-text"]
+# Larger comparison point, not part of the pipeline -- used in test_timing.py to see how
+# load/unload time scales with model size (kept from before the agent model was reverted).
+OLLAMA_COMPARISON_MODEL = "qwen3.5:2b"
 
 # num_ctx is a live, adjustable setting -- not a one-time measurement -- exactly like the
 # hardware config vars (audio trigger type, camera trigger, output language). This constant
