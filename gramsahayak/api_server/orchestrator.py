@@ -174,11 +174,21 @@ class MemoryOrchestrator:
 
     def _await_async_load(self, name, timeout=30):
         """Blocks until `name` finishes an in-flight async load. If it's already LOADED by
-        the time this is called, returns instantly -- the golden window paid off in full."""
+        the time this is called, returns instantly -- the golden window paid off in full.
+
+        Treats a transient "unreachable" status read (see _worker_status -- that's what a
+        failed /status HTTP call itself maps to, not a state the worker ever reports) as
+        noise to retry through, not an immediate failure. Confirmed real: ASR's load is
+        CPU-heavy (CUDA/onnxruntime graph compilation) and can hold the GIL long enough that
+        the worker's own async event loop can't service a concurrent /status request in time
+        -- even though the load itself is proceeding fine in the background. Only gives up
+        early on a genuine WorkerState.ERROR (a real failure the worker itself reported) or
+        once `timeout` is truly exhausted."""
         t0 = time.perf_counter()
         deadline = time.time() + timeout
         while time.time() < deadline:
-            state = self._worker_status(name).get("state")
+            st = self._worker_status(name)
+            state = st.get("state")
             if state == "loaded":
                 waited = time.perf_counter() - t0
                 if waited > 0.05:
@@ -186,7 +196,10 @@ class MemoryOrchestrator:
                 else:
                     self._log(f"        {name} was already fully loaded -- zero additional wait (golden window paid off)")
                 return True
-            if state != "loading":
+            if state == "error":
+                self._log(f"        {name}'s async preload failed: {st.get('error')}")
+                return False
+            if state not in ("loading", "unreachable"):
                 return False  # not in flight -- caller should do a normal load instead
             time.sleep(0.1)
         self._log(f"        WARNING: {name} still not loaded after {timeout}s wait")
@@ -381,7 +394,16 @@ class MemoryOrchestrator:
         asr_state = self._worker_status("asr").get("state")
         if asr_state == "loading":
             self._log("        ASR was preloading during the previous turn's downtime -- waiting on it now")
-            self._await_async_load("asr")
+            # 90s, not the 30s default -- ASR's real load is ~35-56s (CUDA/onnxruntime graph
+            # compile, confirmed on real Jetson hardware), longer than TTS's ~3.2s that the
+            # 30s default was tuned for.
+            if not self._await_async_load("asr", timeout=90):
+                # Genuine failure (error or true timeout, not just "still loading" -- see
+                # _await_async_load's docstring) -- fall back to a fresh synchronous load
+                # rather than silently proceeding to infer against a not-ready worker (the
+                # real bug this fallback fixes: 409 Conflict from /asr/infer).
+                self._log("        ASR preload didn't complete -- falling back to a fresh synchronous load")
+                self._load("asr", reason=f"transcribing {language} input (preload fallback)")
         elif asr_state != "loaded":
             self._load("asr", reason=f"transcribing {language} input")
         else:
@@ -484,7 +506,12 @@ class MemoryOrchestrator:
         tts_state = self._worker_status("tts").get("state")
         if tts_state == "loading":
             self._log("        TTS was preloading during the Agent/NMT downtime -- waiting on it now")
-            self._await_async_load("tts")
+            if not self._await_async_load("tts"):
+                # Same fallback as run_asr() -- genuine failure (not just "still loading",
+                # see _await_async_load's docstring), so retry with a fresh synchronous load
+                # rather than silently proceeding to infer against a not-ready worker.
+                self._log("        TTS preload didn't complete -- falling back to a fresh synchronous load")
+                self._load("tts", reason="tts stage starting (preload fallback)")
         elif tts_state != "loaded":
             self._load("tts", reason="tts stage starting (no successful preload)")
         else:
