@@ -2,7 +2,7 @@
 
 This repository contains the core Retrieval-Augmented Generation (RAG) engines for **Gram Sahayak**, an edge-deployed multimodal AI assistant for rural India. These modules are specifically engineered to run efficiently on a Jetson Nano, interfacing with the Bhashini API for STT/TTS.
 
-## 🏗 Architecture Overview
+## Architecture Overview
 
 The system is split into two specialized, highly-optimized RAG engines:
 
@@ -26,7 +26,7 @@ The system is split into two specialized, highly-optimized RAG engines:
   - `< 0.55`: Open Search
 - **Smart Intent Extractor**: Isolates exactly what the farmer asked for (e.g. documents, eligibility, application process, benefits) and dynamically constructs the response.
 
-## 📂 Directory Structure
+## Directory Structure
 
 ```
 .
@@ -40,7 +40,7 @@ The system is split into two specialized, highly-optimized RAG engines:
     └── schemes_dataset.jsonl        # OKF Schemes Dataset
 ```
 
-## 🚀 Usage
+## Usage
 
 Both engines are designed to be imported as standalone modules into the main hardware orchestrator script (`stage.py`).
 
@@ -57,5 +57,5 @@ response = tutor_engine.query_tutor("Why is my shadow so long in the evening?")
 print(response["bhashini_voice_text"])
 ```
 
-## 📝 License
+## License
 Proprietary codebase for the VYOMA Innovation Challenge.
