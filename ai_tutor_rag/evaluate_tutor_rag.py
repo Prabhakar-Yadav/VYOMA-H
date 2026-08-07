@@ -91,7 +91,7 @@ def run_evaluation():
         category = item["category"]
         query_text = item["query"]
         
-        res = tutor.query_tutor(query_text, dialect="Bhojpuri", top_k=1)
+        res = tutor.query_tutor(query_text)
         top_match = res["top_match"]
         latency = res["latency_seconds"]
         score = top_match["similarity_score"]

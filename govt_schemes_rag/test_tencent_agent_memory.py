@@ -193,7 +193,7 @@ class TencentAgentMemoryHub:
             "how_to_apply": best_match["how_to_apply"] + eligibility_warning,
             "documents_required": best_match["documents_required"],
             "lcd_text": f"=== SCHEME: {best_match['scheme_name'][:25]} ===\nCategory: {best_match['query_category']}\nApply: {best_match['how_to_apply'][:35]}",
-            "voice_text": f"Kisan bhai! {best_match['scheme_name']} ke taht: {best_match['benefit_details']} Avedan karne ke liye {best_match['how_to_apply']}.",
+            "voice_text": f"Regarding {best_match['scheme_name']}: {best_match['benefit_details']} To apply: {best_match['how_to_apply']}.",
             "latency_ms": round(latency * 1000, 2)
         }
 
