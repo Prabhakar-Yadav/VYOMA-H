@@ -1,0 +1,29 @@
+GramSahayak crop-weather conversation -- full pipeline run on real Jetson hardware
+====================================================================================
+
+One folder per language (en/hi/ml/ta), each with the audio for all 5 turns of the
+same conversation:
+
+  turnN_question.wav  -- the farmer's spoken question, fed into ASR
+  turnN_answer.wav     -- the agent's spoken answer, produced by TTS (mms_tts engine)
+
+NOTE on English: this test harness feeds English turns as text directly (ASR is
+intentionally skipped for English -- see "[PIPE] English input -- skipping ASR and
+input-NMT" in the run logs), so there is no turnN_question.wav for en/. Only the 5
+turnN_answer.wav files exist for English.
+
+Conversation structure (same across all 4 languages, only the location changes):
+  Turn 1: "Something is eating holes in my potato leaves..." (pest ID -- no location given)
+  Turn 2: "Yes, please check when is a good time for me to spray." (still no location --
+          the agent is expected to ask for it before calling a location-dependent tool)
+  Turn 3: farmer gives location + pincode for the first time:
+            en: Punjab, pincode 143001
+            hi: Bhopal, pincode 251001
+            ml: Alappuzha district, pincode 688001
+            ta: Coimbatore, Tamil Nadu, pincode 641001
+  Turn 4: "What is the weather going to be like over the next few weeks?"
+  Turn 5: "Should I be worried about more pests attacking my potato crop?"
+
+All 4 runs (en, hi, ml, ta) completed on the Jetson with zero crashes/HTTP errors.
+Full text transcripts + per-iteration timing + memory load/evict timeline for each
+run are in api_server/pipeline_run_logs/jetson_crop_weather_<lang>_*.report.md.
