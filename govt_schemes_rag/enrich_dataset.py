@@ -188,9 +188,11 @@ def enrich_dataset(input_file="schemes_dataset.jsonl", output_file="enriched_sch
             # Remove duplicates
             injected_tags = list(set(injected_tags))
 
-            # Store enriched searchable text as a new field
+            # Store enriched searchable text as a new field with Name Priming Boost
+            scheme_name = scheme.get("scheme_name", "")
+            name_boost = f"{scheme_name} {scheme_id} " * 3
             tags_string = " ".join(injected_tags)
-            scheme["searchable_text"] = f"{base_text} {tags_string}".strip()
+            scheme["searchable_text"] = f"{name_boost} {base_text} {tags_string}".strip()
 
             if injected_tags:
                 enriched_count += 1
