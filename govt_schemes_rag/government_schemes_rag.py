@@ -116,6 +116,11 @@ SCHEME_ACRONYM_MAP: Dict[str, str] = {
         "Ayushman Bharat PM-JAY health insurance cashless hospitalization"
         " 500000"
     ),
+    "soil health card": "Soil Health Card Scheme mitti soil testing fertilizer khad",
+    "soil health": "Soil Health Card Scheme mitti soil testing fertilizer khad",
+    "shc": "Soil Health Card Scheme mitti soil testing fertilizer khad",
+    "jan dhan": "Pradhan Mantri Jan Dhan Yojana PMJDY bank account zero balance",
+    "pmjdy": "Pradhan Mantri Jan Dhan Yojana PMJDY bank account zero balance",
 }
 
 OUT_OF_DOMAIN_KEYWORDS = [
