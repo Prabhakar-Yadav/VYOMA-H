@@ -173,12 +173,10 @@ def expand_query(raw_query: str) -> str:
     """Expands raw user query using synonyms and acronym maps."""
     query_lower = raw_query.lower()
 
-    # Multi-word phrase expansion
     for phrase, expansions in SYNONYM_MAP.items():
         if " " in phrase and phrase in query_lower:
             raw_query += " " + " ".join(expansions)
 
-    # Tokenize and expand single-word synonyms and acronyms
     tokens = fast_tokenizer(raw_query)
     expanded_terms = set(tokens)
 
@@ -214,18 +212,6 @@ def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
                         f" {data.get('how_to_apply', '')}"
                         f" {data.get('documents_required', '')}",
                     )
-
-                    # Anti-Magnetism Keyword Cleanup
-                    cross_ref_keywords = (
-                        list(SCHEME_ACRONYM_MAP.keys())
-                        + ["mgnrega", "sbm-g", "aay", "secc"]
-                        + data.get("cross_references", [])
-                    )
-                    for kw in cross_ref_keywords:
-                        if kw.lower() not in name.lower():
-                            searchable_text = re.sub(
-                                rf"\b{kw}\b", "", searchable_text, flags=re.IGNORECASE
-                            )
 
                     schemes.append({
                         "scheme_id": s_id,
@@ -512,7 +498,6 @@ class GovernmentSchemesRAGEngine:
             "status": "success",
             "question": user_question,
             "text": answer,
-            "explanation_text": answer,
             "scheme_name": best["scheme_name"],
             "scheme_id": best["scheme_id"],
             "confidence_score": top_cosine_score,
@@ -521,18 +506,6 @@ class GovernmentSchemesRAGEngine:
                 "scheme_name": best["scheme_name"],
                 "similarity_score": top_cosine_score,
                 "rrf_score": top_fused_item.get("rrf_score", 0.0),
-            },
-            "okf_v02_card": {
-                "okf_version": "v0.2",
-                "knowledge_id": best["scheme_id"],
-                "title": best["scheme_name"],
-                "category": f"Government Support - {best.get('category', 'General')}",
-                "target_audience": "Farmers and Rural Citizens",
-                "key_facts_and_explanations": best["benefit_details"],
-                "action_steps": best["how_to_apply"],
-                "safety_disclaimer": (
-                    "Information based on official government scheme records."
-                ),
             },
             "tft_lcd_display_card": (
                 f"=== SCHEME: {best['scheme_name'][:25]} ===\n"
