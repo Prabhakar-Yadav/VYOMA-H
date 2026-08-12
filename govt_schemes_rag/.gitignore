@@ -1,0 +1,6 @@
+# Ignore temporary caches and SQLite binary files
+schemes_faiss_index.bin
+schemes.db
+__pycache__/
+*.pyc
+.pytest_cache/
