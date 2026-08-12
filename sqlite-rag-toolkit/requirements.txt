@@ -1,0 +1,14 @@
+# Real subset of gramsahayak/requirements.txt -- only what this toolkit's rag/ module
+# actually imports (okf.py, chunking.py, embed.py, store.py, retrieval.py,
+# build_index.py, ingest.py). Confirmed aarch64 wheels exist for apsw/sqlite-vec
+# (installed cleanly on Jetson during the main project's own build -- see
+# ../gramsahayak/RAG-BUILD-LOG.md Β§1), but this toolkit is meant to run on a normal
+# dev machine, not the edge device -- you build the .sqlite/.pkl files here, then copy
+# just those two files over to wherever the serving pipeline (Jetson or otherwise)
+# actually runs.
+ollama==0.6.2
+apsw==3.53.4.0
+sqlite-vec==0.1.9
+rank_bm25==0.2.2
+pyyaml>=6.0
+numpy==2.2.6
