@@ -1,17 +1,16 @@
 """
 Gram Sahayak Agent Tool Wrapper: Government Schemes RAG
 
-This module provides a direct python tool interface for GramSahayakAgent tool calls.
-It loads the GovernmentSchemesRAGEngine once and exposes `query_government_schemes()`.
-
-Usage in Agent:
-    from schemes_rag_tool import query_government_schemes
-
-    result = query_government_schemes("How can small farmers get 6000 rupees?")
+This module provides direct python tool interfaces for GramSahayakAgent tool calls.
+It loads the GovernmentSchemesRAGEngine once and exposes 4 distinct tools:
+- match_eligible_schemes_tool
+- get_scheme_details_tool
+- get_disaster_relief_options_tool
+- get_subsidy_details_tool
 """
 
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from government_schemes_rag import GovernmentSchemesRAGEngine
 
 logger = logging.getLogger("GramSahayak_RAGTool")
@@ -27,32 +26,50 @@ def get_rag_engine() -> GovernmentSchemesRAGEngine:
         _rag_engine_instance = GovernmentSchemesRAGEngine(jsonl_file="enriched_schemes_dataset.jsonl")
     return _rag_engine_instance
 
-def query_government_schemes(query: str, category: Optional[str] = None) -> Dict[str, Any]:
+def match_eligible_schemes_tool(farmer_profile: str, top_n: int = 3) -> Dict[str, Any]:
     """
-    Agent Tool Function: Query 500+ Indian Government Schemes for agricultural, financial,
-    insurance, housing, livestock, and welfare assistance.
-
-    Args:
-        query (str): The farmer's question in English or translated text.
-        category (Optional[str]): Optional category filter (e.g., 'Financial Assistance', 'Insurance').
-
-    Returns:
-        Dict[str, Any]: Structured result dictionary containing:
-            - status (str): 'success' or 'fallback'
-            - text (str): Concise answer capped at 350 chars for voice/LCD
-            - bhashini_voice_text (str): Speech-optimized text for TTS
-            - tft_lcd_display_card (str): Display card text for TFT-LCD screen
-            - scheme_name (str): Matched scheme name
-            - scheme_id (str): Matched scheme ID
-            - confidence_score (float): Cosine similarity score
-            - latency_seconds (float): Search execution time
+    Agent Tool: Match eligible schemes based on farmer profile.
+    Returns the top N schemes and the exact verbatim eligibility criteria.
     """
     engine = get_rag_engine()
-    return engine.query_schemes(user_question=query, category=category)
+    return engine.match_eligible_schemes(farmer_profile, top_n)
+
+def get_scheme_details_tool(scheme_name: str, user_question: str) -> Dict[str, Any]:
+    """
+    Agent Tool: Answer a specific question about a known scheme.
+    Uses BM25 exact anchor matching to guarantee retrieval.
+    """
+    engine = get_rag_engine()
+    return engine.get_scheme_details(scheme_name, user_question)
+
+def get_disaster_relief_options_tool(disaster_context: str) -> Dict[str, Any]:
+    """
+    Agent Tool: Get disaster relief, crop loss, or insurance options.
+    Returns verbatim application and benefit details.
+    """
+    engine = get_rag_engine()
+    return engine.get_disaster_relief_options(disaster_context)
+
+def get_subsidy_details_tool(scheme_name: str) -> Dict[str, Any]:
+    """
+    Agent Tool: Retrieve raw, deterministic subsidy and financial benefit details.
+    """
+    engine = get_rag_engine()
+    return engine.get_subsidy_details(scheme_name)
 
 if __name__ == "__main__":
     # Self-test
-    logger.info("Testing agent tool wrapper...")
-    res = query_government_schemes("How to get 6000 rupees in bank account?")
-    print(f"Tool Result -> Scheme: {res.get('scheme_name')} | Status: {res.get('status')} | Score: {res.get('confidence_score')}")
-    print(f"Voice Text: {res.get('bhashini_voice_text')}")
+    logger.info("Testing agent tool wrappers...")
+    engine = get_rag_engine()
+    
+    res1 = match_eligible_schemes_tool("small farmer in UP with 2 acres")
+    print("Match Eligible:", res1)
+    
+    res2 = get_scheme_details_tool("PM-KISAN", "How do I apply?")
+    print("Scheme Details:", res2)
+    
+    res3 = get_disaster_relief_options_tool("my crops were destroyed by flood")
+    print("Disaster Relief:", res3)
+    
+    res4 = get_subsidy_details_tool("PM-KISAN")
+    print("Subsidy Details:", res4)

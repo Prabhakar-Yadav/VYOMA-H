@@ -304,6 +304,24 @@ class GovernmentSchemesRAGEngine:
         )
         faiss.normalize_L2(self.category_embeddings)
 
+        # Build an exact dictionary lookup for scheme_name and scheme_id
+        self.scheme_lookup = {}
+        for s in self.schemes:
+            s_name = s["scheme_name"].lower()
+            s_id = s.get("scheme_id", "").lower()
+            self.scheme_lookup[s_name] = s
+            if s_id:
+                self.scheme_lookup[s_id] = s
+            
+            # Extract parenthetical acronyms for quick lookup
+            match = re.search(r'\((.*?)\)', s_name)
+            if match:
+                acronym = match.group(1).strip()
+                self.scheme_lookup[acronym] = s
+                # Also index the name without the acronym
+                name_without_acronym = s_name.replace(f'({match.group(1)})', '').strip()
+                self.scheme_lookup[name_without_acronym] = s
+
         gc.collect()
         logger.info("RAG Engine Initialization Complete!")
 
@@ -435,4 +453,121 @@ class GovernmentSchemesRAGEngine:
             "tft_lcd_display_card": format_lcd_display_card(best, answer, top_cosine_score),
             "bhashini_voice_text": format_voice_text(best, answer),
             "latency_seconds": latency,
+        }
+
+    def match_eligible_schemes(self, farmer_profile: str, top_n: int = 3) -> Dict[str, Any]:
+        """Matches farmer profile to schemes and returns the top N eligible schemes."""
+        start_time = time.time()
+        vector_query, bm25_query = expand_query(farmer_profile)
+        vector_results = self.vector_index.search(vector_query, top_k=top_n*2)
+        bm25_results = self.bm25_index.search(bm25_query, top_k=top_n*2)
+        fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
+        
+        fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
+        top_schemes = fused_results[:top_n]
+        
+        results = []
+        for item in top_schemes:
+            scheme = item["scheme"]
+            results.append({
+                "scheme_name": scheme["scheme_name"],
+                "eligibility_reason": scheme.get("eligibility_criteria", "Eligibility criteria not found in dataset."),
+                "rrf_score": item["rrf_score"]
+            })
+            
+        return {
+            "status": "success",
+            "matches": results,
+            "latency_seconds": round(time.time() - start_time, 4)
+        }
+
+    def get_scheme_details(self, scheme_name: str, user_question: str) -> Dict[str, Any]:
+        """Fetches a specific scheme by name and answers the user's question about it."""
+        start_time = time.time()
+        s_name_lower = scheme_name.lower().strip()
+        exact = self.scheme_lookup.get(s_name_lower)
+        
+        if exact:
+            answer = extract_answer_by_intent(user_question, exact)
+            return {
+                "outcome": "scheme_found",
+                "status": "success",
+                "question": user_question,
+                "text": answer,
+                "scheme_name": exact["scheme_name"],
+                "scheme_id": exact["scheme_id"],
+                "confidence_score": 1.0,
+                "top_match": {
+                    "doc_id": exact["scheme_id"],
+                    "scheme_name": exact["scheme_name"],
+                    "similarity_score": 1.0,
+                    "rrf_score": 1.0,
+                },
+                "tft_lcd_display_card": format_lcd_display_card(exact, answer, 1.0),
+                "bhashini_voice_text": format_voice_text(exact, answer),
+                "latency_seconds": round(time.time() - start_time, 4),
+            }
+
+        # Fallback to RRF
+        combined_query = f"{scheme_name} {user_question}"
+        return self.query_schemes(user_question=combined_query)
+
+    def get_disaster_relief_options(self, disaster_context: str) -> Dict[str, Any]:
+        """Finds disaster relief/insurance schemes based on the disaster context."""
+        start_time = time.time()
+        vector_query, bm25_query = expand_query(disaster_context)
+        
+        vector_results = self.vector_index.search(vector_query, top_k=5)
+        bm25_results = self.bm25_index.search(bm25_query, top_k=5)
+        fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
+        fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
+        
+        results = []
+        for item in fused_results[:3]: # Top 3 options
+            scheme = item["scheme"]
+            results.append({
+                "scheme_name": scheme["scheme_name"],
+                "how_to_apply": scheme.get("how_to_apply", "Application details not found."),
+                "benefit_details": scheme.get("benefit_details", "Benefit details not found.")
+            })
+            
+        return {
+            "status": "success",
+            "options": results,
+            "latency_seconds": round(time.time() - start_time, 4)
+        }
+
+    def get_subsidy_details(self, scheme_name: str) -> Dict[str, Any]:
+        """Retrieves raw, deterministic subsidy/benefit details for a specific scheme."""
+        start_time = time.time()
+        
+        s_name_lower = scheme_name.lower().strip()
+        exact = self.scheme_lookup.get(s_name_lower)
+        
+        if exact:
+            return {
+                "status": "success",
+                "scheme_name": exact["scheme_name"],
+                "raw_benefit_details": exact.get("benefit_details", "No benefit details found in dataset."),
+                "latency_seconds": round(time.time() - start_time, 4)
+            }
+
+        # Fallback to RRF
+        vector_query, bm25_query = expand_query(scheme_name)
+        
+        vector_results = self.vector_index.search(vector_query, top_k=3)
+        bm25_results = self.bm25_index.search(bm25_query, top_k=3)
+        fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
+        fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
+        
+        if not fused_results:
+             return {"status": "error", "message": "Scheme not found."}
+             
+        best = fused_results[0]["scheme"]
+        
+        return {
+            "status": "success",
+            "scheme_name": best["scheme_name"],
+            "raw_benefit_details": best.get("benefit_details", "No benefit details found in dataset."),
+            "latency_seconds": round(time.time() - start_time, 4)
         }
