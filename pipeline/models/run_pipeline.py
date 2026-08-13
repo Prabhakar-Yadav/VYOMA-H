@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent
 ASR_DIR = ROOT / "ai4bharat" / "indic-conformer-600m-multilingual"
 NMT_DIR = ROOT / "nmt" / "indicTrans2"
-RAG = REPO / "krishi-rag"
+RAG = REPO.parent / "krishi-rag"
 
 sys.path.insert(0, str(RAG / "src"))
 sys.path.insert(0, str(NMT_DIR))
@@ -78,31 +78,60 @@ def translate(text: str, src: str, tgt: str) -> str:
 
 # ----------------------------------------------------------------- 3. RAG
 def diagnose(english: str, has_image: bool = False):
-    from grounding import CoverageGate, build_response, lookup_treatment
-    from okf import load_bundle
-    from phonetic import PhoneticIndex
-    from retrieval import HybridRetriever
-    from router import Route, build_product_index, route
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from module_router import route_module, Module
 
-    concepts = load_bundle(RAG / "bundle")
-    by_id = {c.concept_id: c for c in concepts}
-    retriever = HybridRetriever.load(RAG / "index" / "krishi.pkl")
-    gate = CoverageGate(by_id)
-    products = build_product_index(concepts)
+    decision = route_module(english)
+    print(f"   module     : {decision.module.value}  ({decision.reason})")
 
-    d = route(english, has_image=has_image, crop=None, coverage_gate=gate,
-              product_names=products, product_index=PhoneticIndex(products),
-              crop_index=PhoneticIndex(gate.canonical))
-    print(f"   route      : {d.route.value}  ({d.reason})")
-    if d.route == Route.PESTICIDE and d.product:
-        return lookup_treatment(d.product, by_id)
-    if not d.needs_retrieval:
-        from grounding import Outcome, Response
-        return Response(outcome=Outcome.OUT_OF_SCOPE,
-                        spoken_text="The model may answer this directly.")
-    return build_response(english, retriever, by_id, crop=d.crop,
-                          require_crop=d.route in (Route.DIAGNOSE,),
-                          boost_source=d.boost_source)
+    if decision.module == Module.SCHEMES:
+        schemes_dir = REPO.parent / "schemes-rag"
+        sys.path.insert(0, str(schemes_dir))
+        from government_schemes_rag import GovernmentSchemesRAGEngine
+
+        engine = GovernmentSchemesRAGEngine(jsonl_file=str(schemes_dir / "enriched_schemes_dataset.jsonl"))
+        res = engine.query_schemes(english)
+
+        from dataclasses import dataclass
+        @dataclass
+        class SchemeResponse:
+            outcome: str
+            condition_id: str
+            label_ids: list
+            spoken_text: str
+
+        return SchemeResponse(
+            outcome=res.get("status", "success"),
+            condition_id=res.get("scheme_id"),
+            label_ids=[],
+            spoken_text=res.get("bhashini_voice_text", "")
+        )
+    else:
+        from grounding import CoverageGate, build_response, lookup_treatment
+        from okf import load_bundle
+        from phonetic import PhoneticIndex
+        from retrieval import HybridRetriever
+        from router import Route, build_product_index, route
+
+        concepts = load_bundle(RAG / "bundle")
+        by_id = {c.concept_id: c for c in concepts}
+        retriever = HybridRetriever.load(RAG / "index" / "krishi.pkl")
+        gate = CoverageGate(by_id)
+        products = build_product_index(concepts)
+
+        d = route(english, has_image=has_image, crop=None, coverage_gate=gate,
+                  product_names=products, product_index=PhoneticIndex(products),
+                  crop_index=PhoneticIndex(gate.canonical))
+        print(f"   route      : {d.route.value}  ({d.reason})")
+        if d.route == Route.PESTICIDE and d.product:
+            return lookup_treatment(d.product, by_id)
+        if not d.needs_retrieval:
+            from grounding import Outcome, Response
+            return Response(outcome=Outcome.OUT_OF_SCOPE,
+                            spoken_text="The model may answer this directly.")
+        return build_response(english, retriever, by_id, crop=d.crop,
+                              require_crop=d.route in (Route.DIAGNOSE,),
+                              boost_source=d.boost_source)
 
 
 def main() -> int:

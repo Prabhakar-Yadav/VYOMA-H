@@ -91,35 +91,68 @@ def main():
         Path(dst).write_text(" ".join(out), encoding="utf-8")
 
     elif what == "rag":
-        sys.path.insert(0, str(HERE / "krishi-rag" / "src"))
-        from grounding import CoverageGate, build_response, lookup_treatment
-        from okf import load_bundle
-        from phonetic import PhoneticIndex
-        from retrieval import HybridRetriever
-        from router import Route, build_product_index, route
-        concepts = load_bundle(HERE / "krishi-rag" / "bundle")
-        by_id = {c.concept_id: c for c in concepts}
-        retr = HybridRetriever.load(HERE / "krishi-rag" / "index" / "krishi.pkl")
-        gate = CoverageGate(by_id)
-        prods = build_product_index(concepts)
+        sys.path.insert(0, str(HERE / "pipeline" / "models"))
+        if not (HERE / "pipeline").exists():
+            sys.path.insert(0, str(Path(__file__).resolve().parent / "models"))
+        
+        from module_router import route_module, Module
+        
         q = Path(src).read_text(encoding="utf-8").strip()
-        d = route(q, has_image=False, crop=None, coverage_gate=gate,
-                  product_names=prods, product_index=PhoneticIndex(prods),
-                  crop_index=PhoneticIndex(gate.canonical))
-        if d.route == Route.PESTICIDE and d.product:
-            r = lookup_treatment(d.product, by_id)
-        elif not d.needs_retrieval:
-            from grounding import Outcome, Response
-            r = Response(outcome=Outcome.OUT_OF_SCOPE,
-                         spoken_text="(model may answer this directly)")
+        decision = route_module(q)
+        
+        if decision.module == Module.SCHEMES:
+            schemes_dir = HERE / "schemes-rag"
+            if not schemes_dir.exists():
+                schemes_dir = Path(__file__).resolve().parent.parent / "schemes-rag"
+            
+            sys.path.insert(0, str(schemes_dir))
+            from government_schemes_rag import GovernmentSchemesRAGEngine
+            
+            engine = GovernmentSchemesRAGEngine(jsonl_file=str(schemes_dir / "enriched_schemes_dataset.jsonl"))
+            res = engine.query_schemes(q)
+            
+            outcome = res.get("status", "success")
+            condition = res.get("scheme_id")
+            label_ids = []
+            text = res.get("bhashini_voice_text", "")
+            
+            Path(dst).write_text(json.dumps(
+                {"outcome": outcome, "condition": condition,
+                 "label_ids": label_ids, "text": text},
+                ensure_ascii=False), encoding="utf-8")
         else:
-            r = build_response(q, retr, by_id, crop=d.crop,
-                               require_crop=d.route in (Route.DIAGNOSE,),
-                               boost_source=d.boost_source)
-        Path(dst).write_text(json.dumps(
-            {"outcome": r.outcome.value, "condition": r.condition_id,
-             "label_ids": r.label_ids, "text": r.spoken_text},
-            ensure_ascii=False), encoding="utf-8")
+            krishi_dir = HERE / "krishi-rag"
+            if not krishi_dir.exists():
+                krishi_dir = Path(__file__).resolve().parent.parent / "krishi-rag"
+            
+            sys.path.insert(0, str(krishi_dir / "src"))
+            from grounding import CoverageGate, build_response, lookup_treatment
+            from okf import load_bundle
+            from phonetic import PhoneticIndex
+            from retrieval import HybridRetriever
+            from router import Route, build_product_index, route
+            concepts = load_bundle(krishi_dir / "bundle")
+            by_id = {c.concept_id: c for c in concepts}
+            retr = HybridRetriever.load(krishi_dir / "index" / "krishi.pkl")
+            gate = CoverageGate(by_id)
+            prods = build_product_index(concepts)
+            d = route(q, has_image=False, crop=None, coverage_gate=gate,
+                      product_names=prods, product_index=PhoneticIndex(prods),
+                      crop_index=PhoneticIndex(gate.canonical))
+            if d.route == Route.PESTICIDE and d.product:
+                r = lookup_treatment(d.product, by_id)
+            elif not d.needs_retrieval:
+                from grounding import Outcome, Response
+                r = Response(outcome=Outcome.OUT_OF_SCOPE,
+                             spoken_text="(model may answer this directly)")
+            else:
+                r = build_response(q, retr, by_id, crop=d.crop,
+                                   require_crop=d.route in (Route.DIAGNOSE,),
+                                   boost_source=d.boost_source)
+            Path(dst).write_text(json.dumps(
+                {"outcome": r.outcome.value, "condition": r.condition_id,
+                 "label_ids": r.label_ids, "text": r.spoken_text},
+                ensure_ascii=False), encoding="utf-8")
 
     elif what == "tts":
         import soundfile as sf
