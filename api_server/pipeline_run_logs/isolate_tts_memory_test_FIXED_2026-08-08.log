@@ -1,0 +1,84 @@
+[21:12:41] === starting gateway (api_server/run_all.py) ===
+[21:12:42] gateway up
+[21:12:42] baseline (gateway only, nothing loaded): used=1373MB avail=6037MB swap=165MB
+[21:12:42] 
+=== TEST A: one /tts/infer call, long text, sampled every 0.5s ===
+[21:12:53] after /tts/load: used=2087MB avail=5322MB swap=165MB
+[21:13:14] Test A call finished in 20.4s, num_chunks=27, engine=mms_tts
+[21:13:14] Test A per-sample memory trace (used MB, avail MB):
+[21:13:14]   sample   0 t+  0.0s  used=2087MB (delta=+0)  avail=5322MB
+[21:13:14]   sample   1 t+  0.5s  used=2103MB (delta=+16)  avail=5306MB
+[21:13:14]   sample   2 t+  1.0s  used=2130MB (delta=+43)  avail=5279MB
+[21:13:14]   sample   3 t+  1.5s  used=2146MB (delta=+59)  avail=5263MB
+[21:13:14]   sample   4 t+  2.0s  used=2153MB (delta=+66)  avail=5256MB
+[21:13:14]   sample   5 t+  2.5s  used=2163MB (delta=+76)  avail=5246MB
+[21:13:14]   sample   6 t+  3.0s  used=2289MB (delta=+202)  avail=5121MB
+[21:13:14]   sample   7 t+  3.5s  used=2645MB (delta=+558)  avail=4764MB
+[21:13:14]   sample   8 t+  4.0s  used=2942MB (delta=+855)  avail=4467MB
+[21:13:14]   sample   9 t+  4.5s  used=3060MB (delta=+973)  avail=4349MB
+[21:13:14]   sample  10 t+  5.1s  used=3058MB (delta=+971)  avail=4351MB
+[21:13:14]   sample  11 t+  5.6s  used=3066MB (delta=+979)  avail=4343MB
+[21:13:14]   sample  12 t+  6.1s  used=3069MB (delta=+982)  avail=4340MB
+[21:13:14]   sample  13 t+  6.6s  used=3096MB (delta=+1009)  avail=4314MB
+[21:13:14]   sample  14 t+  7.1s  used=3096MB (delta=+1009)  avail=4314MB
+[21:13:14]   sample  15 t+  7.6s  used=3108MB (delta=+1021)  avail=4302MB
+[21:13:14]   sample  16 t+  8.1s  used=3110MB (delta=+1023)  avail=4300MB
+[21:13:14]   sample  17 t+  8.6s  used=3110MB (delta=+1023)  avail=4299MB
+[21:13:14]   sample  18 t+  9.1s  used=3124MB (delta=+1037)  avail=4285MB
+[21:13:14]   sample  19 t+  9.6s  used=3124MB (delta=+1037)  avail=4285MB
+[21:13:14]   sample  20 t+ 10.2s  used=3125MB (delta=+1038)  avail=4285MB
+[21:13:14]   sample  21 t+ 10.7s  used=3125MB (delta=+1038)  avail=4284MB
+[21:13:14]   sample  22 t+ 11.2s  used=3124MB (delta=+1037)  avail=4286MB
+[21:13:14]   sample  23 t+ 11.7s  used=3119MB (delta=+1032)  avail=4291MB
+[21:13:14]   sample  24 t+ 12.2s  used=3120MB (delta=+1033)  avail=4289MB
+[21:13:14]   sample  25 t+ 12.7s  used=3122MB (delta=+1035)  avail=4287MB
+[21:13:14]   sample  26 t+ 13.2s  used=3120MB (delta=+1033)  avail=4289MB
+[21:13:14]   sample  27 t+ 13.7s  used=3121MB (delta=+1034)  avail=4288MB
+[21:13:14]   sample  28 t+ 14.2s  used=3122MB (delta=+1035)  avail=4287MB
+[21:13:14]   sample  29 t+ 14.7s  used=3123MB (delta=+1036)  avail=4286MB
+[21:13:14]   sample  30 t+ 15.2s  used=3121MB (delta=+1034)  avail=4288MB
+[21:13:14]   sample  31 t+ 15.8s  used=3124MB (delta=+1037)  avail=4285MB
+[21:13:14]   sample  32 t+ 16.3s  used=3125MB (delta=+1038)  avail=4284MB
+[21:13:14]   sample  33 t+ 16.8s  used=3123MB (delta=+1036)  avail=4286MB
+[21:13:14]   sample  34 t+ 17.3s  used=3126MB (delta=+1039)  avail=4283MB
+[21:13:14]   sample  35 t+ 17.8s  used=3124MB (delta=+1037)  avail=4285MB
+[21:13:14]   sample  36 t+ 18.3s  used=3125MB (delta=+1038)  avail=4284MB
+[21:13:14]   sample  37 t+ 18.8s  used=3126MB (delta=+1039)  avail=4283MB
+[21:13:14]   sample  38 t+ 19.3s  used=3127MB (delta=+1040)  avail=4282MB
+[21:13:14]   sample  39 t+ 19.9s  used=3142MB (delta=+1055)  avail=4265MB
+[21:13:14] after Test A call returns (before unload): used=3144MB avail=4263MB swap=165MB
+[21:13:14] 
+=== TEST B: 10 separate /tts/infer calls, same process, SHORT text each time ===
+[21:13:14] after call 1/10 (0.5s): used=3138MB avail=4270MB swap=165MB
+[21:13:15] after call 2/10 (0.5s): used=3138MB avail=4269MB swap=165MB
+[21:13:15] after call 3/10 (0.5s): used=3139MB avail=4269MB swap=165MB
+[21:13:16] after call 4/10 (0.5s): used=3139MB avail=4268MB swap=165MB
+[21:13:16] after call 5/10 (0.5s): used=3139MB avail=4268MB swap=165MB
+[21:13:17] after call 6/10 (0.5s): used=3139MB avail=4268MB swap=165MB
+[21:13:17] after call 7/10 (0.5s): used=3139MB avail=4268MB swap=165MB
+[21:13:18] after call 8/10 (0.5s): used=3140MB avail=4267MB swap=165MB
+[21:13:18] after call 9/10 (0.5s): used=3141MB avail=4266MB swap=165MB
+[21:13:19] after call 10/10 (0.5s): used=3143MB avail=4264MB swap=165MB
+[21:13:19] 
+=== TEST C: unload (real process-kill), reload, infer once more ===
+[21:13:21] after /tts/unload (process-kill): used=1383MB avail=6024MB swap=165MB
+[21:13:33] after fresh /tts/load: used=1997MB avail=5410MB swap=165MB
+[21:13:37] after one infer on the fresh process: used=2830MB avail=4577MB swap=165MB
+[21:13:38] after final /tts/unload: used=1393MB avail=6014MB swap=165MB
+[21:13:38] 
+=== TEST D: 10 separate /nmt/infer calls, same process (mirrors sticky-resident policy) ===
+[21:13:46] after /nmt/load: used=2247MB avail=5160MB swap=165MB
+[21:13:47] after nmt call 1/10 (0.9s): used=2278MB avail=5129MB swap=165MB
+[21:13:48] after nmt call 2/10 (1.1s): used=2274MB avail=5133MB swap=165MB
+[21:13:49] after nmt call 3/10 (1.1s): used=2274MB avail=5133MB swap=165MB
+[21:13:49] after nmt call 4/10 (0.5s): used=2275MB avail=5133MB swap=165MB
+[21:13:50] after nmt call 5/10 (1.1s): used=2275MB avail=5132MB swap=165MB
+[21:13:52] after nmt call 6/10 (1.1s): used=2275MB avail=5132MB swap=165MB
+[21:13:53] after nmt call 7/10 (1.1s): used=2275MB avail=5132MB swap=165MB
+[21:13:54] after nmt call 8/10 (1.1s): used=2275MB avail=5132MB swap=165MB
+[21:13:55] after nmt call 9/10 (1.1s): used=2275MB avail=5132MB swap=165MB
+[21:13:56] after nmt call 10/10 (1.1s): used=2275MB avail=5132MB swap=165MB
+[21:13:57] after /nmt/unload: used=1394MB avail=6013MB swap=165MB
+[21:13:57] 
+=== ALL TESTS DONE ===
+[21:13:57] shutting down gateway

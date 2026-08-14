@@ -1,0 +1,406 @@
+W0809 01:05:44.870000 12635 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 6.56s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.65GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.65GB (37.8%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 1/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ta input
+[ORCH]         asr ready in 2.17s
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=unloaded tts=unloaded | total=2.65GB (37.8%), budget=7.0GB
+[ORCH]         asr infer: 3.57s
+[PIPE] transcribed (ta): என் உருளைக்கு அங்கு இலைகளில் ஏதோ துளைகள் சாப்பிடுகின்றன இது என்ன பூச்சி நான் அதை என்ன செய்ய வேண்டும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ta->EN)
+[ORCH]         nmt ready in 5.08s
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.00s
+[PIPE] translated to English: My cylinder has holes in the leaves that eat what insect is this and what should I do with it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=965ms prefill=1870ms (4633 tok) gen=3888ms (160 tok)
+    -> analyze_photo({}) -> "No image was attached to this message \u2014 nothing to analyze."
+    [agent iter 2] load=1747ms prefill=59ms (4820 tok) gen=21163ms (788 tok)
+    agent turn wall-clock: 29.95s
+[ORCH]         agent turn: 29.95s
+[PIPE] agent answer (English, raw): You're describing a plant issue where leaves have holes from insect feeding. This is likely pest damage to your crops. 
+
+Common insects that create hole-like damage include:
+- **Aphids** - small green/pink bugs that suck sap, often cause leaf curling and yellow spots
+- **Leafhoppers** - jump-sized pests that feed on leaves causing holes or stunted growth  
+- **Spider mites** - tiny webbed insects that create fine webbing with tiny brown dots
+
+To give you the best advice for your specific situation:
+1. What crop are you growing? (e.g., chili, tomato, pepper)
+2. Where is this located in India? This helps me check weather conditions and suggest appropriate treatment timing.
+
+Once I know more about what's grown there, I can tell you exactly which insect it likely is and recommend the best control methods for your area.
+[PIPE] agent answer (English, markdown-stripped): You're describing a plant issue where leaves have holes from insect feeding. This is likely pest damage to your crops.
+
+Common insects that create hole-like damage include:
+Aphids - small green/pink bugs that suck sap, often cause leaf curling and yellow spots
+Leafhoppers - jump-sized pests that feed on leaves causing holes or stunted growth
+Spider mites - tiny webbed insects that create fine webbing with tiny brown dots
+
+To give you the best advice for your specific situation:
+What crop are you growing? (e.g., chili, tomato, pepper)
+Where is this located in India? This helps me check weather conditions and suggest appropriate treatment timing.
+
+Once I know more about what's grown there, I can tell you exactly which insect it likely is and recommend the best control methods for your area.
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=1.04GB | total=4.64GB (66.3%), budget=7.0GB
+[ORCH]         nmt infer: 7.15s
+[PIPE] translated answer (ta): பூச்சி உண்பதால் இலைகளில் துளைகள் இருக்கும் ஒரு தாவரப் பிரச்சினையை நீங்கள் விவரிக்கிறீர்கள். இது உங்கள் பயிர்களுக்கு பூச்சி சேதத்தை ஏற்படுத்தக்கூடும்.
+
+துளை போன்ற சேதத்தை உருவாக்கும் பொதுவான பூச்சிகள் பின்வருமாறுஃ அஃபிட்கள்-சாற்றை உறிஞ்சும் சிறிய பச்சை/இளஞ்சிவப்பு பிழைகள், பெரும்பாலும் இலை சுருங்குதல் மற்றும் மஞ்சள் புள்ளிகளை ஏற்படுத்துகின்றன-லீஃபாப்பர்ஸ்-துளைகள் அல்லது வளர்ச்சி குன்றிய சிலந்தி பூச்சிகளை ஏற்படுத்தும்
+
+உங்கள் குறிப்பிட்ட சூழ்நிலைக்கு சிறந்த ஆலோசனையை வழங்கஃ நீங்கள் எந்தப் பயிரை பயிரிடுகிறீர்கள்? (எ. கா., மிளகாய், தக்காளி, மிளகு) இது இந்தியாவில் எங்கே அமைந்துள்ளது? இது வானிலை நிலைமைகளை சரிபார்க்கவும், பொருத்தமான சிகிச்சை நேரத்தை பரிந்துரைக்கவும் எனக்கு உதவுகிறது.
+
+அங்கு என்ன வளர்க்கப்படுகிறது என்பதைப் பற்றி நான் மேலும் அறிந்தவுடன், அது எந்தப் பூச்சி என்பதை நான் உங்களுக்குச் சொல்ல முடியும், மேலும் உங்கள் பகுதிக்கு சிறந்த கட்டுப்பாட்டு முறைகளை பரிந்துரைக்கிறேன்.
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.70GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.37s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=1.04GB | total=4.64GB (66.3%), budget=7.0GB
+[ORCH]         tts infer: 5.34s, observed peak pool ~4.64GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.78s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_1of5.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 58.16s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 2/5]
+W0809 01:06:38.702000 13442 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+W0809 01:07:16.544000 14024 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 2.95s
+[PIPE] transcribed (ta): ஆம் நான் தெளிக்க சரியான நேரம் எப்போது என்பதை தயவு செய்து சரிபார்க்கவும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.27s
+[PIPE] translated to English: Yes please check when is the right time for me to spray
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1599ms prefill=567ms (4879 tok) gen=6232ms (250 tok)
+    agent turn wall-clock: 8.47s
+[ORCH]         agent turn: 8.47s
+[PIPE] agent answer (English, raw): You're asking about when to spray pesticide, but I need your location first - either your **district**, **state**, or **pincode** (only one of these needed). 
+
+Once you share where this farm is located in India, I can check:
+- The best time for spraying based on current weather conditions
+- Whether it's safe to spray soon
+- When pest activity might be highest
+
+Please tell me your district/state/pincode so I can give you the right advice.
+[PIPE] agent answer (English, markdown-stripped): You're asking about when to spray pesticide, but I need your location first - either your district, state, or pincode (only one of these needed).
+
+Once you share where this farm is located in India, I can check:
+The best time for spraying based on current weather conditions
+Whether it's safe to spray soon
+When pest activity might be highest
+
+Please tell me your district/state/pincode so I can give you the right advice.
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=4.44GB (63.4%), budget=7.0GB
+[ORCH]         nmt infer: 4.31s
+[PIPE] translated answer (ta): நீங்கள் எப்போது பூச்சிக்கொல்லியை தெளிக்க வேண்டும் என்று கேட்கிறீர்கள், ஆனால் எனக்கு முதலில் உங்கள் இருப்பிடம் தேவை-உங்கள் மாவட்டம், மாநிலம் அல்லது பின்கோடு (இவற்றில் ஒன்று மட்டுமே தேவை).
+
+இந்தியாவில் இந்த பண்ணை எங்குள்ளது என்பதை நீங்கள் பகிர்ந்து கொண்டவுடன், தற்போதைய வானிலை நிலைமைகளின் அடிப்படையில் தெளிக்க சிறந்த நேரம் என்னவென்றால், விரைவில் தெளிக்க பாதுகாப்பானதா என்றால் பூச்சி செயல்பாடு அதிகமாக இருக்கும்போது
+
+உங்கள் மாவட்டம்/மாநிலம்/பின்கோடு பற்றி எனக்குச் சொல்லுங்கள், அதனால் நான் உங்களுக்கு சரியான ஆலோசனையை வழங்க முடியும்.
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.67GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.32s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 1.92s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=0.36GB | total=3.96GB (56.5%), budget=7.0GB
+[ORCH]         tts infer: 4.96s, observed peak pool ~3.96GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.72s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_2of5.wav (engine=mms_tts, 3 chunks)
+[PIPE] total turn wall-clock: 28.25s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 3/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 3.15s
+[PIPE] transcribed (ta): நான் தமிழ் நாட்டின் கோயம்புத்தூரிலிருக்கிறேன் எனது பின்கோடு வடஹாள்கல்லராகும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.24s
+[PIPE] translated to English: I am in Coimbatore, Tamil Nadu, and my hometown is Vadahalli.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=971ms prefill=636ms (5008 tok) gen=7511ms (291 tok)
+    -> query_spray_window({'state': 'Tamil Nadu'}) -> {"spray_window": "Best spray window: Aug 22-27 (6 day(s), ~25% rain chance, ~10% wind risk). Buffer alternatives if that shifts: Sep 7-8.", "skip_watering": "No
+    [agent iter 2] load=2104ms prefill=860ms (5403 tok) gen=2760ms (95 tok)
+    -> query_pest_pressure_window({'state': 'Tamil Nadu'}) -> {"pest_pressure": "weeks of Aug 10, Aug 17, Aug 24, Aug 31, Sep 7: high pest-favorable conditions (~86% of years warm+humid) -- extra scouting recommended.", "c
+    [agent iter 3] load=1264ms prefill=84ms (5587 tok) gen=16931ms (671 tok)
+    agent turn wall-clock: 36.31s
+[ORCH]         agent turn: 36.31s
+Flash attention 2 is not installed
+[PIPE] agent answer (English, raw): Based on your location in Tamil Nadu, here's what you need to know about spraying timing:
+
+**Best Spray Window:** August 22-27 (6 days) - This is when conditions are most favorable for effective pest control with minimal rain interference (~10% wind risk). During this period, irrigation will likely be needed throughout the farm.
+
+**Important Notes:**
+- There's a moderate chance of rain during these dates (~25%), so spray carefully to avoid runoff
+- Pest activity is high on specific days (Aug 17, Aug 31) due to warm+humid weather which favors insect breeding - extra scouting recommended around those times
+
+**What this means for your leaf holes:** The hole-like damage you're seeing from insects likely came during these pest pressure periods. Spraying now in the August window will help control active pests and prevent further feeding on your crops (likely chili, tomato or pepper grown in Tamil Nadu).
+
+I can also check if there are any specific diseases affecting leaves that might need different treatment - just tell me what crop you're growing!
+[PIPE] agent answer (English, markdown-stripped): Based on your location in Tamil Nadu, here's what you need to know about spraying timing:
+
+Best Spray Window: August 22-27 (6 days) - This is when conditions are most favorable for effective pest control with minimal rain interference (10% wind risk). During this period, irrigation will likely be needed throughout the farm.
+
+Important Notes:
+There's a moderate chance of rain during these dates (25%), so spray carefully to avoid runoff
+Pest activity is high on specific days (Aug 17, Aug 31) due to warm+humid weather which favors insect breeding - extra scouting recommended around those times
+
+What this means for your leaf holes: The hole-like damage you're seeing from insects likely came during these pest pressure periods. Spraying now in the August window will help control active pests and prevent further feeding on your crops (likely chili, tomato or pepper grown in Tamil Nadu).
+
+I can also check if there are any specific diseases affecting leaves that might need different treatment - just tell me what crop you're growing!
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=1.08GB | total=4.67GB (66.7%), budget=7.0GB
+[ORCH]         nmt infer: 7.38s
+[PIPE] translated answer (ta): தமிழ்நாட்டில் உங்கள் இருப்பிடத்தின் அடிப்படையில், தெளிப்பு நேரம் பற்றி நீங்கள் தெரிந்து கொள்ள வேண்டியது இங்கேஃ
+
+சிறந்த தெளிப்பு சாளரம்ஃ ஆகஸ்ட் 22-27 (6 நாட்கள்)-குறைந்த மழை குறுக்கீடு (10 சதவீதம் காற்று ஆபத்து) உடன் பயனுள்ள பூச்சிக் கட்டுப்பாட்டிற்கு நிலைமைகள் மிகவும் சாதகமாக இருக்கும் போது இது. இந்தக் காலகட்டத்தில், பண்ணை முழுவதும் நீர்ப்பாசனம் தேவைப்படும்.
+
+முக்கியமான குறிப்புகள்ஃ இந்த தேதிகளில் மழைக்கு மிதமான வாய்ப்பு உள்ளது (25 சதவீதம்), எனவே வெளியேறும் பூச்சி செயல்பாட்டைத் தவிர்க்க கவனமாக தெளிக்கவும், குறிப்பிட்ட நாட்களில் (ஆகஸ்ட் 17, ஆகஸ்ட் 31) வெப்பம் + ஈரப்பதமான வானிலை காரணமாக பூச்சிகள் இனப்பெருக்கம் செய்ய உதவுகிறது-அந்த நேரத்தில் கூடுதல் ஸ்கவு
+
+உங்கள் இலை துளைகளுக்கு இது என்ன அர்த்தம்ஃ பூச்சிகளிலிருந்து நீங்கள் காணும் துளை போன்ற சேதம் இந்த பூச்சி அழுத்தக் காலங்களில் வந்திருக்கலாம். இப்போது ஆகஸ்ட் மாத சாளரத்தில் தெளித்தால், செயலில் உள்ள பூச்சிகளைக் கட்டுப்படுத்தவும், உங்கள் பயிர்களுக்கு (தமிழ்நாட்டில் பயிரிடப்படும் மிளகாய், தக்காளி அல்லது மிளகு) மேலும் உணவளிக்காமல் தடுக்கவும் உதவும்.
+
+வெவ்வேறு சிகிச்சை தேவைப்படும் இலைகளால் ஏற்படும் ஏதேனும் குறிப்பிட்ட நோய்கள் உள்ளதா என்பதையும் நான் சரிபார்க்கலாம்-நீங்கள் எந்த பயிரை வளர்க்கிறீர்கள் என்று சொல்லுங்கள்!
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.86GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.52s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=1.08GB | total=4.67GB (66.7%), budget=7.0GB
+[ORCH]         tts infer: 7.77s, observed peak pool ~4.67GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.74s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_3of5.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 59.23s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 4/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 2.88s
+[PIPE] transcribed (ta): அடுத்த சில வாரங்களில் வானிலை எப்படி இருக்கும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.21s
+[PIPE] translated to English: what will the weather be like in the next few weeks
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+W0809 01:08:24.471000 14953 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=2003ms prefill=788ms (5503 tok) gen=3310ms (139 tok)
+    -> get_weather_forecast({'state': 'Tamil Nadu'}) -> {"rain": "weeks of Aug 10, Aug 17, Aug 24: low chance of rain (~26%); weeks of Aug 31: moderate chance of rain (~33%), expect moderate rain (~9.4mm) when it fal
+    [agent iter 2] load=1981ms prefill=161ms (5861 tok) gen=9630ms (324 tok)
+    agent turn wall-clock: 19.56s
+[ORCH]         agent turn: 19.56s
+[PIPE] agent answer (English, raw): Here's what you can expect from Tamil Nadu over the coming weeks:
+
+**Rain:** Weeks of August 10th through September 7th show varying rainfall patterns - low chance (~26%) on most days, but moderate rain expected around Aug 31st with about 9mm falling. This means irrigation will likely be needed throughout your farm during this period.
+
+**Comfort & Temperature:** The weather feels quite comfortable at approximately 25°C (77°F) across all these weeks - humidity levels should feel pleasant for working in the field.
+
+**Wind Risk:** Moderate wind conditions are expected on Aug 10th and Aug 17th, which increases drift risk when spraying pesticides. You may want to avoid spraying during those days or take extra care with your application technique.
+
+**Sunlight & Drying:** Good sun is available for drying crops throughout this period - excellent for helping plants dry off after watering.
+
+**Flood Risk:** No significant flood threat expected, so you can proceed normally without special protection measures.
+
+This weather outlook aligns well with the spray window I recommended earlier (August 22-27), which should be a good time to apply pesticides while conditions are favorable and rain interference is minimal!
+[PIPE] agent answer (English, markdown-stripped): Here's what you can expect from Tamil Nadu over the coming weeks:
+
+Rain: Weeks of August 10th through September 7th show varying rainfall patterns - low chance (26%) on most days, but moderate rain expected around Aug 31st with about 9mm falling. This means irrigation will likely be needed throughout your farm during this period.
+
+Comfort & Temperature: The weather feels quite comfortable at approximately 25°C (77°F) across all these weeks - humidity levels should feel pleasant for working in the field.
+
+Wind Risk: Moderate wind conditions are expected on Aug 10th and Aug 17th, which increases drift risk when spraying pesticides. You may want to avoid spraying during those days or take extra care with your application technique.
+
+Sunlight & Drying: Good sun is available for drying crops throughout this period - excellent for helping plants dry off after watering.
+
+Flood Risk: No significant flood threat expected, so you can proceed normally without special protection measures.
+
+This weather outlook aligns well with the spray window I recommended earlier (August 22-27), which should be a good time to apply pesticides while conditions are favorable and rain interference is minimal!
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=1.04GB | total=4.63GB (66.2%), budget=7.0GB
+[ORCH]         nmt infer: 7.45s
+[PIPE] translated answer (ta): வரும் வாரங்களில் தமிழ்நாட்டிலிருந்து நீங்கள் எதிர்பார்க்கக்கூடியவை இங்கேஃ
+
+மழைஃ ஆகஸ்ட் 10 முதல் செப்டம்பர் 7 வரையிலான வாரங்களில் வெவ்வேறு வகையான மழைப்பொழிவுகள் ஏற்படுகின்றன-பெரும்பாலான நாட்களில் குறைந்த வாய்ப்பு (26 சதவீதம்), ஆனால் ஆகஸ்ட் 31 ஆம் தேதி சுமார் 9 மிமீ மழைப்பொழிவுடன் மிதமான மழை எதிர்பார்க்கப்படுகிறது. இதன் பொருள் இந்த காலகட்டத்தில் உங்கள் பண்ணை முழுவதும் நீர்ப்பாசனம் தேவைப்படும்.
+
+ஆறுதல் மற்றும் வெப்பநிலைஃ இந்த வாரங்கள் முழுவதும் சுமார் 25 டிகிரி செல்சியஸ் (77 டிகிரி ஃபாரன்ஹீட்) வெப்பநிலையில் வானிலை மிகவும் வசதியாக உணர்கிறது-வயலில் வேலை செய்வதற்கு ஈரப்பதத்தின் அளவு இனிமையாக இருக்க வேண்டும்.
+
+காற்று அபாயம்ஃ ஆகஸ்ட் 10 மற்றும் ஆகஸ்ட் 17 ஆம் தேதிகளில் மிதமான காற்று நிலைமைகள் எதிர்பார்க்கப்படுகின்றன, இது பூச்சிக்கொல்லிகளை தெளிக்கும் போது சறுக்கல் அபாயத்தை அதிகரிக்கிறது. அந்த நாட்களில் தெளிப்பதைத் தவிர்க்கலாம் அல்லது உங்கள் பயன்பாட்டு நுட்பத்துடன் கூடுதல் கவனத்தை எடுத்துக் கொள்ளலாம்.
+
+சூரிய ஒளி மற்றும் உலர்த்தல்ஃ இந்த காலகட்டத்தில் பயிர்களை உலர்த்துவதற்கு நல்ல சூரியன் கிடைக்கிறது-இது நீர் ஊற்றிய பிறகு தாவரங்கள் உலர உதவுவதற்கு சிறந்தது.
+
+வெள்ள அபாயம்ஃ குறிப்பிடத்தக்க வெள்ள அச்சுறுத்தல் எதுவும் எதிர்பார்க்கப்படவில்லை, எனவே நீங்கள் சிறப்பு பாதுகாப்பு நடவடிக்கைகள் இல்லாமல் இயல்பாக தொடரலாம்.
+
+இந்த வானிலை கண்ணோட்டம் நான் முன்பு பரிந்துரைத்த தெளிப்பு சாளரத்துடன் (ஆகஸ்ட் 22-27) நன்கு ஒத்துப்போகிறது, இது பூச்சிக்கொல்லிகளைப் பயன்படுத்த ஒரு நல்ல நேரமாக இருக்க வேண்டும், அதே நேரத்தில் நிலைமைகள் சாதகமானவை மற்றும் மழை குறுக்கீடு குறைவாக இருக்கும்!
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=11.01GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.59s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=1.04GB | total=4.63GB (66.2%), budget=7.0GB
+[ORCH]         tts infer: 6.45s, observed peak pool ~4.63GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.73s
+W0809 01:09:16.642000 15697 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_4of5.wav (engine=mms_tts, 7 chunks)
+[PIPE] total turn wall-clock: 40.88s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 5/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 3.16s
+[PIPE] transcribed (ta): எனது உருளைக்கிழங்குப் பயிரை மேலும் பூச்சிகள் தாக்குகின்றனவா என்று நான் கவலைப்பட வேண்டுமா
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.63s
+[PIPE] translated to English: Should I worry if my potato crop is getting attacked by more insects?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1476ms prefill=1033ms (6029 tok) gen=13734ms (512 tok)
+    -> query_crop_suitability({'state': 'Tamil Nadu', 'water_need': 'wet'}) -> {"forecast": {"rain": "weeks of Aug 10, Aug 17, Aug 24: low chance of rain (~26%); weeks of Aug 31: moderate chance of rain (~33%), expect moderate rain (~9.4mm
+    [agent iter 2] load=1430ms prefill=1736ms (6884 tok) gen=18252ms (733 tok)
+    -> query_entomologist({'query': 'Potato insect pests common in India and management strategies for leaf damage or general infestation control'}) -> {"query": "Potato insect pests common in India and management strategies for leaf damage or general infestation control", "matched_pest": "Thrips (Thrips parvis
+    [agent iter 3] load=1189ms prefill=96ms (7741 tok) gen=16109ms (647 tok)
+    agent turn wall-clock: 56.56s
+[ORCH]         agent turn: 56.56s
+[PIPE] agent answer (English, raw): Based on common knowledge of potato cultivation in Tamil Nadu region:
+
+**Yes, you should be concerned.** Potato crops are susceptible to several insect attacks that can cause significant damage. The most common threats include:
+
+1. **Potato Aphids** - Small green insects that suck sap from leaves and stems, causing yellowing, curling, and stunted growth
+2. **Beetles (like the potato beetle)** - These eat both leaves AND tubers/eyes on potatoes, creating visible holes in the plant or even damaging stored crops
+
+**What to watch for:**
+- Yellow patches on leaves that look like webbing from aphids
+- Small green bugs crawling on stems and undersides of leaves
+- Holes in potato plants (especially near soil line) where beetles have fed
+
+**Management tips for Tamil Nadu conditions:**
+Since we're currently in the August spray window with moderate rain risk around Aug 31st, timing is important. Spray during dry periods when possible to avoid runoff and drift issues. Focus on spot-treating affected areas rather than blanket spraying if you can identify specific pest populations.
+
+**Additional note:** The weather forecast shows good sunlight for drying crops throughout the period - this helps with post-harvest handling too!
+
+Would you like me to check what's currently happening in your field, or do you have a photo of any potato damage that I could analyze?
+[PIPE] agent answer (English, markdown-stripped): Based on common knowledge of potato cultivation in Tamil Nadu region:
+
+Yes, you should be concerned. Potato crops are susceptible to several insect attacks that can cause significant damage. The most common threats include:
+
+Potato Aphids - Small green insects that suck sap from leaves and stems, causing yellowing, curling, and stunted growth
+Beetles (like the potato beetle) - These eat both leaves AND tubers/eyes on potatoes, creating visible holes in the plant or even damaging stored crops
+
+What to watch for:
+Yellow patches on leaves that look like webbing from aphids
+Small green bugs crawling on stems and undersides of leaves
+Holes in potato plants (especially near soil line) where beetles have fed
+
+Management tips for Tamil Nadu conditions:
+Since we're currently in the August spray window with moderate rain risk around Aug 31st, timing is important. Spray during dry periods when possible to avoid runoff and drift issues. Focus on spot-treating affected areas rather than blanket spraying if you can identify specific pest populations.
+
+Additional note: The weather forecast shows good sunlight for drying crops throughout the period - this helps with post-harvest handling too!
+
+Would you like me to check what's currently happening in your field, or do you have a photo of any potato damage that I could analyze?
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=0.96GB | total=4.56GB (65.1%), budget=7.0GB
+[ORCH]         nmt infer: 12.76s
+Flash attention 2 is not installed
+[PIPE] translated answer (ta): தமிழ்நாடு பிராந்தியத்தில் உருளைக்கிழங்கு சாகுபடி பற்றிய பொதுவான அறிவின் அடிப்படையில்ஃ
+
+ஆம், நீங்கள் கவலைப்பட வேண்டும். உருளைக்கிழங்கு பயிர்கள் பல பூச்சி தாக்குதல்களுக்கு ஆளாகின்றன, அவை குறிப்பிடத்தக்க சேதத்தை ஏற்படுத்தும். மிகவும் பொதுவான அச்சுறுத்தல்கள் பின்வருமாறுஃ
+
+உருளைக்கிழங்கு அஃபிட்கள்-இலைகள் மற்றும் தண்டுகளிலிருந்து சாற்றை உறிஞ்சி, மஞ்சள் நிறமாக, சுருண்டு, வளர்ச்சி குன்றிய சிறிய பச்சை பூச்சிகள் (உருளைக்கிழங்கு வண்டு போன்றவை)-இவை உருளைக்கிழங்கு மீது இலைகள் மற்றும் கிழங்குகள்/கண்கள் இரண்டையும் சாப்பிட
+
+எதைக் கவனிக்க வேண்டும்ஃ பூஞ்சைகளிலிருந்து வலைப்பிடிப்பது போல் தோன்றும் இலைகளில் மஞ்சள் திட்டுகள் உருளைக்கிழங்கு தாவரங்களில் (குறிப்பாக மண் வரிசைக்கு அருகில்) வண்டுகள் உணவளித்த தண்டுகள் மற்றும் இலை அடிப்பகுதியில் சிறிய பச்சை பிழைகள் ஊர்ந்து செல்கின்றன.
+
+தமிழ்நாட்டின் நிலைமைகளுக்கான மேலாண்மை குறிப்புகள்ஃ நாம் தற்போது ஆகஸ்ட் 31ஆம் தேதி மிதமான மழை அபாயத்துடன் ஆகஸ்ட் ஸ்ப்ரே சாளரத்தில் இருப்பதால், நேரம் முக்கியமானது. வறண்ட காலங்களில் முடிந்தவரை வடிகட்டுதல் மற்றும் சறுக்கல் சிக்கல்களைத் தவிர்க்க தெளிக்கவும். குறிப்பிட்ட பூச்சி எண்ணிக்கையை நீங்கள் அடையாளம் காண முடிந்தால், போர்வை தெளிப்பதை விட பாதிக்கப்பட்ட பகுதிகளை சிகிச்சை செய்யும் இடத்தில் கவனம் செலுத்துங்கள்.
+
+கூடுதல் குறிப்புஃ வானிலை முன்னறிவிப்பு இந்த காலகட்டத்தில் பயிர்களை உலர்த்துவதற்கு நல்ல சூரிய ஒளியைக் காட்டுகிறது-இது அறுவடைக்குப் பிந்தைய கையாளுதலுக்கும் உதவுகிறது!
+
+உங்கள் வயலில் தற்போது என்ன நடக்கிறது என்பதை நான் சரிபார்க்க விரும்புகிறீர்களா, அல்லது நான் பகுப்பாய்வு செய்யக்கூடிய உருளைக்கிழங்கு சேதத்தின் புகைப்படம் உங்களிடம் உள்ளதா?
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=11.21GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.52s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=0.96GB | total=4.56GB (65.1%), budget=7.0GB
+[ORCH]         tts infer: 9.79s, observed peak pool ~4.56GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.97s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_5of5.wav (engine=mms_tts, 8 chunks)
+[PIPE] total turn wall-clock: 87.89s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.74s
+[ORCH] EVICT   nmt       -> session teardown (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.78s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=0.00GB nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

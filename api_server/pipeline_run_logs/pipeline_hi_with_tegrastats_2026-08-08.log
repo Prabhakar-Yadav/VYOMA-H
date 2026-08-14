@@ -1,0 +1,85 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 18:31:42.676199290 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 24.09s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi)
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 15.50s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.57GB nmt=unloaded tts=unloaded | total=1.88GB (26.9%), budget=7.0GB
+[ORCH]         asr infer: 5.85s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 14.52s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.57GB nmt=0.54GB tts=unloaded | total=2.42GB (34.6%), budget=7.0GB
+[ORCH]         nmt infer: 1.56s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.57GB nmt=0.54GB tts=loading | total=2.42GB (34.6%), budget=7.0GB
+    [agent iter 1] load=925ms prefill=1970ms (2188 tok) gen=33121ms (853 tok)
+    -> analyze_photo({}) -> "No image was attached to this message \u2014 nothing to analyze."
+    [agent iter 2] load=1386ms prefill=150ms (3068 tok) gen=20156ms (523 tok)
+    agent turn wall-clock: 57.90s
+[ORCH]         agent turn: 57.90s
+[PIPE] agent answer (English): I understand you're looking for pesticide recommendations for your potato farm - this is an important question about safety and legal compliance in India! Since no photo was attached, I'll provide guidance based on Indian agriculture practices:
+
+**Important Safety & Legal Information:**
+- Potatoes are grown under government schemes like Kisan Samman Nidhi that offer financial support to farmers. This helps ensure fair treatment for all potato growers while protecting your small farm's interests.
+- For insect protection, I recommend using registered pesticides only when necessary due to safety concerns in India - beetles (leaf miners) damage leaves but should be managed with traps or repellents rather than relying on unregistered chemicals.
+
+**Practical Pest Control Recommendations:**
+1. **Insect Protection**: Use trap-based methods for leaf-miner beetles and apply registered insecticides like imidacloprid at recommended rates to protect potato plants from aphids, thrips, and other pests that damage leaves economically.
+
+2. **Rat Management**: Rats can be controlled through physical barriers (wooden stakes) or using repellent sprays only when necessary due to safety regulations in India - never rely on unregistered pesticides for rat control as they may have unknown toxicity levels.
+
+3. **Best Pesticide Selection**: Look for registered products with low MRLs and good residue limits, such as those approved by FSSAI that are safe for potato crops while protecting against both insects and rats simultaneously.
+
+Would you like me to look up specific pesticide registrations or provide more detailed information about any particular pest control method?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.57GB nmt=0.54GB tts=0.82GB | total=3.24GB (46.3%), budget=7.0GB
+[ORCH]         nmt infer: 11.19s
+Flash attention 2 is not installed
+[PIPE] translated answer (hi): मैं समझता हूँ कि आप अपने आलू के खेत के लिए कीटनाशक की सिफारिशों की तलाश कर रहे हैं-यह भारत में सुरक्षा और कानूनी अनुपालन के बारे में एक महत्वपूर्ण सवाल है! चूंकि कोई तस्वीर संलग्न नहीं की गई थी, इसलिए मैं भारतीय कृषि प्रथाओं के आधार पर मार्गदर्शन प्रदान करूंगाः
+
+महत्वपूर्ण सुरक्षा और कानूनी जानकारीः आलू किसान सम्मान निधि जैसी सरकारी योजनाओं के तहत उगाए जाते हैं जो किसानों को वित्तीय सहायता प्रदान करती हैं। यह आपके छोटे खेत के हितों की रक्षा करते हुए सभी आलू उत्पादकों के लिए उचित उपचार सुनिश्चित करने में मदद करता है।-कीट संरक्षण के लिए, मैं भारत में सुरक्षा चिंताओं के कारण आवश्यक होने पर ही पंजीकृत कीटनाशकों का उपयोग करने की सलाह देता हूं-भृंग (पत्ती खनिक) पत्तियों को
+
+व्यावहारिक कीट नियंत्रण अनुशंसाएँः कीट संरक्षण *: पत्ती-खनिक भृंगों के लिए जाल-आधारित विधियों का उपयोग करें और आलू के पौधों को एफिड, थ्रिप्स और अन्य कीटों से बचाने के लिए अनुशंसित दरों पर इमिडाक्लोप्रिड जैसे पंजीकृत कीटनाशकों का उपयोग करें जो पत्तियों को आर्थिक रूप से नुकसान
+
+2. चूहे का प्रबंधन * *: चूहों को भौतिक बाधाओं (लकड़ी के दांते) के माध्यम से या भारत में सुरक्षा नियमों के कारण केवल आवश्यक होने पर विकर्षक स्प्रे का उपयोग करके नियंत्रित किया जा सकता है-चूहे के नियंत्रण के लिए कभी भी अपंजीकृत कीटनाशकों पर भरोसा न करें क्योंकि उनमें अज्ञात विषाक्तता का स्तर
+
+3. सर्वोत्तम कीटनाशक चयन * *: कम एम. आर. एल. और अच्छी अवशेष सीमा वाले पंजीकृत उत्पादों की तलाश करें, जैसे कि एफ. एस. एस. ए. आई. द्वारा अनुमोदित उत्पाद जो आलू की फसलों के लिए सुरक्षित हैं और साथ ही साथ कीटों और चूहों दोनों से सुरक्षा करते हैं।
+
+क्या आप चाहेंगे कि मैं विशिष्ट कीटनाशक पंजीकरणों को देखू या किसी विशेष कीट नियंत्रण विधि के बारे में अधिक विस्तृत जानकारी प्रदान करूं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.36s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=9.94GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.42s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.82GB | total=2.13GB (30.5%), budget=7.0GB
+[ORCH]         tts infer: 17.70s, observed peak pool ~2.13GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.52s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 7 chunks)
+[PIPE] total turn wall-clock: 129.24s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.41s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

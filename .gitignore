@@ -1,0 +1,35 @@
+# Self-contained on purpose -- this package is meant to be copied/committed into different
+# repos (see README.md), so its own ignore rules travel with it instead of relying on
+# whichever outer repo's root .gitignore happens to be present.
+
+__pycache__/
+*.py[cod]
+
+# Downloaded model checkpoints (large binary artifacts, fetched by setup/download_models.py --
+# not committed). .gitkeep stays tracked so the empty directory survives a fresh clone.
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+
+# Generated pipeline output audio (regenerate via test_orchestrated_pipeline.py as needed)
+sample_audio/pipeline_outputs/*
+!sample_audio/pipeline_outputs/.gitkeep
+
+# Real farmer session logs (api_server/session_store.py) -- device-generated runtime data, not
+# a shipped artifact. A real session transcript should never land in git history.
+datasets/sessionsDB/*
+!datasets/sessionsDB/.gitkeep
+
+
+# Added for the jetson-app push (2026-08-14) -- large/regenerable/local-only artifacts
+# that should never enter git history from this device.
+venv/
+
+# Historical weather DB (2.9GB) -- rebuildable via datasets/weather/build_sqlite_db.py,
+# same regenerate-dont-commit pattern as models/checkpoints/ above.
+datasets/weather/*.sqlite
+
+# Local test-run artifacts from device-side stress testing, not part of the app.
+device_test_audio/
+device_test_audio_batch2/
+tegrastats_run*.log
+

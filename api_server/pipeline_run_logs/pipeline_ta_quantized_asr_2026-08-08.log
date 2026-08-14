@@ -1,0 +1,84 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 07:20:45.287725810 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 24.47s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil)
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ta input
+[ORCH]         asr ready in 15.73s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.75GB nmt=unloaded tts=unloaded | total=2.06GB (29.4%), budget=7.0GB
+[ORCH]         asr infer: 6.65s
+[ORCH] EVICT   asr       -> Rule 6: output consumed, freeing before NMT/Agent (process-kill, no standing pool)
+[ORCH]         asr freed in 0.37s
+[PIPE] transcribed (ta): உருளைக்கிழங்கு பூச்சிகள் மற்றும் எலிகளில்ிருந்து வெளியேறுவதைத் தடுக்க எனது சிறிய பண்ணையில் நான் பயன்படுத்த வேண்டிய சிறந்த பூச்சிகிக்க கொல்லிகள் யாவை
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ta->EN)
+[ORCH]         nmt ready in 14.20s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.49GB tts=unloaded | total=1.80GB (25.7%), budget=7.0GB
+[ORCH]         nmt infer: 2.12s
+[PIPE] translated to English: What are the best pesticides I should use on my small farm to prevent potatoes from getting rid of insects and rats?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.49GB tts=loading | total=1.80GB (25.7%), budget=7.0GB
+    [agent iter 1] load=831ms prefill=1962ms (2192 tok) gen=15028ms (387 tok)
+    -> query_entomologist({'query': 'corn earworm thrips potato plant damage symptoms pests control treatment'}) -> {"query": "corn earworm thrips potato plant damage symptoms pests control treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slende
+    [agent iter 2] load=1056ms prefill=194ms (2697 tok) gen=14530ms (370 tok)
+    -> pesticide_lookup({'pesticide_name': 'imidaclorprid'}) -> {"found": true, "pesticide": "Imidacloprid", "pid": "Imidacloprid", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Imidacloprid&
+    [agent iter 3] load=1195ms prefill=719ms (3817 tok) gen=5562ms (145 tok)
+    -> pesticide_lookup({'pesticide_name': 'cypermethrin'}) -> {"found": true, "pesticide": "Cypermethrin (including alpha-cypermethrin and zeta-cypermethrin)", "pid": "Cypermethrin (including alpha-cypermethrin and zeta-cy
+    [agent iter 4] load=1156ms prefill=741ms (4731 tok) gen=2207ms (58 tok)
+    -> pesticide_lookup({'pesticide_name': 'chlorpyrifos'}) -> {"found": true, "pesticide": "Chlorpyrifos", "pid": "Chlorpyrifos", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Chlorpyrifos&
+    [agent iter 5] load=1312ms prefill=968ms (5767 tok) gen=8076ms (208 tok)
+    -> pesticide_lookup({'pesticide_name': 'imidaclorprid'}) -> {"found": true, "pesticide": "Imidacloprid", "pid": "Imidacloprid", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Imidacloprid&
+    [agent iter final] load=1213ms prefill=3983ms (5744 tok) gen=29494ms (757 tok)
+    agent turn wall-clock: 91.07s
+[ORCH]         agent turn: 91.07s
+[PIPE] agent answer (English): Based on my research, I recommend **imidacloprid** as your best choice for preventing insects (like thrips) from getting rid of pests on your potato farm. Here's why:
+
+- It has moderate toxicity levels (ADI 0.06), which is much lower than Chlorpyrifos' very low ADI of 0.01
+- Imidacloprid is highly toxic but only moderately hazardous, making it safer to use on potatoes and rats in a small farm setting
+
+For your specific situation:
+- **Thrips** are common potato pests that can cause leaf damage - imidacloprid effectively controls these insects with moderate toxicity
+- Since you're using pesticides for both insect control (to prevent thrips) AND rat management, consider combining them or choosing a pesticide specifically formulated to reduce pest populations
+
+However, I need your farm's state and exact land size in acres to provide more accurate scheme eligibility information. Would you like me to look up government schemes based on those details?
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.49GB tts=0.81GB | total=2.60GB (37.2%), budget=7.0GB
+[ORCH]         nmt infer: 6.25s
+[PIPE] translated answer (ta): எனது ஆராய்ச்சியின் அடிப்படையில், உங்கள் உருளைக்கிழங்கு பண்ணையில் பூச்சிகள் (திரிப்கள் போன்றவை) அகற்றப்படுவதைத் தடுப்பதற்கான சிறந்த தேர்வாக இமிடாக்லோப்ரிட் * * ஐ பரிந்துரைக்கிறேன். ஏன் என்று இங்கேஃ
+
+- இது மிதமான நச்சுத்தன்மை அளவைக் கொண்டுள்ளது (ஏடிஐ 0.06), இது குளோர்பிரிஃபோஸின் மிகக் குறைந்த ஏடிஐ 0.01 ஐ விட மிகக் குறைவு-இமிடாக்ளோப்ரிட் மிகவும் நச்சுத்தன்மை கொண்டது, ஆனால் மிதமான ஆபத்தானது, இது ஒரு சிறிய பண்ணை அமைப்பில் உருளை
+
+உங்கள் குறிப்பிட்ட சூழ்நிலைக்குஃ-* * திரிப்ஸ் * * என்பது இலை சேதத்தை ஏற்படுத்தும் பொதுவான உருளைக்கிழங்கு பூச்சிகள்-இமிடாக்ளோப்ரிட் இந்த பூச்சிகளை மிதமான நச்சுத்தன்மையுடன் திறம்பட கட்டுப்படுத்துகிறது-நீங்கள் பூச்சிகளைக் கட்டுப்படுத்துவதற்கும் (திரிப்களைத் தடுக்க) மற்றும் எலி மேலாண்மைக்கும் பூச்சிக்கொ
+
+இருப்பினும், திட்டத் தகுதித் தகவல்களைத் துல்லியமாக வழங்க உங்கள் பண்ணையின் நிலமும், ஏக்கர்களில் சரியான நில அளவும் எனக்குத் தேவை. அந்த விவரங்களின் அடிப்படையில் நான் அரசாங்கத் திட்டங்களை ஆராய விரும்புகிறீர்களா?
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.37s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=6.62GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.81GB | total=2.11GB (30.2%), budget=7.0GB
+[ORCH]         tts infer: 5.44s, observed peak pool ~2.11GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.63s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 145.66s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.49s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

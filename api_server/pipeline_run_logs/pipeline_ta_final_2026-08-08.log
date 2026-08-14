@@ -1,0 +1,81 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 10:50:43.104197174 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 23.81s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil)
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ta input
+[ORCH]         asr ready in 15.56s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.74GB nmt=unloaded tts=unloaded | total=2.05GB (29.3%), budget=7.0GB
+[ORCH]         asr infer: 6.39s
+[PIPE] transcribed (ta): உருளைக்கிழங்கு பூச்சிகள் மற்றும் எலிகளில்ிருந்து வெளியேறுவதைத் தடுக்க எனது சிறிய பண்ணையில் நான் பயன்படுத்த வேண்டிய சிறந்த பூச்சிகிக்க கொல்லிகள் யாவை
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ta->EN)
+[ORCH]         nmt ready in 15.15s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.74GB nmt=0.54GB tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+[ORCH]         nmt infer: 1.87s
+[PIPE] translated to English: What are the best pesticides I should use on my small farm to prevent potatoes from getting rid of insects and rats?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.74GB nmt=0.54GB tts=loading | total=2.58GB (36.9%), budget=7.0GB
+    [agent iter 1] load=946ms prefill=1969ms (2192 tok) gen=14794ms (383 tok)
+    -> query_entomologist({'query': 'potatoes ground beetles rats pests prevention'}) -> {"query": "potatoes ground beetles rats pests prevention", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp leaf/fl
+    [agent iter 2] load=1409ms prefill=210ms (2689 tok) gen=11759ms (299 tok)
+    -> query_entomologist({'query': 'ground beetle damage potato pests control treatment'}) -> {"query": "ground beetle damage potato pests control treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp l
+    [agent iter 3] load=1150ms prefill=193ms (3101 tok) gen=3077ms (80 tok)
+    -> query_entomologist({'query': 'ground beetle infestation potato damage symptoms treatment'}) -> {"query": "ground beetle infestation potato damage symptoms treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that
+    [agent iter 4] load=1195ms prefill=192ms (3295 tok) gen=3020ms (78 tok)
+    -> query_entomologist({'query': 'ground beetle infestation potato symptoms signs treatment'}) -> {"query": "ground beetle infestation potato symptoms signs treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that 
+    [agent iter 5] load=1249ms prefill=190ms (3487 tok) gen=3006ms (78 tok)
+    -> query_entomologist({'query': 'ground beetle infestation potato symptoms signs treatment'}) -> {"query": "ground beetle infestation potato symptoms signs treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that 
+    [agent iter final] load=1239ms prefill=1598ms (2943 tok) gen=19544ms (509 tok)
+    agent turn wall-clock: 67.39s
+[ORCH]         agent turn: 67.39s
+[PIPE] agent answer (English): Based on my search results, there's no direct tool available for finding pesticides specifically designed for insect/rat control or preventing ground beetle damage on potatoes. However, I can share what works:
+
+**Best approach:** Use a combination of biological controls and targeted sprays rather than relying solely on chemical pesticide applications. The primary pest causing this issue is Thrips (a common potato bug), which should be managed through sticky traps to catch them before they spread. For rat control specifically, consider using insecticidal soap or neem oil formulations that are safe for potatoes when applied correctly according to local agricultural guidelines and safety standards.
+
+**Important considerations:**
+- Avoid excessive nitrogen fertilization as it can encourage Thrips growth
+- Spot-treat affected areas rather than blanket spraying
+- Follow label instructions carefully since potato crops have specific pesticide residue limits (MRL) that must be respected for food safety
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.74GB nmt=0.54GB tts=0.84GB | total=3.42GB (48.9%), budget=7.0GB
+[ORCH]         nmt infer: 7.18s
+Flash attention 2 is not installed
+[PIPE] translated answer (ta): எனது தேடல் முடிவுகளின் அடிப்படையில், பூச்சி/எலி கட்டுப்பாட்டிற்காக குறிப்பாக வடிவமைக்கப்பட்ட பூச்சிக்கொல்லிகளைக் கண்டுபிடிப்பதற்கோ அல்லது உருளைக்கிழங்கில் தரை வண்டு சேதத்தைத் தடுப்பதற்கோ நேரடி கருவி எதுவும் இல்லை. இருப்பினும், என்ன வேலை செய்கிறது என்பதை நான் பகிர்ந்து கொள்ள முடியும்ஃ
+
+* * சிறந்த அணுகுமுறைஃ * * இரசாயன பூச்சிக்கொல்லி பயன்பாடுகளை மட்டுமே நம்புவதை விட உயிரியல் கட்டுப்பாடுகள் மற்றும் இலக்கு ஸ்ப்ரேக்களின் கலவையைப் பயன்படுத்தவும். இந்தப் பிரச்சினையை ஏற்படுத்தும் முதன்மையான பூச்சி, திரிப்ஸ் (ஒரு பொதுவான உருளைக்கிழங்குப் பூச்சி) ஆகும், அவை பரவுவதற்கு முன்பு அவற்றைப் பிடிக்க ஒட்டும் பொறிகள் மூலம் நிர்வகிக்கப்பட வேண்டும். குறிப்பாக எலிகளைக் கட்டுப்படுத்த, உள்ளூர் விவசாய வழிகாட்டுதல்கள் மற்றும் பாதுகாப்புத் தரநிலைகளின்படி சரியாகப் பயன்படுத்தும்போது உருளைக்கிழங்குக்கு பாதுகாப்பான பூச்சிக்கொல்லி சோப்பு அல்லது வேப்ப எண்ணெய் சூத்திரங்களைப் பயன்படுத்துவதைக் கவனியுங்கள்.
+
+* * முக்கியமான கருத்தாய்வுகள்ஃ * *-அதிகப்படியான நைட்ரஜன் கருவுறுதலைத் தவிர்க்கவும், ஏனெனில் இது திரிப்களின் வளர்ச்சியை ஊக்குவிக்கும்-போர்வை தெளிப்பதை விட ஸ்பாட் ட்ரீட் பாதிக்கப்பட்ட பகுதிகள்-உருளைக்கிழங்கு பயிர்களுக்கு குறிப்பிட்ட பூச்சிக்கொல்லி எச்ச வரம்புகள் (எம்
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.42s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=8.21GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.42s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.84GB | total=2.15GB (30.7%), budget=7.0GB
+[ORCH]         tts infer: 15.08s, observed peak pool ~2.15GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.52s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 133.64s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.43s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

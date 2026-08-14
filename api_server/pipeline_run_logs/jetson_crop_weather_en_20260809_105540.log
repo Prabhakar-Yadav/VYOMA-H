@@ -1,0 +1,217 @@
+Flash attention 2 is not installed
+[0;93m2026-08-09 10:57:21.423936739 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[0;93m2026-08-09 10:58:21.932549237 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH]         agent already resident
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [crop-weather 1/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: Something is eating holes in my potato leaves. What pest could this be, and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=loading | total=2.58GB (36.9%), budget=7.0GB
+    [agent iter 1] load=844ms prefill=1482ms (4635 tok) gen=31192ms (491 tok)
+    -> query_entomologist({'query': 'insect eating holes in potato leaves - plant damage symptoms'}) -> {"query": "insect eating holes in potato leaves - plant damage symptoms", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects th
+    [agent iter 2] load=1327ms prefill=279ms (5243 tok) gen=36699ms (591 tok)
+    agent turn wall-clock: 72.20s
+[ORCH]         agent turn: 72.20s
+[PIPE] agent answer (English, raw): Thrips are likely causing damage to your potato leaves. These tiny insects rasp leaf surfaces and cause silvery streaks or curling that creates holes in the foliage. 
+
+For IPM management of thrips on potatoes:
+- Use blue/yellow sticky traps for monitoring
+- Avoid excess nitrogen fertilization which attracts them
+- Spot-treat affected areas rather than blanket spraying
+
+I can also check the weather forecast to tell you when it's best to spray if needed, or I can look up other potential pests that might be affecting your potato crop.
+[PIPE] agent answer (English, markdown-stripped): Thrips are likely causing damage to your potato leaves. These tiny insects rasp leaf surfaces and cause silvery streaks or curling that creates holes in the foliage.
+
+For IPM management of thrips on potatoes:
+Use blue/yellow sticky traps for monitoring
+Avoid excess nitrogen fertilization which attracts them
+Spot-treat affected areas rather than blanket spraying
+
+I can also check the weather forecast to tell you when it's best to spray if needed, or I can look up other potential pests that might be affecting your potato crop.
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.26GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.76GB | total=3.34GB (47.8%), budget=7.0GB
+[ORCH]         tts infer: 15.70s, observed peak pool ~3.34GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.62s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_en_crop-weather_1of5.wav (engine=mms_tts, 3 chunks)
+[PIPE] total turn wall-clock: 89.64s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [crop-weather 2/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: Yes, please check when is a good time for me to spray.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=loading nmt=unloaded tts=loading | total=3.98GB (56.9%), budget=7.0GB
+    [agent iter 1] load=1343ms prefill=1933ms (4922 tok) gen=8965ms (141 tok)
+    agent turn wall-clock: 12.46s
+[ORCH]         agent turn: 12.46s
+[PIPE] agent answer (English, raw): I'll need to know your farming location first to give you accurate advice on when to spray. Could you please tell me what district or state your potato farm is located in?
+[PIPE] agent answer (English, markdown-stripped): I'll need to know your farming location first to give you accurate advice on when to spray. Could you please tell me what district or state your potato farm is located in?
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=5.67GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.49s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 7.85s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.00GB | total=2.58GB (36.9%), budget=7.0GB
+[ORCH]         tts infer: 15.10s, observed peak pool ~2.58GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.51s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_en_crop-weather_2of5.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 49.01s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [crop-weather 3/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: I am in Punjab, my pincode is 143001.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=loading nmt=unloaded tts=loading | total=3.57GB (51.0%), budget=7.0GB
+    [agent iter 1] load=3147ms prefill=545ms (4984 tok) gen=9736ms (159 tok)
+    -> query_spray_window({'district': 'Punjab', 'pincode': '143001', 'state': 'Punjab'}) -> {"spray_window": "Best spray window: Sep 4-8 (5 day(s), ~25% rain chance, ~0% wind risk). Buffer alternatives if that shifts: Aug 25.", "skip_watering": "No sig
+    [agent iter 2] load=1192ms prefill=294ms (5244 tok) gen=12323ms (188 tok)
+    agent turn wall-clock: 29.66s
+[ORCH]         agent turn: 29.66s
+[PIPE] agent answer (English, raw): Based on your location in Punjab (pincode 143001), here's what you need to know:
+
+**Best time to spray:** September 4-8, with approximately a 25% chance of rain and no wind risk during this window. This is when the conditions are most favorable for effective pesticide application against thrips.
+
+Since there won't be significant rainfall in this period, irrigation will likely still be needed throughout your potato crop anyway to keep them growing properly.
+Flash attention 2 is not installed
+[0;93m2026-08-09 10:59:29.549289642 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[0;93m2026-08-09 11:01:13.207056515 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[PIPE] agent answer (English, markdown-stripped): Based on your location in Punjab (pincode 143001), here's what you need to know:
+
+Best time to spray: September 4-8, with approximately a 25% chance of rain and no wind risk during this window. This is when the conditions are most favorable for effective pesticide application against thrips.
+
+Since there won't be significant rainfall in this period, irrigation will likely still be needed throughout your potato crop anyway to keep them growing properly.
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.13GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.31s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.86GB | total=3.44GB (49.2%), budget=7.0GB
+[ORCH]         tts infer: 17.93s, observed peak pool ~3.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.51s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_en_crop-weather_3of5.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 58.09s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [crop-weather 4/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: What is the weather going to be like over the next few weeks?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=loading nmt=unloaded tts=loading | total=3.59GB (51.3%), budget=7.0GB
+    [agent iter 1] load=2273ms prefill=2301ms (5270 tok) gen=30037ms (472 tok)
+    -> get_weather_forecast({'district': 'Punjab', 'pincode': '143001', 'state': 'Punjab'}) -> {"rain": "weeks of Aug 10, Aug 17, Aug 24, Aug 31: moderate chance of rain (~40%), expect moderate rain (~14.5mm) when it falls; weeks of Sep 7: low chance of r
+    [agent iter 2] load=1270ms prefill=461ms (5983 tok) gen=24831ms (400 tok)
+    agent turn wall-clock: 62.86s
+[ORCH]         agent turn: 62.86s
+[PIPE] agent answer (English, raw): Here's what you can expect from the weather over the coming weeks:
+
+**Rain:** There will be moderate rain scheduled around August 10, 17, and 24 (about 15 millimeters each time), with low chance of rain on September 7th. Otherwise, there won't be significant rainfall to worry about.
+
+**Comfort levels:** The weather is generally comfortable throughout the period at approximately 27°C during humid conditions. However, August 10th will feel like a hot day around 28°C with high humidity that might make outdoor work strenuous in midday hours.
+
+**Wind and Sunlight:** Wind risk remains low across all days, which is good for your potato crop as it helps prevent wind damage to leaves. There's also plenty of sunlight available - particularly on the later dates when you'll have good sun for drying off after irrigation or harvesting operations.
+
+**Flood Risk:** No significant flood danger is expected in this area during these weeks.
+
+The overall outlook looks favorable for potato cultivation, with manageable rain patterns and adequate sunshine to support your crop's needs.
+[PIPE] agent answer (English, markdown-stripped): Here's what you can expect from the weather over the coming weeks:
+
+Rain: There will be moderate rain scheduled around August 10, 17, and 24 (about 15 millimeters each time), with low chance of rain on September 7th. Otherwise, there won't be significant rainfall to worry about.
+
+Comfort levels: The weather is generally comfortable throughout the period at approximately 27°C during humid conditions. However, August 10th will feel like a hot day around 28°C with high humidity that might make outdoor work strenuous in midday hours.
+
+Wind and Sunlight: Wind risk remains low across all days, which is good for your potato crop as it helps prevent wind damage to leaves. There's also plenty of sunlight available - particularly on the later dates when you'll have good sun for drying off after irrigation or harvesting operations.
+
+Flood Risk: No significant flood danger is expected in this area during these weeks.
+
+The overall outlook looks favorable for potato cultivation, with manageable rain patterns and adequate sunshine to support your crop's needs.
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.64GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.35s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.84GB | total=3.42GB (48.9%), budget=7.0GB
+[ORCH]         tts infer: 20.59s, observed peak pool ~3.42GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.52s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_en_crop-weather_4of5.wav (engine=mms_tts, 9 chunks)
+[PIPE] total turn wall-clock: 93.11s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [crop-weather 5/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: Should I be worried about more pests attacking my potato crop?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=loading nmt=unloaded tts=loading | total=3.58GB (51.2%), budget=7.0GB
+    [agent iter 1] load=1652ms prefill=3481ms (5822 tok) gen=50578ms (798 tok)
+    agent turn wall-clock: 55.90s
+[ORCH]         agent turn: 55.90s
+[PIPE] agent answer (English, raw): You might want to keep an eye on your potato crop and monitor closely for any signs of additional pests or diseases, especially since thrips are known to be common in potato fields. However, without seeing the actual symptoms currently affecting your crops (like specific insect sightings or leaf damage patterns), I can't give you a definitive assessment about whether more attacks will occur.
+
+Could you tell me if you've noticed any particular insects appearing recently? Or have there been new types of leaves showing unusual yellowing, wilting, or discoloration that might indicate different issues besides thrips?
+Flash attention 2 is not installed
+[PIPE] agent answer (English, markdown-stripped): You might want to keep an eye on your potato crop and monitor closely for any signs of additional pests or diseases, especially since thrips are known to be common in potato fields. However, without seeing the actual symptoms currently affecting your crops (like specific insect sightings or leaf damage patterns), I can't give you a definitive assessment about whether more attacks will occur.
+
+Could you tell me if you've noticed any particular insects appearing recently? Or have there been new types of leaves showing unusual yellowing, wilting, or discoloration that might indicate different issues besides thrips?
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.69GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.40s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.83GB | total=3.41GB (48.7%), budget=7.0GB
+[ORCH]         tts infer: 17.17s, observed peak pool ~3.41GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.53s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_en_crop-weather_5of5.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 83.25s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.80s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

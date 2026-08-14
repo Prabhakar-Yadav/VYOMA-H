@@ -1,0 +1,76 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 10:47:29.189243457 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 25.57s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi)
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 15.55s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.21GB nmt=unloaded tts=unloaded | total=1.52GB (21.8%), budget=7.0GB
+[ORCH]         asr infer: 7.87s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 14.28s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.21GB nmt=0.54GB tts=unloaded | total=2.06GB (29.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.75s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.21GB nmt=0.54GB tts=loading | total=2.06GB (29.4%), budget=7.0GB
+    [agent iter 1] load=1096ms prefill=2459ms (2188 tok) gen=20339ms (514 tok)
+    -> analyze_photo({}) -> "No image was attached to this message \u2014 nothing to analyze."
+    [agent iter 2] load=1097ms prefill=132ms (2729 tok) gen=18871ms (491 tok)
+    agent turn wall-clock: 44.51s
+[ORCH]         agent turn: 44.51s
+[PIPE] agent answer (English): Based on general knowledge of Indian agriculture:
+
+For protecting potatoes from insects like thrips and aphids (common pests), you should use registered insecticides such as **Chlorpyrifos** or specific formulations containing active ingredients effective against these targets, especially for small farms where cost is a concern. For rodent/rat control on potato fields, specialized rodenticides are needed - typically products with high toxicity ratings like those labeled "Highly toxic" in India's FSSAI database (e.g., **Chlorpyrifos** itself has been used historically).
+
+However, I don't have access to your state or land size for scheme eligibility checks. For accurate pesticide recommendations and residue limits specific to your region:
+- Consult the query_govt_scheme tool with your farm's details in India (state + acres)
+- Local agricultural experts can provide more tailored pest control strategies
+
+Would you like me to look up any specific pesticides or get guidance on rodent/rat management for your location?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.21GB nmt=0.54GB tts=0.84GB | total=2.90GB (41.4%), budget=7.0GB
+[ORCH]         nmt infer: 6.91s
+[PIPE] translated answer (hi): भारतीय कृषि के सामान्य ज्ञान के आधार परः
+
+आलू को थ्रिप्स और एफिड्स (आम कीट) जैसे कीड़ों से बचाने के लिए, आपको पंजीकृत कीटनाशकों जैसे * * क्लोरपायरीफॉस * * या इन लक्ष्यों के खिलाफ प्रभावी सक्रिय अवयवों वाले विशिष्ट सूत्रीकरणों का उपयोग करना चाहिए, विशेष रूप से उन छोटे खेतों के आलू के खेतों में कृन्तकों/चूहे के नियंत्रण के लिए, विशेष कृन्तकनाशक दवाओं की आवश्यकता होती है-आमतौर पर उच्च विषाक्तता रेटिंग वाले उत्पाद जैसे कि भारत के एफएसएसएआई डेटाबेस में "अत्यधिक विषाक्त" लेबल किए गए (जैसे, स्वयं क्लोरपायरीफ़ोस का
+
+हालाँकि, योजना पात्रता जाँच के लिए मेरे पास आपके राज्य या भूमि के आकार तक पहुँच नहीं है। सटीक कीटनाशक सिफारिशों और अपने क्षेत्र के लिए विशिष्ट अवशेष सीमाओं के लिए-भारत में अपने खेत के विवरण (राज्य + एकड़) के साथ प्रश्न-सरकार योजना उपकरण से परामर्श लें-स्थानीय कृषि विशेषज्ञ अधिक अनुकूलित कीट नियंत्रण रणनीतियाँ प्रदान कर सकते हैं।
+
+क्या आप चाहेंगे कि मैं किसी विशिष्ट कीटनाशक की खोज करूं या आपके स्थान के लिए कृन्तक/चूहे प्रबंधन पर मार्गदर्शन प्राप्त करूं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.42s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=6.97GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.40s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.84GB | total=2.15GB (30.7%), budget=7.0GB
+[ORCH]         tts infer: 16.66s, observed peak pool ~2.15GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.57s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 112.76s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.41s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

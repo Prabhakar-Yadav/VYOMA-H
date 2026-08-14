@@ -1,0 +1,78 @@
+Flash attention 2 is not installed
+[0;93m2026-08-07 05:51:11.948652377 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Fetching 404 files:   0%|          | 0/404 [00:00<?, ?it/s]Fetching 404 files:  79%|███████▉  | 321/404 [00:00<00:00, 3203.39it/s]Fetching 404 files:  81%|████████  | 328/404 [00:00<00:00, 3227.14it/s]Fetching 404 files:  82%|████████▏ | 332/404 [00:00<00:00, 3211.78it/s]Fetching 404 files:  82%|████████▏ | 332/404 [00:00<00:00, 3171.19it/s]Fetching 404 files:  83%|████████▎ | 336/404 [00:00<00:00, 3170.40it/s]Fetching 404 files: 100%|██████████| 404/404 [00:00<00:00, 2979.08it/s]
+[0;93m2026-08-07 05:51:21.354636820 [W:onnxruntime:, transformer_memcpy.cc:111 ApplyImpl] 2 Memcpy nodes are added to the graph main_graph for CUDAExecutionProvider. It might have negative impact on performance (including unable to run CUDA graph). Set session_options.log_severity_level=1 to see the detail logs before this message.[m
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=unloaded embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) + image
+========================================================================================
+[ORCH] LOAD    agent     <- Rule 9: preload during ASR/NMT downtime (async, background thread)
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         agent preload finished in background, 28.96s
+[ORCH]         asr ready in 43.43s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=5.33GB nmt=unloaded tts=unloaded | total=6.64GB (94.8%), budget=7.0GB
+[ORCH]         asr infer: 15.65s
+[ORCH] EVICT   asr       -> Rule 6: output consumed, freeing before NMT/Agent (process-kill, no standing pool)
+[ORCH]         asr freed in 0.91s
+[PIPE] transcribed (hi): इस पौधे में क्या गड़बड़ है और मुझे इसके बारे में क्या करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 23.91s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.54GB tts=unloaded | total=1.85GB (26.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.36s
+[PIPE] translated to English: What's wrong with this plant and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already fully loaded from Rule-9 preload -- zero additional wait
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.54GB tts=loading | total=1.85GB (26.4%), budget=7.0GB
+    [agent iter 1] load=1132ms prefill=2268ms (2192 tok) gen=23657ms (595 tok)
+    -> query_botanist({'crop': 'tomato', 'topic': 'stress signs'}) -> {"crop": "tomato", "topic": "stress signs", "growth_requirements": "Warm season crop, well-drained loamy soil, pH 6.0-6.8, regular but not waterlogged irrigatio
+    [agent iter 2] load=1234ms prefill=179ms (2887 tok) gen=25537ms (662 tok)
+    agent turn wall-clock: 54.48s
+[ORCH]         agent turn: 54.48s
+[PIPE] agent answer (English): Based on my knowledge of common agricultural stress signs and disease patterns across Indian crops:
+
+**What's wrong with this plant?** It may be experiencing water-related issues like leaf curling or yellowing (common under water stress), blossom-end rot, or other nutrient deficiencies depending on the specific crop being grown. If you're growing tomato, these symptoms could indicate calcium/water inconsistency in your irrigation system.
+
+**What should I do about it?** First check if there's a pest infestation - look for small white insects (aphids) that may be causing leaf damage or blossom rot. For water stress specifically:
+- Increase watering frequency to 2-3 times per week during dry periods
+- Ensure proper drainage and mulch around the base of plants to retain moisture
+
+If symptoms persist after addressing irrigation, I'd recommend checking soil pH (target range is 6.0-6.8) and calcium levels in your garden water supply - these are critical for preventing blossom-end rot on tomatoes.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.54GB tts=0.40GB | total=2.25GB (32.1%), budget=7.0GB
+[ORCH]         nmt infer: 7.56s
+[PIPE] translated answer (hi): भारतीय फसलों में सामान्य कृषि तनाव संकेतों और रोगों के स्वरूप के बारे में मेरे ज्ञान के आधार परः
+
+इस पौधे में क्या गड़बड़ है? * * यह पानी से संबंधित समस्याओं का सामना कर सकता है जैसे कि पत्ते को मोड़ना या पीला पड़ना (पानी के दबाव में आम), फूलों के अंत में सड़ना, या उगाई जा रही विशिष्ट फसल के आधार पर अन्य पोषक तत्वों की कमी। यदि आप टमाटर उगा रहे हैं, तो ये लक्षण आपकी सिंचाई प्रणाली में कैल्शियम/पानी की विसंगति का संकेत दे सकते हैं।
+
+मुझे इसके बारे में क्या करना चाहिए? * * पहले जाँच करें कि क्या कोई कीट संक्रमण है-छोटे सफेद कीटों (एफिड्स) की तलाश करें जो पत्ते को नुकसान या फूलों के सड़ने का कारण बन सकते हैं। विशेष रूप से पानी के तनाव के लिएः - शुष्क अवधि के दौरान पानी की आवृत्ति को प्रति सप्ताह 2-3 बार तक बढ़ाएं-नमी बनाए रखने के लिए पौधों के आधार के चारों ओर उचित जल निकासी और मल्च सुनिश्चित करें।
+
+यदि सिंचाई को संबोधित करने के बाद भी लक्षण बने रहते हैं, तो मैं आपके बगीचे के पानी की आपूर्ति में मिट्टी के पीएच (लक्ष्य सीमा 6.0-6.8 है) और कैल्शियम के स्तर की जांच करने की सलाह दूंगा-ये टमाटर पर फूलों के सड़ने को रोकने के लिए महत्वपूर्ण हैं।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.35s
+[ORCH]         Rule 8 (mms_tts, conditional): projected 5.01GB fits 7.0GB budget -- keeping Agent resident (mms_tts's peak is small/predictable enough not to need the unconditional evict)
+[ORCH]         TTS-peak check after Rule 2/7/8: projected-at-peak=5.01GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.40GB | total=1.70GB (24.4%), budget=7.0GB
+[ORCH]         tts infer: 8.11s, observed peak pool ~1.70GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.57s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 160.14s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.51s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

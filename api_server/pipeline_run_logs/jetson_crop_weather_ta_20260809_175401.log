@@ -1,0 +1,333 @@
+[0;93m2026-08-09 17:55:08.280227745 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 51.71s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 1/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ta input
+[ORCH]         asr ready in 22.32s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.73GB nmt=unloaded tts=unloaded | total=3.31GB (47.3%), budget=7.0GB
+[ORCH]         asr infer: 8.99s
+[PIPE] transcribed (ta): என் உருளைக்கு அங்கு இலைகளில் ஏதோ துளைகள் சாப்பிடுகின்றன இது என்ன பூச்சி நான் அதை என்ன செய்ய வேண்டும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ta->EN)
+[ORCH]         nmt ready in 19.69s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.73GB nmt=0.55GB tts=unloaded | total=3.86GB (55.2%), budget=7.0GB
+[ORCH]         nmt infer: 1.65s
+[PIPE] translated to English: My cylinder has holes in the leaves that eat what insect is this and what should I do with it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.73GB nmt=0.55GB tts=loading | total=3.86GB (55.2%), budget=7.0GB
+    [agent iter 1] load=1206ms prefill=6548ms (4633 tok) gen=29819ms (470 tok)
+    -> query_entomologist({'query': 'holes in leaves causing damage on my crop plants, what insect is this and how to treat it?'}) -> {"query": "holes in leaves causing damage on my crop plants, what insect is this and how to treat it?", "matched_pest": "Thrips (Thrips parvispinus)", "descript
+    [agent iter 2] load=1526ms prefill=1322ms (5228 tok) gen=27336ms (440 tok)
+    agent turn wall-clock: 69.86s
+[ORCH]         agent turn: 69.86s
+[PIPE] agent answer (English, raw): Based on your description of holes in leaves affecting crop plants, this appears to be thrips damage - those tiny insects that rasp leaf surfaces and cause silvery streaks or curling patterns common on chilli and pepper crops. Here's what you should do:
+
+**Immediate Action:** Install blue/yellow sticky traps around affected areas to catch the flying adults before they reproduce further. Avoid using excessive nitrogen fertilizer which attracts thrips more aggressively, and focus spot-treating only hotspots rather than blanket spraying your entire field at once. This targeted approach will help reduce their population without harming beneficial insects or damaging other plants in your crop rotation.
+
+**Important Note:** Thrips are very small pests that can easily spread through wind-blown pollen between nearby crops if you're not careful with timing and application methods.
+[PIPE] agent answer (English, markdown-stripped): Based on your description of holes in leaves affecting crop plants, this appears to be thrips damage - those tiny insects that rasp leaf surfaces and cause silvery streaks or curling patterns common on chilli and pepper crops. Here's what you should do:
+
+Immediate Action: Install blue/yellow sticky traps around affected areas to catch the flying adults before they reproduce further. Avoid using excessive nitrogen fertilizer which attracts thrips more aggressively, and focus spot-treating only hotspots rather than blanket spraying your entire field at once. This targeted approach will help reduce their population without harming beneficial insects or damaging other plants in your crop rotation.
+
+Important Note: Thrips are very small pests that can easily spread through wind-blown pollen between nearby crops if you're not careful with timing and application methods.
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.73GB nmt=0.55GB tts=0.30GB | total=4.16GB (59.5%), budget=7.0GB
+[ORCH]         nmt infer: 6.85s
+[PIPE] translated answer (ta): பயிர் தாவரங்களை பாதிக்கும் இலைகளில் உள்ள துளைகள் பற்றிய உங்கள் விளக்கத்தின் அடிப்படையில், இது மிதமிஞ்சிய சேதமாகத் தெரிகிறது-அந்த சிறிய பூச்சிகள் இலை மேற்பரப்பைத் தட்டுகின்றன மற்றும் மிளகாய் மற்றும் மிளகு பயிர்களில் பொதுவாக இருக்கும் வெள்ளிப் கோடுகள் அல்லது சுருண்டு வரும் வடிவங்களை ஏற்படுத்துகின்றன. நீங்கள் செய்ய வேண்டியவை இங்கேஃ
+
+உடனடி நடவடிக்கைஃ பறக்கும் பெரியவர்கள் இனப்பெருக்கம் செய்வதற்கு முன்பு அவர்களைப் பிடிக்க பாதிக்கப்பட்ட பகுதிகளைச் சுற்றி நீல/மஞ்சள் ஒட்டும் பொறிகளை நிறுவவும். மிதமிஞ்சிய உரங்களை ஈர்க்கும் அளவுக்கு அதிகமான நைட்ரஜன் உரத்தைப் பயன்படுத்துவதைத் தவிர்க்கவும், உங்கள் வயல் முழுவதையும் ஒரே நேரத்தில் தெளிப்பதை விட, ஹாட்ஸ்பாட்களை மட்டுமே ஸ்பாட் ட்ரீட்டிங் செய்வதில் கவனம் செலுத்துங்கள். இந்த இலக்கு அணுகுமுறை உங்கள் பயிர் சுழற்சியில் நன்மை பயக்கும் பூச்சிகளுக்கு தீங்கு விளைவிக்கவோ அல்லது பிற தாவரங்களை சேதப்படுத்தவோ இல்லாமல் அவற்றின் எண்ணிக்கையைக் குறைக்க உதவும்.
+
+முக்கியமான குறிப்புஃ டிரிப்ஸ் என்பது மிகச் சிறிய பூச்சிகளாகும், அவை நேரம் மற்றும் பயன்பாட்டு முறைகளில் நீங்கள் கவனமாக இல்லாவிட்டால் அருகிலுள்ள பயிர்களுக்கு இடையில் காற்று வீசும் மகரந்தத்தின் மூலம் எளிதில் பரவக்கூடும்.
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.85GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.81s
+Flash attention 2 is not installed
+[0;93m2026-08-09 17:57:56.738750763 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[0;93m2026-08-09 17:59:43.644059410 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.55GB tts=0.30GB | total=3.44GB (49.1%), budget=7.0GB
+[ORCH]         tts infer: 32.15s, observed peak pool ~3.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.71s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_1of5.wav (engine=mms_tts, 6 chunks)
+[PIPE] total turn wall-clock: 167.33s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 2/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 13.63s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=unloaded | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         asr infer: 9.31s
+[PIPE] transcribed (ta): ஆம் நான் தெளிக்க சரியான நேரம் எப்போது என்பதை தயவு செய்து சரிபார்க்கவும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=unloaded | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         nmt infer: 0.65s
+[PIPE] translated to English: Yes please check when is the right time for me to spray
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=loading | total=3.14GB (44.8%), budget=7.0GB
+    [agent iter 1] load=1262ms prefill=2631ms (4985 tok) gen=18637ms (297 tok)
+    agent turn wall-clock: 25.47s
+[ORCH]         agent turn: 25.47s
+[PIPE] agent answer (English, raw): I need your specific location to check the best timing for spray - could you please tell me which state and district/city/area where your crop is grown? This will help me give you more targeted advice on when it's safe to apply pesticide against thrips without affecting other crops or beneficial insects in your area.
+[PIPE] agent answer (English, markdown-stripped): I need your specific location to check the best timing for spray - could you please tell me which state and district/city/area where your crop is grown? This will help me give you more targeted advice on when it's safe to apply pesticide against thrips without affecting other crops or beneficial insects in your area.
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=loading | total=3.54GB (50.6%), budget=7.0GB
+[ORCH]         nmt infer: 3.61s
+[PIPE] translated answer (ta): தெளிப்பதற்கான சிறந்த நேரத்தை சரிபார்க்க உங்கள் குறிப்பிட்ட இடம் எனக்குத் தேவை-உங்கள் பயிர் எந்த மாநிலம் மற்றும் மாவட்டம்/நகரம்/பகுதியில் பயிரிடப்படுகிறது என்பதை தயவுசெய்து சொல்ல முடியுமா? உங்கள் பகுதியில் உள்ள பிற பயிர்கள் அல்லது நன்மை பயக்கும் பூச்சிகளை பாதிக்காமல், மிதிவண்டிகளுக்கு எதிராக பூச்சிக்கொல்லியைப் பயன்படுத்துவது எப்போது பாதுகாப்பானது என்பது குறித்து மேலும் இலக்கு ஆலோசனையை வழங்க இது எனக்கு உதவும்.
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.91GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.44s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 9.55s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.55GB tts=0.00GB | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         tts infer: 26.06s, observed peak pool ~3.14GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.83s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_2of5.wav (engine=mms_tts, 2 chunks)
+[PIPE] total turn wall-clock: 95.10s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 3/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 16.02s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.06GB nmt=0.55GB tts=unloaded | total=3.19GB (45.6%), budget=7.0GB
+[ORCH]         asr infer: 9.43s
+[PIPE] transcribed (ta): நான் தமிழ்நட்டின் கோயம்புத்தூரிலிருக்கிறேன் எனது பின்கோடு வடஹாள்கல்லராகும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.06GB nmt=0.55GB tts=unloaded | total=3.19GB (45.6%), budget=7.0GB
+[ORCH]         nmt infer: 0.77s
+[PIPE] translated to English: I am in Coimbatore, Tamil Nadu, my hometown is Vadahallakallu.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.06GB nmt=0.55GB tts=loading | total=3.19GB (45.6%), budget=7.0GB
+    [agent iter 1] load=1505ms prefill=506ms (5079 tok) gen=12912ms (210 tok)
+    -> query_spray_window({'district': 'Coimbatore', 'state': 'Tamil Nadu'}) -> {"spray_window": "Best spray window: Aug 22 (1 day(s), ~28% rain chance, ~0% wind risk).", "skip_watering": "No significant rain expected in this period -- irri
+    [agent iter 2] load=1347ms prefill=1039ms (5378 tok) gen=16684ms (256 tok)
+    agent turn wall-clock: 38.68s
+[ORCH]         agent turn: 38.68s
+Flash attention 2 is not installed
+[0;93m2026-08-09 18:01:36.718269067 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[PIPE] agent answer (English, raw): Perfect! Based on your location in Coimbatore district and Tamil Nadu state, the best time to spray against thrips is **August 22nd** - just one day ahead with about a 28% chance of rain but essentially zero wind risk, which makes it very safe for application. Since there's no significant rain expected during this period, you don't need to skip watering and irrigation will likely still be needed throughout your area anyway. There's also no flood-level rain warning that would require special protection for any sensitive crops in your region.
+[PIPE] agent answer (English, markdown-stripped): Perfect! Based on your location in Coimbatore district and Tamil Nadu state, the best time to spray against thrips is August 22nd - just one day ahead with about a 28% chance of rain but essentially zero wind risk, which makes it very safe for application. Since there's no significant rain expected during this period, you don't need to skip watering and irrigation will likely still be needed throughout your area anyway. There's also no flood-level rain warning that would require special protection for any sensitive crops in your region.
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.06GB nmt=0.55GB tts=loading | total=3.87GB (55.2%), budget=7.0GB
+[ORCH]         nmt infer: 5.05s
+[PIPE] translated answer (ta): கச்சிதமாக! கோயம்புத்தூர் மாவட்டம் மற்றும் தமிழ்நாடு மாநிலத்தில் உள்ள உங்கள் இருப்பிடத்தின் அடிப்படையில், மிதமிஞ்சிய நீர் தெளிக்க சிறந்த நேரம் ஆகஸ்ட் 22 ஆகும்-மழைக்கு சுமார் 28 சதவீதம் வாய்ப்பு உள்ளது, ஆனால் அடிப்படையில் பூஜ்ஜிய காற்று ஆபத்து உள்ளது, இது பயன்பாட்டிற்கு மிகவும் பாதுகாப்பானது. இந்தக் காலகட்டத்தில் குறிப்பிடத்தக்க மழை எதிர்பார்க்கப்படாததால், நீங்கள் நீர்ப்பாசனத்தை தவிர்க்க வேண்டியதில்லை, மேலும் உங்கள் பகுதி முழுவதும் நீர்ப்பாசனம் இன்னும் தேவைப்படும். உங்கள் பிராந்தியத்தில் உள்ள எந்தவொரு முக்கியமான பயிர்களுக்கும் சிறப்பு பாதுகாப்பு தேவைப்படும் வெள்ள நிலை மழை எச்சரிக்கையும் இல்லை.
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.00GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.67s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 0.32s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.55GB tts=0.00GB | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         tts infer: 28.53s, observed peak pool ~3.14GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.73s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_3of5.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 105.41s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 4/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 13.54s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=unloaded | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         asr infer: 8.99s
+[PIPE] transcribed (ta): அடுத்த சில வாரங்களில் வானிலை எப்படி இருக்கும்
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=unloaded | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         nmt infer: 0.60s
+[PIPE] translated to English: what will the weather be like in the next few weeks
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=loading | total=3.14GB (44.8%), budget=7.0GB
+    [agent iter 1] load=1557ms prefill=737ms (5346 tok) gen=8214ms (133 tok)
+    -> get_weather_forecast({'district': 'Coimbatore'}) -> {"rain": "weeks of Aug 10, Aug 17, Aug 24, Aug 31, Sep 7: moderate chance of rain (~46%), expect moderate rain (~11.3mm) when it falls.", "comfort": "weeks of A
+    [agent iter 2] load=1320ms prefill=512ms (5654 tok) gen=22724ms (344 tok)
+    agent turn wall-clock: 38.13s
+[ORCH]         agent turn: 38.13s
+[PIPE] agent answer (English, raw): Based on your location in Coimbatore district, here's what you can typically expect over the coming days:
+
+**Rain:** There will be moderate rainfall expected around August 10th, August 17th, August 24th, August 31st, and September 7th - about a 46% chance each time with roughly 11.3 millimeters of rain when it falls.
+
+**Comfort:** During these same periods, the weather will feel like approximately 22.5°C (about 72°F) with comfortable humidity levels throughout.
+
+**Wind and Sunlight:** Low wind risk across all days you're concerned about, plus moderate sunlight conditions during those rainy weeks - this should be fine for your thrips control work since there's no significant interference from strong winds or excessive heat that would affect pesticide application safety.
+
+**Flood Risk:** No flood-level rain is expected in your area, so special protection isn't needed even if you're growing sensitive crops like chilli and pepper.
+
+So overall, the weather looks relatively stable for agricultural work - just be mindful of those specific rainy days when August 10th through September 7th will see moderate rainfall events that might wash off any pesticide application you make!
+Flash attention 2 is not installed
+[0;93m2026-08-09 18:03:39.149569891 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[PIPE] agent answer (English, markdown-stripped): Based on your location in Coimbatore district, here's what you can typically expect over the coming days:
+
+Rain: There will be moderate rainfall expected around August 10th, August 17th, August 24th, August 31st, and September 7th - about a 46% chance each time with roughly 11.3 millimeters of rain when it falls.
+
+Comfort: During these same periods, the weather will feel like approximately 22.5°C (about 72°F) with comfortable humidity levels throughout.
+
+Wind and Sunlight: Low wind risk across all days you're concerned about, plus moderate sunlight conditions during those rainy weeks - this should be fine for your thrips control work since there's no significant interference from strong winds or excessive heat that would affect pesticide application safety.
+
+Flood Risk: No flood-level rain is expected in your area, so special protection isn't needed even if you're growing sensitive crops like chilli and pepper.
+
+So overall, the weather looks relatively stable for agricultural work - just be mindful of those specific rainy days when August 10th through September 7th will see moderate rainfall events that might wash off any pesticide application you make!
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=loading | total=4.01GB (57.3%), budget=7.0GB
+[ORCH]         nmt infer: 9.55s
+[PIPE] translated answer (ta): கோயம்புத்தூர் மாவட்டத்தில் உங்கள் இருப்பிடத்தின் அடிப்படையில், வரும் நாட்களில் நீங்கள் பொதுவாக எதிர்பார்க்கக்கூடியவை இங்கேஃ
+
+மழைஃ ஆகஸ்ட் 10, ஆகஸ்ட் 17, ஆகஸ்ட் 24, ஆகஸ்ட் 31 மற்றும் செப்டம்பர் 7 ஆகிய தேதிகளில் மிதமான மழை எதிர்பார்க்கப்படுகிறது-ஒவ்வொரு முறையும் சுமார் 46 சதவீதம் வாய்ப்பு உள்ளது, மழை பெய்யும்போது சுமார் 11.3 மில்லிமீட்டர் மழை பெய்யும்.
+
+ஆறுதல்ஃ இதே காலகட்டத்தில், வானிலை சுமார் 22.5 டிகிரி செல்சியஸ் (சுமார் 72 டிகிரி ஃபாரன்ஹீட்) ஆக இருக்கும், மேலும் ஈரப்பதம் முழுவதும் வசதியாக இருக்கும்.
+
+காற்று மற்றும் சூரிய ஒளிஃ நீங்கள் கவலைப்படும் அனைத்து நாட்களிலும் குறைந்த காற்று ஆபத்து, மேலும் அந்த மழை வாரங்களில் மிதமான சூரிய ஒளி நிலைமைகள்-இது உங்கள் மிதமான கட்டுப்பாட்டு பணிக்கு நன்றாக இருக்க வேண்டும், ஏனெனில் வலுவான காற்று அல்லது அதிகப்படியான வெப்பத்திலிருந்து குறிப்பிடத்தக்க குறுக்கீடு எதுவும் இல்லை, இது பூச்சிக்கொல்லி பயன்பாட்டு பாதுகாப்பை
+
+வெள்ள அபாயம்ஃ உங்கள் பகுதியில் வெள்ள நிலை மழை எதிர்பார்க்கப்படுவதில்லை, எனவே நீங்கள் மிளகாய் மற்றும் மிளகு போன்ற முக்கியமான பயிர்களை பயிரிடுகிறீர்கள் என்றாலும் சிறப்பு பாதுகாப்பு தேவையில்லை.
+
+எனவே ஒட்டுமொத்தமாக, விவசாய வேலைகளுக்கு வானிலை ஒப்பீட்டளவில் நிலையானதாகத் தெரிகிறது-ஆகஸ்ட் 10 முதல் செப்டம்பர் 7 வரை மிதமான மழைப்பொழிவு நிகழ்வுகளைக் காணும் அந்த குறிப்பிட்ட மழை நாட்களை நினைவில் கொள்ளுங்கள், இது நீங்கள் செய்யும் எந்த பூச்சிக்கொல்லி பயன்பாட்டையும் கழுவக்கூடும்!
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=10.00GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.76s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.55GB tts=0.55GB | total=3.69GB (52.7%), budget=7.0GB
+[ORCH]         tts infer: 34.61s, observed peak pool ~3.69GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.77s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_4of5.wav (engine=mms_tts, 6 chunks)
+[PIPE] total turn wall-clock: 111.64s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil) [crop-weather 5/5]
+========================================================================================
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 14.03s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=unloaded | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         asr infer: 10.00s
+[PIPE] transcribed (ta): எனது உருளைக்கிழங்குப் பயிரை மேலும் பூச்சிகள் தாக்குகின்றனவா என்று நான் கவலைப்பட வேண்டுமா
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=unloaded | total=3.14GB (44.8%), budget=7.0GB
+[ORCH]         nmt infer: 0.71s
+[PIPE] translated to English: Should I worry if my potato crop is getting attacked by more insects?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=loading | total=3.14GB (44.8%), budget=7.0GB
+    [agent iter 1] load=1548ms prefill=4052ms (5834 tok) gen=13320ms (207 tok)
+    -> query_crop_suitability({'district': 'Coimbatore', 'state': 'Tamil Nadu', 'water_need': 'moderate', 'heat_sensitive': False, 'months': 2}) -> {"forecast": {"rain": "weeks of Aug 10, Aug 17, Aug 24, Aug 31, Sep 7, Sep 14, Sep 21, Sep 28, Oct 5: moderate chance of rain (~42%), expect moderate rain (~10.
+    [agent iter 2] load=1824ms prefill=1176ms (6329 tok) gen=47840ms (752 tok)
+    agent turn wall-clock: 73.24s
+[ORCH]         agent turn: 73.24s
+[PIPE] agent answer (English, raw): I need to be honest with you - while the weather forecast shows conditions that could favor insect activity during warm and humid periods (which will include those rainy weeks we've identified), **I don't have access to identify what specific potato pests might actually be attacking your crop in Coimbatore district right now**. 
+
+The general pest pressure window would flag extra scouting recommended for the coming period, but without being able to see actual damage or know which particular species are common on potatoes locally, I can only tell you that:
+
+**Potatoes (Solanum tuberosum) are susceptible to several insect pests including:**
+- Thrips (which we've already discussed - they cause silvery streaks and holes in leaves)
+- Potato bugs/whiteflies  
+- Aphids
+- Some beetles like potato beetle or tarnished plant bug
+
+**What you should do instead of worrying blindly:**
+
+1. **Check what damage is actually happening on your potatoes right now** — if you can share a photo, I'll be able to identify the specific pests and give targeted advice about which insects are likely attacking them in Coimbatore district specifically
+2. If thrips or other small insect damage appears (holes, silvery streaks), that's what we've already discussed - sticky traps will help catch flying adults before they reproduce further
+
+**Bottom line:** The weather conditions during the rainy weeks you mentioned could support pest activity generally, but without knowing exactly which pests are present on your potato crop in this area right now, I can't give specific advice about whether to worry or what treatments would be most effective. If you're seeing actual damage that matches thrips symptoms (silvery streaks/holes), the sticky traps we discussed earlier will help manage those specifically!
+[PIPE] agent answer (English, markdown-stripped): I need to be honest with you - while the weather forecast shows conditions that could favor insect activity during warm and humid periods (which will include those rainy weeks we've identified), I don't have access to identify what specific potato pests might actually be attacking your crop in Coimbatore district right now.
+
+The general pest pressure window would flag extra scouting recommended for the coming period, but without being able to see actual damage or know which particular species are common on potatoes locally, I can only tell you that:
+
+Potatoes (Solanum tuberosum) are susceptible to several insect pests including:
+Thrips (which we've already discussed - they cause silvery streaks and holes in leaves)
+Potato bugs/whiteflies
+Aphids
+Some beetles like potato beetle or tarnished plant bug
+
+What you should do instead of worrying blindly:
+
+Check what damage is actually happening on your potatoes right now — if you can share a photo, I'll be able to identify the specific pests and give targeted advice about which insects are likely attacking them in Coimbatore district specifically
+If thrips or other small insect damage appears (holes, silvery streaks), that's what we've already discussed - sticky traps will help catch flying adults before they reproduce further
+
+Bottom line: The weather conditions during the rainy weeks you mentioned could support pest activity generally, but without knowing exactly which pests are present on your potato crop in this area right now, I can't give specific advice about whether to worry or what treatments would be most effective. If you're seeing actual damage that matches thrips symptoms (silvery streaks/holes), the sticky traps we discussed earlier will help manage those specifically!
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.55GB tts=0.48GB | total=3.62GB (51.7%), budget=7.0GB
+[ORCH]         nmt infer: 10.86s
+Flash attention 2 is not installed
+[PIPE] translated answer (ta): நான் உங்களிடம் நேர்மையாக இருக்க வேண்டும்-வானிலை முன்னறிவிப்பு வெப்பமான மற்றும் ஈரப்பதமான காலங்களில் பூச்சி செயல்பாட்டிற்கு சாதகமான நிலைமைகளைக் காட்டுகிறது (இதில் நாம் அடையாளம் கண்ட அந்த மழை வாரங்களும் அடங்கும்), கோயம்புத்தூர் மாவட்டத்தில் உங்கள் பயிரை உண்மையில் எந்த குறிப்பிட்ட உருளைக்கிழங்கு பூச்சிகள் தாக்கக்கூடும் என்பதை அடையாளம் காண
+
+பொது பூச்சி அழுத்தம் சாளரம் வரவிருக்கும் காலத்திற்கு பரிந்துரைக்கப்பட்ட கூடுதல் ஸ்கவுட்டிங் குறிக்கும், ஆனால் உண்மையான சேதத்தைக் காணவோ அல்லது உள்ளூர் உருளைக்கிழங்கில் எந்த குறிப்பிட்ட இனங்கள் பொதுவானவை என்பதை அறியவோ முடியாமல், நான் உங்களுக்குச் சொல்ல முடியும்ஃ
+
+உருளைக்கிழங்கு (சோலனம் டியூபரோசம்) பல பூச்சி பூச்சிகளுக்கு ஆளாகிறது, அவற்றுள் பின்வருவன அடங்கும்ஃ திரிப்ஸ் (இது நாம் ஏற்கனவே விவாதித்தவை-அவை வெள்ளிப் கோடுகள் மற்றும் இலைகளில் துளைகளை ஏற்படுத்துகின்றன) உருளைக்கிழங்கு பிழைகள்/வெள்ளை ஈக்கள்
+
+கண்மூடித்தனமாக கவலைப்படுவதற்குப் பதிலாக நீங்கள் என்ன செய்ய வேண்டும்ஃ
+
+உங்கள் உருளைக்கிழங்கில் உண்மையில் என்ன சேதம் ஏற்படுகிறது என்பதை இப்போது பாருங்கள்-நீங்கள் ஒரு புகைப்படத்தைப் பகிர்ந்து கொள்ள முடிந்தால், குறிப்பிட்ட பூச்சிகளை அடையாளம் கண்டு, கோயம்புத்தூர் மாவட்டத்தில் எந்த பூச்சிகள் அவற்றைத் தாக்குகின்றன என்பது குறித்து இலக்கு ஆலோசனையை வழங்க முடியும், குறிப்பாக மிதவை அல்லது பிற சிறிய பூச்சி சேதம் (துளைகள், வெள்ளி
+
+கீழ்நிலைஃ நீங்கள் குறிப்பிட்ட மழை வாரங்களில் வானிலை பொதுவாக பூச்சி நடவடிக்கையை ஆதரிக்கலாம், ஆனால் இப்பகுதியில் உங்கள் உருளைக்கிழங்கு பயிரில் எந்த பூச்சிகள் உள்ளன என்று சரியாகத் தெரியாமல், கவலைப்படலாமா அல்லது என்ன சிகிச்சைகள் மிகவும் பயனுள்ளதாக இருக்கும் என்பது குறித்து என்னால் குறிப்பிட்ட ஆலோசனையை வழங்க முடியாது. மிதமிஞ்சிய அறிகுறிகளுடன் (வெள்ளிக் கோடுகள்/துளைகள்) பொருந்தக்கூடிய உண்மையான சேதத்தை நீங்கள் காண்கிறீர்கள் என்றால், நாம் முன்பு விவாதித்த ஒட்டும் பொறிகள் அவற்றை குறிப்பாக நிர்வகிக்க உதவும்!
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=11.76GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.81s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.55GB tts=0.48GB | total=3.62GB (51.7%), budget=7.0GB
+[ORCH]         tts infer: 36.00s, observed peak pool ~3.62GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.76s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta_crop-weather_5of5.wav (engine=mms_tts, 7 chunks)
+[PIPE] total turn wall-clock: 150.03s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.04s
+[ORCH] EVICT   nmt       -> session teardown (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.81s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

@@ -1,0 +1,122 @@
+Flash attention 2 is not installed
+[0;93m2026-08-09 02:44:41.155954205 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 48.89s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 1/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 19.84s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.71GB nmt=unloaded tts=unloaded | total=3.29GB (47.1%), budget=7.0GB
+[ORCH]         asr infer: 8.89s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 19.40s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.71GB nmt=0.37GB tts=unloaded | total=3.67GB (52.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.37s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.71GB nmt=0.37GB tts=loading | total=3.67GB (52.4%), budget=7.0GB
+    [agent iter 1] load=1308ms prefill=3394ms (2188 tok) gen=26073ms (413 tok)
+    -> query_entomologist({'query': 'insects on potatoes IPM guidance'}) -> {"query": "insects on potatoes IPM guidance", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp leaf/flower surfaces
+    [agent iter 2] load=1647ms prefill=1439ms (2714 tok) gen=41661ms (665 tok)
+    agent turn wall-clock: 78.18s
+[ORCH]         agent turn: 78.18s
+[PIPE] agent answer (English): For potato protection against insects and rats, here's what you should know:
+
+**Insect Control:** Common potato pests include thrips (which cause silvery streaks on leaves), aphids, beetles, and other small bugs. For insecticide use, I'd need to see the specific chemical name from your label first - please share a photo of any pesticide bottle or packet you're considering using so I can check its safety profile for potatoes.
+
+**Rat Control:** Rats damage potato tubers by gnawing on them and spreading disease through droppings. Best prevention:
+- Seal all entry points (holes in walls, pipes) with concrete/mortar
+- Use traps at night - snap or live traps work best
+- Keep garden clean of food sources like fallen fruit/vegetables
+- Consider rodenticides ONLY if infestation is severe and follow label instructions carefully
+
+**Important:** Never use pesticides without knowing the specific chemical name from your product label. Share a photo of any pesticide bottle you're considering, or ask about active ingredients on labels before using anything!
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.71GB nmt=0.37GB tts=0.18GB | total=3.85GB (54.9%), budget=7.0GB
+[ORCH]         nmt infer: 8.40s
+[PIPE] translated answer (hi): कीटों और चूहों से आलू की सुरक्षा के लिए, आपको जो कुछ पता होना चाहिए वह यहां दिया गया हैः
+
+कीट नियंत्रणः आम आलू कीटों में थ्रिप्स (जो पत्तियों पर चांदी की धारियाँ पैदा करते हैं), एफिड्स, भृंग और अन्य छोटे कीड़े शामिल हैं। कीटनाशक के उपयोग के लिए, मुझे पहले आपके लेबल से विशिष्ट रासायनिक नाम देखने की आवश्यकता होगी-कृपया किसी भी कीटनाशक बोतल या पैकेट की तस्वीर साझा करें जिसे आप उपयोग करने पर विचार कर रहे हैं ताकि मैं आलू के लिए इसकी सुरक्षा प्रोफ़ाइल की जांच कर सकूं।
+
+चूहा नियंत्रणः चूहे आलू के कंदों को काटकर उन्हें नुकसान पहुँचाते हैं और बिच्छू के माध्यम से बीमारी फैलाते हैं। सबसे अच्छी रोकथामः-सभी प्रवेश बिंदुओं (दीवारों, पाइपों में छेद) को कंक्रीट/मोर्टार से सील करें-रात में जाल का उपयोग करें-स्नैप या लाइव जाल सबसे अच्छा काम करते हैं-बगीचे को खाद्य स्रोतों जैसे गिरे हुए फलों/सब्जियों से साफ रखें-कृन्तकनाशक
+
+महत्वपूर्णः अपने उत्पाद के लेबल से विशिष्ट रासायनिक नाम जाने बिना कीटनाशकों का उपयोग कभी न करें। किसी भी कीटनाशक की बोतल की तस्वीर साझा करें जिस पर आप विचार कर रहे हैं, या किसी भी चीज़ का उपयोग करने से पहले लेबल पर सक्रिय सामग्री के बारे में पूछें!
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.50GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.77s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.37GB tts=0.18GB | total=3.13GB (44.8%), budget=7.0GB
+[ORCH]         tts infer: 31.67s, observed peak pool ~3.13GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.68s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_follow-up_1of4.wav (engine=mms_tts, 7 chunks)
+[PIPE] total turn wall-clock: 173.43s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 2/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[0;93m2026-08-09 02:47:38.882880309 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 13.76s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.37GB tts=unloaded | total=2.96GB (42.3%), budget=7.0GB
+[ORCH]         asr infer: 9.27s
+[PIPE] transcribed (hi): इस पौधे में क्या गड़बड़ है और मुझे इसके बारे में क्या करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.37GB tts=unloaded | total=2.96GB (42.3%), budget=7.0GB
+[ORCH]         nmt infer: 0.76s
+[PIPE] translated to English: What's wrong with this plant and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.37GB tts=loading | total=2.96GB (42.3%), budget=7.0GB
+    [agent iter 1] load=1423ms prefill=2539ms (2577 tok) gen=32088ms (508 tok)
+    -> query_entomologist({'query': 'potato plant disease symptoms and treatment IPM guidance'}) -> {"query": "potato plant disease symptoms and treatment IPM guidance", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that r
+    [agent iter 2] load=3877ms prefill=736ms (3201 tok) gen=18795ms (305 tok)
+    -> query_disease_diagnosis_index({'description': 'potato plant disease silvery streaks curling thrips damage symptoms'}) -> {"query": "potato plant disease silvery streaks curling thrips damage symptoms", "matches": [{"disease": "Bacterial leaf spot", "confidence": 0.78, "symptoms": 
+    [agent iter 3] load=1379ms prefill=366ms (3657 tok) gen=10417ms (170 tok)
+    -> query_entomologist({'query': 'potato plant insect damage silvery streaks curling thrips aphids beetles IPM guidance'}) -> {"query": "potato plant insect damage silvery streaks curling thrips aphids beetles IPM guidance", "matched_pest": "Thrips (Thrips parvispinus)", "description":
+    [agent iter 4] load=1231ms prefill=284ms (3953 tok) gen=30257ms (490 tok)
+    -> query_entomologist({'query': 'potato plant aphids beetles larvae damage IPM guidance treatment'}) -> {"query": "potato plant aphids beetles larvae damage IPM guidance treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insect
+    [agent iter 5] load=1204ms prefill=274ms (4562 tok) gen=29482ms (477 tok)
+    -> query_entomologist({'query': 'potato plant fungal diseases blight rot symptoms treatment IPM guidance'}) -> {"query": "potato plant fungal diseases blight rot symptoms treatment IPM guidance", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender
+    [agent iter final] load=1184ms prefill=3080ms (3424 tok) gen=7657ms (125 tok)
+    agent turn wall-clock: 148.54s
+[ORCH]         agent turn: 148.54s
+[PIPE] agent answer (English): 
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.37GB tts=0.43GB | total=3.39GB (48.5%), budget=7.0GB
+Traceback (most recent call last):
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 397, in <module>
+    sys.exit(main())
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 373, in main
+    result = run_full_pipeline(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 213, in run_full_pipeline
+    target_text = orch.run_nmt(f"EN->{language}", _nmt_to_target_call)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/orchestrator.py", line 473, in run_nmt
+    result = infer_fn()
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 209, in _nmt_to_target_call
+    r.raise_for_status()
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 500 Server Error: Internal Server Error for url: http://127.0.0.1:11400/nmt/infer

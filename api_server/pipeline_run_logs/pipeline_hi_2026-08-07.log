@@ -1,0 +1,82 @@
+Flash attention 2 is not installed
+[0;93m2026-08-07 05:01:41.083042211 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Fetching 404 files:   0%|          | 0/404 [00:00<?, ?it/s]Fetching 404 files:  47%|████▋     | 190/404 [00:00<00:00, 1897.35it/s]Fetching 404 files:  49%|████▊     | 196/404 [00:00<00:00, 1897.89it/s]Fetching 404 files:  50%|████▉     | 200/404 [00:00<00:00, 1881.21it/s]Fetching 404 files:  50%|█████     | 204/404 [00:00<00:00, 1859.63it/s]Fetching 404 files:  52%|█████▏    | 210/404 [00:00<00:00, 1845.82it/s]Fetching 404 files: 100%|██████████| 404/404 [00:00<00:00, 2046.96it/s]
+[0;93m2026-08-07 05:01:49.427964488 [W:onnxruntime:, transformer_memcpy.cc:111 ApplyImpl] 2 Memcpy nodes are added to the graph main_graph for CUDAExecutionProvider. It might have negative impact on performance (including unable to run CUDA graph). Set session_options.log_severity_level=1 to see the detail logs before this message.[m
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=unloaded embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) + image
+========================================================================================
+[ORCH] LOAD    agent     <- Rule 9: preload during ASR/NMT downtime (async, background thread)
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         agent preload finished in background, 29.95s
+[ORCH]         asr ready in 48.74s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.67GB nmt=unloaded tts=unloaded | total=1.97GB (28.2%), budget=7.0GB
+[ORCH]         asr infer: 15.59s
+[ORCH] EVICT   asr       -> Rule 6: output consumed, freeing before NMT/Agent (process-kill, no standing pool)
+[ORCH]         asr freed in 0.81s
+[PIPE] transcribed (hi): इस पौधे में क्या गड़बड़ है और मुझे इसके बारे में क्या करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 24.16s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.10GB tts=unloaded | total=2.41GB (34.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.35s
+[PIPE] translated to English: What's wrong with this plant and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already fully loaded from Rule-9 preload -- zero additional wait
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.13GB tts=loading | total=2.44GB (34.9%), budget=7.0GB
+    [agent iter 1] load=1098ms prefill=2213ms (2192 tok) gen=8269ms (218 tok)
+    -> analyze_photo({'focus_question': 'what is the plant growing in this photo? What symptoms are visible on its leaves or stem? Is there any disease, pest damage, or other issues apparent?'}) -> "This appears to be a cassava plant (*Solanum tuberosum*). The most prominent symptoms are numerous brown spots scattered across the leaf surface, some of which
+    [agent iter 2] load=1185ms prefill=180ms (2511 tok) gen=10229ms (266 tok)
+    -> query_disease_diagnosis_index({'description': 'brown spots scattered across leaf surface, necrotic centers, blackened edges, yellowing tips of cassava plant'}) -> {"query": "brown spots scattered across leaf surface, necrotic centers, blackened edges, yellowing tips of cassava plant", "matches": [{"disease": "Bacterial le
+    [agent iter 3] load=1068ms prefill=262ms (2937 tok) gen=11888ms (308 tok)
+    -> query_entomologist({'query': 'aphids causing leaf damage and lesions on cassava plant leaves, yellowing tips present'}) -> {"query": "aphids causing leaf damage and lesions on cassava plant leaves, yellowing tips present", "matched_pest": "Thrips (Thrips parvispinus)", "description"
+    [agent iter 4] load=1026ms prefill=203ms (3368 tok) gen=29893ms (770 tok)
+    agent turn wall-clock: 152.26s
+[ORCH]         agent turn: 152.26s
+[PIPE] agent answer (English): Based on this cassava plant photo showing brown spots with necrotic centers, blackened edges, yellowing tips, and visible aphids among lesions:
+
+**What's wrong:** This is likely caused by a combination of bacterial leaf spot disease and insect pest damage (likely thrips or aphids). The brown spots indicate the bacterial disease spreading to healthy tissue. Yellowing and browning suggest stress from both diseases and possibly nutrient deficiency. Multiple small insects visible on leaves are causing additional damage.
+
+**What should you do:**
+1. **Treat with copper-based bactericide** (like thiram or benomyl) - this stops the bacterial leaf spot disease spreading to healthy areas of your cassava plant. Avoid overhead irrigation as it can worsen fungal issues.
+2. **Control insect pests** using blue/yellow sticky traps and avoid excess nitrogen fertilization, which encourages more pest growth. Spot-treat hotspots rather than blanket spraying for better results.
+
+This is a serious crop management issue that needs immediate attention to prevent further spread of disease and reduce yield loss from insects damaging your harvest!
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.09GB tts=1.19GB | total=3.59GB (51.3%), budget=7.0GB
+[ORCH]         nmt infer: 8.87s
+[PIPE] translated answer (hi): इस कसावा पौधे की तस्वीर के आधार पर, जिसमें गुप्त केंद्र, काले किनारे, पीले होने वाले सिरे और घावों के बीच दिखाई देने वाले एफिड के साथ भूरे रंग के धब्बे दिखाए गए हैंः
+
+* * क्या गलत हैः * * यह संभवतः जीवाणु पत्ती के धब्बे की बीमारी और कीट कीट क्षति (संभावित थ्रिप्स या एफिड्स) के संयोजन के कारण होता है। भूरे रंग के धब्बे बैक्टीरिया की बीमारी के स्वस्थ ऊतकों में फैलने का संकेत देते हैं। पीला पड़ना और भूरा पड़ना दोनों बीमारियों और संभवतः पोषक तत्वों की कमी से तनाव का संकेत देता है। पत्तियों पर दिखाई देने वाले कई छोटे कीड़े अतिरिक्त नुकसान पहुंचा रहे हैं।
+
+* आपको क्या करना चाहिएः * * 1. * * कॉपर-आधारित जीवाणुनाशक से इलाज करें * * (जैसे तिरम या बेनोमाइल)-यह आपके कसावा पौधे के स्वस्थ क्षेत्रों में फैलने वाले बैक्टीरिया के पत्ते के रोग को रोकता है। ओवरहेड सिंचाई से बचें क्योंकि यह कवक की समस्याओं को और खराब कर सकता है। 2. * * नीले/पीले चिपचिपे जाल का उपयोग करके कीट कीटों को नियंत्रित करें और अतिरिक्त नाइट्रोजन निषेचन से बचें, जो कीटों के अधिक विकास को प्रोत्साहित करता है। बेहतर परिणामों के लिए कंबल छिड़काव के बजाय स्पॉट-ट्रीट हॉटस्पॉट।
+
+यह एक गंभीर फसल प्रबंधन मुद्दा है, जिस पर बीमारी के और प्रसार को रोकने और आपकी फसल को नुकसान पहुंचाने वाले कीड़ों से उपज के नुकसान को कम करने के लिए तत्काल ध्यान देने की आवश्यकता है!
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.36s
+[ORCH]         Rule 8 (mms_tts, conditional): projected 5.01GB fits 7.0GB budget -- keeping Agent resident (mms_tts's peak is small/predictable enough not to need the unconditional evict)
+[ORCH]         TTS-peak check after Rule 2/7/8: projected-at-peak=5.01GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=1.19GB | total=2.50GB (35.8%), budget=7.0GB
+[ORCH]         tts infer: 11.43s, observed peak pool ~4.16GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.75s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 268.08s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.02s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

@@ -1,0 +1,296 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 19:47:08.747517732 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[0;93m2026-08-08 19:49:49.931933167 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 50.14s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 1/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 15.82s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.84GB nmt=unloaded tts=unloaded | total=3.42GB (48.9%), budget=7.0GB
+[ORCH]         asr infer: 7.91s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 22.88s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.84GB nmt=0.53GB tts=unloaded | total=3.95GB (56.5%), budget=7.0GB
+[ORCH]         nmt infer: 2.15s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.84GB nmt=0.53GB tts=loading | total=3.95GB (56.5%), budget=7.0GB
+    [agent iter 1] load=1390ms prefill=3539ms (2188 tok) gen=38011ms (614 tok)
+    agent turn wall-clock: 44.29s
+[ORCH]         agent turn: 44.29s
+[PIPE] agent answer (English): I understand you want to protect your potatoes from insects and rats with the best pesticides available for small farms in India. Here's what works well:
+
+**For Insect Control:**
+- **Pyrethroids like permethrin/pyriproxyfen**: Effective against Colorado potato beetle, aphids on tubers
+- **Neonicotinoids (imidacloprid/cypermethrin)**: Good for general insect control in field crops  
+- **Bt bacteria**: Natural biopesticide that helps with pest management
+
+**For Rat Protection:**
+Rats aren't typically controlled by standard agricultural pesticides. Better approaches include:
+- Traps and exclusion methods (sealing entry points)
+- Rodenticides like bromadiolone or sodium fluaziflur - but use carefully as they're toxic to pets/children
+- Regular cleaning of storage areas
+
+**Important Safety Notes:**
+- Always read labels before using any pesticide
+- Follow recommended dosage and application timing strictly
+- Wear protective gear when handling chemicals
+- Store pesticides in locked, secure locations away from children/pets
+
+Would you like more specific information about a particular pest or treatment method?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.84GB nmt=0.53GB tts=loading | total=4.54GB (64.9%), budget=7.0GB
+[ORCH]         nmt infer: 12.93s
+[PIPE] translated answer (hi): मैं समझता हूं कि आप भारत में छोटे खेतों के लिए उपलब्ध सर्वोत्तम कीटनाशकों से अपने आलू को कीटों और चूहों से बचाना चाहते हैं। यहाँ क्या अच्छी तरह से काम करता हैः
+
+कीट नियंत्रण के लिएः * *-* * पर्मेथ्रिन/पायरिप्रोक्सीफेन जैसे पायरेथ्रॉएडः कोलोराडो आलू भृंग के खिलाफ प्रभावी, कंद पर एफिड-* * नियोनिकोटिनॉइड्स (इमिडाक्लोप्रिड/साइपरमेथ्रिन) *
+
+चूहे के संरक्षण के लिएः चूहे आमतौर पर मानक कृषि कीटनाशकों द्वारा नियंत्रित नहीं होते हैं। बेहतर तरीकों में शामिल हैंः-जाल और बहिष्करण विधियाँ (प्रवेश द्वार को सील करना)-ब्रोमैडियोलोन या सोडियम फ्लूएज़ीफ्लर जैसे कृन्तक-लेकिन सावधानीपूर्वक उपयोग करें क्योंकि वे पालतू जानवरों/बच्चों के लिए विषाक्त हैं-भंडारण क्षेत्रों की नियमित सफाई
+
+महत्वपूर्ण सुरक्षा टिप्पणियाँः-किसी भी कीटनाशक का उपयोग करने से पहले हमेशा लेबल पढ़ें-अनुशंसित खुराक और आवेदन के समय का सख्ती से पालन करें-रसायनों को संभालते समय सुरक्षात्मक उपकरण पहनें-कीटनाशकों को बच्चों/पालतू जानवरों से दूर बंद, सुरक्षित स्थानों पर स्टोर करें।
+
+क्या आप किसी विशेष कीट या उपचार विधि के बारे में अधिक विशिष्ट जानकारी चाहते हैं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.58GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.87s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.53GB tts=0.06GB | total=3.17GB (45.3%), budget=7.0GB
+[ORCH]         tts infer: 37.52s, observed peak pool ~3.17GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.88s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_follow-up_1of4.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 153.56s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 2/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 14.12s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=unloaded | total=3.11GB (44.4%), budget=7.0GB
+[ORCH]         asr infer: 9.33s
+Flash attention 2 is not installed
+[0;93m2026-08-08 19:53:10.195255263 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[PIPE] transcribed (hi): इस पौधे में क्या गड़बड़ है और मुझे इसके बारे में क्या करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=unloaded | total=3.11GB (44.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.72s
+[PIPE] translated to English: What's wrong with this plant and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=loading | total=3.11GB (44.4%), budget=7.0GB
+    [agent iter 1] load=1474ms prefill=1127ms (2451 tok) gen=31665ms (508 tok)
+    -> query_botanist({'crop': 'potato', 'topic': 'common problems and symptoms'}) -> {"crop": "potato", "topic": "common problems and symptoms", "growth_requirements": "Warm season crop, well-drained loamy soil, pH 6.0-6.8, regular but not water
+    [agent iter 2] load=2670ms prefill=1484ms (3061 tok) gen=32628ms (522 tok)
+    -> query_disease_diagnosis_index({'description': 'potato plant wilting yellowing spots leaf curl'}) -> {"query": "potato plant wilting yellowing spots leaf curl", "matches": [{"disease": "Bacterial leaf spot", "confidence": 0.78, "symptoms": "Small water-soaked s
+    [agent iter 3] load=1263ms prefill=509ms (3730 tok) gen=38536ms (626 tok)
+    agent turn wall-clock: 113.55s
+[ORCH]         agent turn: 113.55s
+[PIPE] agent answer (English): Based on your description of potatoes showing symptoms like wilting or yellowing spots, here are the most likely issues:
+
+**Common Potato Problems:**
+
+1. **Bacterial Leaf Spot**: Small water-soaked spots turning brown with a yellow halo around them - this is common and treatable with copper-based bactericides
+2. **Early Blight**: Dark concentric rings on older leaves that can spread quickly if not managed properly
+3. **Water Stress Symptoms**: Yellowing, curling of leaves when soil isn't well-drained or watered inconsistently
+
+**What to Do:**
+
+- For bacterial leaf spot: Apply copper-based bactericide and avoid overhead irrigation (water at the base)
+- Remove any infected plant debris immediately to stop spread
+- Check for calcium deficiency if you're seeing blossom-end rot symptoms on tubers - this needs consistent watering and proper soil pH management
+
+**For Pests:**
+Since you mentioned insects and rats earlier, here's what works:
+- **Insects**: Pyrethroids (permethrin/pyriproxyfen) or neonicotinoids like imidacloprid for general control; Bt bacteria as a natural biopesticide option
+- **Rats**: Use exclusion methods first - seal entry points, clean storage areas regularly. Rodenticides can be used but need careful handling
+
+Would you like more specific information about any of these issues or pest treatments?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=0.45GB | total=3.56GB (50.9%), budget=7.0GB
+[ORCH]         nmt infer: 9.82s
+[PIPE] translated answer (hi): आलू के मुरझाने या पीले होने जैसे लक्षणों के आपके विवरण के आधार पर, यहाँ सबसे संभावित मुद्दे हैंः
+
+आलू की आम समस्याएंः
+
+1. जीवाण्विक पत्ती का धब्बा *: छोटे पानी से भिजे धब्बे भूरे रंग में बदल जाते हैं और उनके चारों ओर एक पीला प्रभामंडल होता है-यह आम है और तांबे पर आधारित जीवाणुनाशक दवाओं से इलाज किया जा सकता है। पुरानी पत्तियों पर गहरे सांद्र वलय जो ठीक से प्रबंधित नहीं होने पर जल्दी फैल सकते हैं 3. * पानी के तनाव के लक्षण * *: जब मिट्टी का अच्छी तरह से पानी नहीं निकलता है या उसे लगातार पानी नहीं दिया जाता है तो पत्तियों का पीला पड़ना, झुकना।
+
+क्या करना हैः
+
+- बैक्टीरिया के पत्ते के धब्बे के लिएः तांबे पर आधारित जीवाणुनाशक दवा का प्रयोग करें और ऊपर की सिंचाई (पानी के आधार पर) से बचें-फैलने से रोकने के लिए किसी भी संक्रमित पौधे के मलबे को तुरंत हटा दें-यदि आप कंदों पर फूल-अंत सड़न के लक्षण देख रहे हैं तो
+
+कीटों के लिएः चूँकि आपने पहले कीटों और चूहों का उल्लेख किया है, यहाँ क्या काम करता हैः-* * कीट * *: सामान्य नियंत्रण के लिए पायरेथ्रॉइड (परमेथ्रिन/पायरिप्रॉक्सीफेन) या इमाइडाक्लोप्रिड जैसे नियोनिकोटिनॉइ कृन्तकनाशकों का उपयोग किया जा सकता है लेकिन सावधानीपूर्वक संभालने की आवश्यकता है
+
+क्या आप इनमें से किसी भी मुद्दे या कीट उपचार के बारे में अधिक विशिष्ट जानकारी चाहते हैं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.43GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.76s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.53GB tts=0.45GB | total=3.56GB (50.9%), budget=7.0GB
+[ORCH]         tts infer: 37.71s, observed peak pool ~3.56GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.88s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_follow-up_2of4.wav (engine=mms_tts, 8 chunks)
+[PIPE] total turn wall-clock: 190.79s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 3/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 13.70s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=unloaded | total=3.11GB (44.4%), budget=7.0GB
+[ORCH]         asr infer: 10.90s
+[PIPE] transcribed (hi): मैं कर्नाटक में बेलगावी ज़िले में हूँ मैं दो एकड़ में कुफरी ज्योति आलू उगा रहा हूँ जो वर्तमान में कंध विकास के चरण में है मैं पत्तियों में छोटे छोटे छेद चबाते देख रहा हूँ और कुछ कंधों पर काटने के निशान होते हैं और मैदान के किनारों के पास चूहे के गड्ढे होते हैं
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=unloaded | total=3.11GB (44.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.57s
+[PIPE] translated to English: I am in Belagavi district in Karnataka I am growing Kufri Jyoti potatoes on two acres which is currently in the shoulder development stage I see small holes in the leaves and some of the shoulders have bite marks and near the edges of the field are rat holes.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=loading | total=3.11GB (44.4%), budget=7.0GB
+    [agent iter 1] load=1308ms prefill=3244ms (3135 tok) gen=17579ms (276 tok)
+    -> query_entomologist({'query': 'potato leaves small holes bite marks edges Belagavi Karnataka insect pest damage'}) -> {"query": "potato leaves small holes bite marks edges Belagavi Karnataka insect pest damage", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tin
+    [agent iter 2] load=1278ms prefill=573ms (3532 tok) gen=27826ms (419 tok)
+    -> query_botanist({'crop': 'potato', 'topic': 'leaf pests damage symptoms'}) -> {"crop": "potato", "topic": "leaf pests damage symptoms", "growth_requirements": "Warm season crop, well-drained loamy soil, pH 6.0-6.8, regular but not waterlo
+    [agent iter 3] load=6155ms prefill=909ms (4053 tok) gen=8339ms (135 tok)
+    -> query_disease_diagnosis_index({'description': 'potato leafhopper aphid small holes bite marks edges field Belagavi Karnataka'}) -> {"query": "potato leafhopper aphid small holes bite marks edges field Belagavi Karnataka", "matches": [{"disease": "Bacterial leaf spot", "confidence": 0.78, "s
+    [agent iter 4] load=1337ms prefill=397ms (4342 tok) gen=8497ms (138 tok)
+    -> query_disease_diagnosis_index({'description': 'potato leafhopper aphid damage small holes on leaves'}) -> {"query": "potato leafhopper aphid damage small holes on leaves", "matches": [{"disease": "Bacterial leaf spot", "confidence": 0.78, "symptoms": "Small water-so
+    [agent iter 5] load=1223ms prefill=348ms (4629 tok) gen=32792ms (531 tok)
+    agent turn wall-clock: 114.45s
+[ORCH]         agent turn: 114.45s
+[PIPE] agent answer (English): Based on your description and location (Belagavi district), here's what you're dealing with:
+
+**For Potato Leaf Damage:**
+The symptoms described - small holes in leaves and bite marks near field edges - are most likely caused by **potato leafhoppers or aphids**. These insects feed on plant tissue, creating visible damage patterns. 
+
+**Management for Insect Pests:**
+- Apply blue/yellow sticky traps to monitor populations (avoid blanket spraying)
+- Reduce nitrogen fertilizer application as it attracts more pests
+- Spot-treat affected areas rather than treating the entire field at once
+
+**For Rat Control in Your Field:**
+Rats are creating visible holes near your potato edges - this indicates active infestation. Here's what works:
+
+1. **Immediate Action**: Seal all entry points (rat holes) with concrete or metal mesh to prevent further damage and nesting
+2. **Rodenticides**: Use bromadiolone or sodium fluaziflur carefully, but these are toxic to pets/children - keep them locked away from children/pets during application
+3. **Prevention**: Regularly clean storage areas where rats might nest
+
+**Important Safety Notes:**
+- Always read pesticide labels before use (check for registration status and toxicity)
+- Store pesticides in secure locations, never near food or animals
+- Wear protective gear when handling chemicals
+- Follow recommended dosage strictly - overuse can harm your potato crop too!
+
+Would you like specific guidance on sealing entry points or selecting appropriate rodenticides for your farm?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.53GB tts=0.32GB | total=3.43GB (49.1%), budget=7.0GB
+[ORCH]         nmt infer: 11.42s
+Flash attention 2 is not installed
+[PIPE] translated answer (hi): आपके विवरण और स्थान (बेलगावी जिला) के आधार पर, आप यहाँ क्या कर रहे हैंः
+
+आलू के पत्ते के नुकसान के लिए-वर्णित लक्षण-पत्तियों में छोटे छेद और खेत के किनारों के पास काटने के निशान-सबसे अधिक संभावना आलू के पत्ते के छत्ते या एफिड के कारण होते हैं। ये कीड़े पौधों के ऊतकों को खाते हैं, जिससे नुकसान के दृश्य स्वरूप बनते हैं।
+
+कीट कीटों का प्रबंधनः-आबादी की निगरानी के लिए नीले/पीले चिपचिपे जाल का प्रयोग करें (कंबल छिड़काव से बचें)-नाइट्रोजन उर्वरक के उपयोग को कम करें क्योंकि यह अधिक कीटों को आकर्षित करता है-पूरे खेत का एक बार में इलाज करने के बजाय प्रभावित क्षेत्रों में स्पॉट-ट्रीट
+
+* * आपके खेत में चूहे के नियंत्रण के लिएः * * चूहे आपके आलू के किनारों के पास दिखाई देने वाले छेद बना रहे हैं-यह सक्रिय संक्रमण का संकेत देता है। यहाँ क्या काम करता हैः
+
+1. तत्काल कार्रवाई *: सभी प्रवेश बिंदुओं (चूहे के छेद) को कंक्रीट या धातु के जाली से सील कर दें ताकि आगे नुकसान और घोंसले को रोका जा सके। ब्रोमैडियोलोन या सोडियम फ्लूएजिफ्लर का सावधानीपूर्वक उपयोग करें, लेकिन ये पालतू जानवरों/बच्चों के लिए विषाक्त हैं-उन्हें आवेदन के दौरान बच्चों/पालतू जानवरों से दूर रखें। भंडारण क्षेत्रों को नियमित रूप से साफ करें जहां चूहे घोंसला बना सकते हैं
+
+महत्वपूर्ण सुरक्षा टिप्पणियाँः-उपयोग करने से पहले हमेशा कीटनाशक लेबल पढ़ें (पंजीकरण की स्थिति और विषाक्तता की जांच करें)-कीटनाशकों को सुरक्षित स्थानों पर रखें, कभी भी भोजन या जानवरों के पास नहीं-रसायनों को संभालते समय सुरक्षात्मक उपकरण पहनें-अनुशंसित खुराक का सख्ती से पालन करें -
+
+क्या आप प्रवेश द्वारों को सील करने या अपने खेत के लिए उपयुक्त कृन्तकनाशक का चयन करने के बारे में विशिष्ट मार्गदर्शन चाहते हैं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=10.85GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.86s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.53GB tts=0.32GB | total=3.43GB (49.1%), budget=7.0GB
+Traceback (most recent call last):
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "/usr/lib/python3.10/http/client.py", line 1404, in getresponse
+    response.begin()
+  File "/usr/lib/python3.10/http/client.py", line 323, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python3.10/http/client.py", line 284, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/usr/lib/python3.10/socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/adapters.py", line 696, in send
+    resp = conn.urlopen(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/util/retry.py", line 498, in increment
+    raise reraise(type(error), error, _stacktrace)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='127.0.0.1', port=11400): Read timed out. (read timeout=180)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 397, in <module>
+    sys.exit(main())
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 373, in main
+    result = run_full_pipeline(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 260, in run_full_pipeline
+    tts_result = orch.run_tts(cfg["tts_name"], _tts_call, batch_size=tts_batch_size,
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/orchestrator.py", line 550, in run_tts
+    result = infer_fn()
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 219, in _tts_call
+    r = requests.post(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/api.py", line 134, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/api.py", line 71, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/adapters.py", line 742, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPConnectionPool(host='127.0.0.1', port=11400): Read timed out. (read timeout=180)

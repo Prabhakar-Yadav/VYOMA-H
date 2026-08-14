@@ -1,0 +1,79 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 07:48:45.302258034 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 22.52s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi)
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 8.95s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.68GB nmt=unloaded tts=unloaded | total=1.99GB (28.5%), budget=7.0GB
+[ORCH]         asr infer: 6.34s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 14.05s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.68GB nmt=0.53GB tts=unloaded | total=2.53GB (36.1%), budget=7.0GB
+[ORCH]         nmt infer: 1.46s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.68GB nmt=0.53GB tts=loading | total=2.53GB (36.1%), budget=7.0GB
+    [agent iter 1] load=1069ms prefill=2049ms (2188 tok) gen=16633ms (427 tok)
+    -> query_entomologist({'query': 'potatoes insects rats pest management'}) -> {"query": "potatoes insects rats pest management", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp leaf/flower sur
+    [agent iter 2] load=1025ms prefill=242ms (2727 tok) gen=12222ms (312 tok)
+    -> query_entomologist({'query': 'potatoes potato pests insects rats control methods'}) -> {"query": "potatoes potato pests insects rats control methods", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp le
+    [agent iter 3] load=1170ms prefill=197ms (3153 tok) gen=21635ms (563 tok)
+    -> query_botanist({'crop': 'potato', 'topic': 'pest management and crop protection'}) -> {"crop": "potato", "topic": "pest management and crop protection", "growth_requirements": "Warm season crop, well-drained loamy soil, pH 6.0-6.8, regular but no
+    [agent iter 4] load=1176ms prefill=187ms (3819 tok) gen=20101ms (521 tok)
+    -> query_entomologist({'query': 'thrips thrips parvispinus leaf damage control methods sticky traps spot treatment'}) -> {"query": "thrips thrips parvispinus leaf damage control methods sticky traps spot treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Ti
+    [agent iter 5] load=1172ms prefill=205ms (4462 tok) gen=10727ms (277 tok)
+    -> query_entomologist({'query': 'potato thrips leaf curl disease symptoms treatment methods'}) -> {"query": "potato thrips leaf curl disease symptoms treatment methods", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that
+    [agent iter final] load=1161ms prefill=1615ms (2957 tok) gen=17232ms (450 tok)
+    agent turn wall-clock: 111.11s
+[ORCH]         agent turn: 111.11s
+[PIPE] agent answer (English): Based on your question, you're right to be concerned with protecting potatoes from pests like thrips and rats in India. Thrips are common leaf-feeding insects that cause silvery streaks and curling symptoms - a major issue for potato crops throughout the year. For effective control without excessive nitrogen use (which can encourage more pest growth), I recommend using blue/yellow sticky traps to catch adult thrips, avoiding blanket spraying which could spread them further. Spot-treating affected areas rather than applying chemicals evenly would be much safer and less damaging to your small farm's potatoes.
+
+For a complete protection plan, you might also consider:
+- Using registered insecticides that are safe for potato crops (like chlorpyrifos or imidacloprid) at recommended MRLs based on residue limits in the soil
+- Applying water-based sprays instead of concentrated chemicals to reduce runoff and damage
+
+Would you like me to look up specific pesticide options suitable for your crop type?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.68GB nmt=0.53GB tts=0.88GB | total=3.40GB (48.6%), budget=7.0GB
+[ORCH]         nmt infer: 7.22s
+[PIPE] translated answer (hi): अपने प्रश्न के आधार पर, आपको भारत में आलू को थ्रिप्स और चूहों जैसे कीटों से बचाने के बारे में चिंतित होने का अधिकार है। थ्रिप्स आम पत्ते-खिलाने वाले कीड़े हैं जो चांदी की धारियों और घुंघराले लक्षणों का कारण बनते हैं-पूरे वर्ष आलू की फसलों के लिए एक प्रमुख समस्या। अत्यधिक नाइट्रोजन के उपयोग के बिना प्रभावी नियंत्रण के लिए (जो अधिक कीट विकास को प्रोत्साहित कर सकता है), मैं वयस्क थ्रिप्स को पकड़ने के लिए नीले/पीले चिपचिपे जाल का उपयोग करने की सलाह देता हूं, कंबल छिड़काव से बचें जो उन्हें आगे फैला सकता है। रसायनों को समान रूप से लगाने के बजाय प्रभावित क्षेत्रों में उपचार करना आपके छोटे खेत के आलू के लिए बहुत सुरक्षित और कम हानिकारक होगा।
+
+एक पूर्ण सुरक्षा योजना के लिए, आप इस पर भी विचार कर सकते हैंः-मिट्टी में अवशेष सीमा के आधार पर अनुशंसित एम. आर. एल. पर आलू की फसलों (जैसे क्लोरपायरीफ़ोस या इमिडाक्लोप्रिड) के लिए सुरक्षित पंजीकृत कीटनाशकों का उपयोग करना-अपवाह और क्षति को
+
+क्या आप चाहेंगे कि मैं आपकी फसल के प्रकार के लिए उपयुक्त विशिष्ट कीटनाशक विकल्प ढूंढूं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.42s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=7.43GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.36s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.88GB | total=2.18GB (31.2%), budget=7.0GB
+[ORCH]         tts infer: 9.99s, observed peak pool ~2.18GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.57s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 164.17s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.66s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

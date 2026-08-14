@@ -1,0 +1,90 @@
+Flash attention 2 is not installed
+[0;93m2026-08-07 05:07:23.312558767 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Fetching 404 files:   0%|          | 0/404 [00:00<?, ?it/s]Fetching 404 files:   2%|▏         | 8/404 [00:00<00:32, 12.02it/s]Fetching 404 files:   3%|▎         | 12/404 [00:00<00:21, 17.92it/s]Fetching 404 files:   4%|▎         | 15/404 [00:00<00:17, 22.30it/s]Fetching 404 files:  17%|█▋        | 68/404 [00:00<00:03, 88.48it/s]Fetching 404 files:  19%|█▊        | 75/404 [00:00<00:03, 97.16it/s]Fetching 404 files:  19%|█▉        | 78/404 [00:00<00:03, 100.61it/s]Fetching 404 files:  20%|██        | 82/404 [00:00<00:03, 105.25it/s]Fetching 404 files:  22%|██▏       | 87/404 [00:00<00:02, 111.08it/s]Fetching 404 files:  23%|██▎       | 93/404 [00:00<00:02, 117.96it/s]Fetching 404 files:  56%|█████▌    | 227/404 [00:00<00:00, 260.67it/s]Fetching 404 files:  58%|█████▊    | 234/404 [00:00<00:00, 267.10it/s]Fetching 404 files:  59%|█████▉    | 239/404 [00:00<00:00, 271.48it/s]Fetching 404 files:  94%|█████████▍| 381/404 [00:00<00:00, 391.84it/s]Fetching 404 files:  96%|█████████▌| 388/404 [00:00<00:00, 397.17it/s]Fetching 404 files:  98%|█████████▊| 394/404 [00:00<00:00, 401.33it/s]Fetching 404 files: 100%|██████████| 404/404 [00:00<00:00, 408.94it/s]
+[0;93m2026-08-07 05:07:33.529701248 [W:onnxruntime:, transformer_memcpy.cc:111 ApplyImpl] 2 Memcpy nodes are added to the graph main_graph for CUDAExecutionProvider. It might have negative impact on performance (including unable to run CUDA graph). Set session_options.log_severity_level=1 to see the detail logs before this message.[m
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=unloaded embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=ml (Malayalam)
+========================================================================================
+[ORCH] LOAD    agent     <- Rule 9: preload during ASR/NMT downtime (async, background thread)
+[ORCH] --- stage: ASR (ml) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ml input
+[ORCH]         agent preload finished in background, 28.91s
+[ORCH]         asr ready in 56.10s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.75GB nmt=unloaded tts=unloaded | total=2.06GB (29.4%), budget=7.0GB
+[ORCH]         asr infer: 15.51s
+[ORCH] EVICT   asr       -> Rule 6: output consumed, freeing before NMT/Agent (process-kill, no standing pool)
+[ORCH]         asr freed in 0.75s
+[PIPE] transcribed (ml): ഉരുളക്കിഴങ്ങ് കീടങ്ങളിൽ നിന്നും എലികളിൽ നിന്നും തടയാൻ എന്റെ ചെറിയ കൃഷിയിടത്തിൽ ഞാൻ ഉപയോഗിക്കേണ്ട ഏറ്റവും മികച്ച കീടനാശിനികൾ ഏറെെന്രാക്കിയാണ്
+[ORCH] --- stage: NMT (ml->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ml->EN)
+[ORCH]         nmt ready in 23.41s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.10GB tts=unloaded | total=2.41GB (34.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.95s
+[PIPE] translated to English: The best pesticides I use on my small farm to prevent potatoes from pests and rats are very dry.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already fully loaded from Rule-9 preload -- zero additional wait
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.14GB tts=loading | total=2.45GB (35.0%), budget=7.0GB
+    [agent iter 1] load=1210ms prefill=2266ms (2189 tok) gen=18545ms (472 tok)
+    -> analyze_photo({}) -> "No image was attached to this message \u2014 nothing to analyze."
+    [agent iter 2] load=1141ms prefill=175ms (2688 tok) gen=18104ms (467 tok)
+    agent turn wall-clock: 42.31s
+[ORCH]         agent turn: 42.31s
+[PIPE] agent answer (English): Based on your potato crop's dry conditions, here are key points:
+
+1. **Common Potato Pests**: In drought stress, aphids and thrips become particularly problematic pests that can cause significant damage if not managed early. These insects feed directly on the plant tissue, making them a priority for pesticide control.
+
+2. **Rats as Concerns**: While rats are more commonly associated with crops like corn or vegetables in dry conditions, they can still pose risks to potatoes by eating plants themselves or transmitting diseases through contaminated soil and water sources during drought stress periods.
+
+3. **Dry Soil Impact**: Dry soils reduce the effectiveness of most pesticides on potato tissue, so selecting low-toxicity formulations is crucial for protecting your crop while controlling pests without harming plant life.
+
+4. **Safe Pesticide Recommendations**: For small farms with limited resources, consider using:
+   - Insecticides like imidacloprid or chlorpyrifos (if registered) that have lower toxicity to potato tissue compared to more toxic options
+   - Rotational application of different pesticide types over time
+
+5. **Drought-Specific Pests**: Aphids and thrips are particularly sensitive in dry conditions, so early detection is critical for preventing further damage before they cause severe losses.
+
+Would you like me to look up specific pesticide details or provide more targeted guidance on managing these risks?
+[ORCH] --- stage: NMT (EN->ml) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.09GB tts=1.19GB | total=3.59GB (51.3%), budget=7.0GB
+[ORCH]         nmt infer: 12.03s
+[PIPE] translated answer (ml): നിങ്ങളുടെ ഉരുളക്കിഴങ്ങ് വിളയുടെ വരണ്ട അവസ്ഥയെ അടിസ്ഥാനമാക്കി, പ്രധാന കാര്യങ്ങൾ ഇതാഃ
+
+1. സാധാരണ ഉരുളക്കിഴങ്ങ് കീടങ്ങൾ *: വരൾച്ചാ സമ്മർദ്ദത്തിൽ, അഫിഡുകളും ത്രിപുകളും പ്രത്യേകിച്ച് പ്രശ്നകരമായ കീടങ്ങളായി മാറുന്നു, അവ നേരത്തെ കൈകാര്യം ചെയ്തില്ലെങ്കിൽ കാര്യമായ നാശനഷ്ടങ്ങൾ ഉണ്ടാക്കും. ഈ പ്രാണികൾ ചെടിയുടെ കോശങ്ങളെ നേരിട്ട് ഭക്ഷിക്കുകയും കീടനാശിനി നിയന്ത്രണത്തിന് മുൻഗണന നൽകുകയും ചെയ്യുന്നു.
+
+2. * * എലികളെ ആശങ്കപ്പെടുത്തുക * *: എലികൾ സാധാരണയായി വരണ്ട സാഹചര്യങ്ങളിൽ ചോളം അല്ലെങ്കിൽ പച്ചക്കറികൾ പോലുള്ള വിളകളുമായി ബന്ധപ്പെട്ടിരിക്കുമ്പോൾ, അവ സസ്യങ്ങൾ സ്വയം ഭക്ഷിക്കുന്നതിലൂടെയോ വരൾച്ചാ സമ്മർദ്ദ കാലഘട്ടത്തിൽ മലിനമായ മണ്ണിലൂടെയും ജലസ്രോതസ്സുകളിലൂടെയും രോഗങ്ങൾ പകരുന്നതിലൂടെയോ ഉരുളക്കിഴങ്ങി
+
+3. * * വരണ്ട മണ്ണിൻറെ ആഘാതം * *: വരണ്ട മണ്ണ് ഉരുളക്കിഴങ്ങ് കോശങ്ങളിൽ മിക്ക കീടനാശിനികളുടെയും ഫലപ്രാപ്തി കുറയ്ക്കുന്നു, അതിനാൽ സസ്യജാലങ്ങളെ ദോഷകരമായി ബാധിക്കാതെ കീടങ്ങളെ നിയന്ത്രിക്കുമ്പോൾ നിങ്ങളുടെ വിളയെ സംരക്ഷിക്കുന്നതിന് കുറഞ്ഞ വിഷാംശമുള്ള ഫോർമുലേഷനുകൾ തിരഞ്ഞെടുക്കുന്നത് നിർണായകമാണ്.
+
+4. സുരക്ഷിത കീടനാശിനി ശുപാർശകൾ * *: പരിമിതമായ വിഭവങ്ങളുള്ള ചെറിയ ഫാമുകളിൽ, ഉപയോഗിക്കുന്നത് പരിഗണിക്കുകഃ-കൂടുതൽ വിഷമുള്ള ഓപ്ഷനുകളുമായി താരതമ്യപ്പെടുത്തുമ്പോൾ ഉരുളക്കിഴങ്ങ് ടിഷ്യുക്ക് വിഷാംശം കുറവുള്ള ഇമിഡാക്ലോപ്രിഡ് അല്ലെങ്കിൽ ക്ലോർപൈറിഫോസ് (രജിസ്റ്റ
+
+5. * * വരൾച്ച-പ്രത്യേക കീടങ്ങൾ * *: വരണ്ട സാഹചര്യങ്ങളിൽ അഫിഡുകളും ത്രിപ്സും പ്രത്യേകിച്ചും സെൻസിറ്റീവ് ആയതിനാൽ അവ ഗുരുതരമായ നഷ്ടം വരുത്തുന്നതിനുമുമ്പ് കൂടുതൽ നാശനഷ്ടങ്ങൾ തടയുന്നതിന് നേരത്തെയുള്ള കണ്ടെത്തൽ നിർണായകമാണ്.
+
+ഈ അപകടസാധ്യതകൾ കൈകാര്യം ചെയ്യുന്നതിനെക്കുറിച്ച് ഞാൻ നിർദ്ദിഷ്ട കീടനാശിനി വിശദാംശങ്ങൾ പരിശോധിക്കണോ അതോ കൂടുതൽ ലക്ഷ്യമിട്ട മാർഗ്ഗനിർദ്ദേശം നൽകണോ?
+[ORCH] --- stage: TTS (Malayalam, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.41s
+[ORCH]         Rule 8 (mms_tts, conditional): projected 5.01GB fits 7.0GB budget -- keeping Agent resident (mms_tts's peak is small/predictable enough not to need the unconditional evict)
+[ORCH]         TTS-peak check after Rule 2/7/8: projected-at-peak=5.01GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=1.19GB | total=2.50GB (35.7%), budget=7.0GB
+[ORCH]         tts infer: 15.67s, observed peak pool ~4.99GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.97s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ml.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 172.66s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.14s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

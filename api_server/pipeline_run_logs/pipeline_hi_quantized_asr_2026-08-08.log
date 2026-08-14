@@ -1,0 +1,83 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 07:17:17.998716840 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 24.10s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi)
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 13.78s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.66GB nmt=unloaded tts=unloaded | total=1.97GB (28.1%), budget=7.0GB
+[ORCH]         asr infer: 5.53s
+[ORCH] EVICT   asr       -> Rule 6: output consumed, freeing before NMT/Agent (process-kill, no standing pool)
+[ORCH]         asr freed in 0.41s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 14.47s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.51GB tts=unloaded | total=1.82GB (26.0%), budget=7.0GB
+[ORCH]         nmt infer: 1.43s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.51GB tts=loading | total=1.82GB (26.0%), budget=7.0GB
+    [agent iter 1] load=872ms prefill=2099ms (2188 tok) gen=19610ms (499 tok)
+    -> query_entomologist({'query': 'potatoes insects pests rats control treatment'}) -> {"query": "potatoes insects pests rats control treatment", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp leaf/fl
+    [agent iter 2] load=1118ms prefill=190ms (2800 tok) gen=7651ms (194 tok)
+    -> query_botanist({'crop': 'potato', 'topic': 'pests and control measures'}) -> {"crop": "potato", "topic": "pests and control measures", "growth_requirements": "Warm season crop, well-drained loamy soil, pH 6.0-6.8, regular but not waterlo
+    [agent iter 3] load=1171ms prefill=189ms (3097 tok) gen=20118ms (523 tok)
+    agent turn wall-clock: 53.22s
+[ORCH]         agent turn: 53.22s
+[PIPE] agent answer (English): Based on potato pest management for your small farm, here's the best approach:
+
+**For Insects (Thrips):** Use insecticides like chlorpyrifos or imidacloprid to control thrips that cause silvery streaks/curling on leaves - these are effective and safe for potatoes. **Spot-treat hotspots rather than blanket spraying.**
+
+**For Rats:** Copper-based rodenticides (like copper sulfate) combined with insecticides like chlorpyrifos or imidacloprid are the most effective options to control rats that damage your crops. These products have been proven safe for potato production and can be applied at recommended rates based on soil conditions.
+
+**General Tips:**
+- Apply pesticides only when weather permits (avoid rain during application)
+- Follow label instructions precisely - small farms need careful dosing
+- Rotate pesticide types to prevent resistance buildup
+- Monitor crop health regularly with spot checks for early signs of damage
+
+Would you like me to look up specific pesticide details or help calculate the right dosage based on your farm's soil type and size?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=0.51GB tts=0.86GB | total=2.68GB (38.3%), budget=7.0GB
+[ORCH]         nmt infer: 7.54s
+[PIPE] translated answer (hi): आपके छोटे से खेत के लिए आलू कीट प्रबंधन के आधार पर, यहाँ सबसे अच्छा तरीका हैः
+
+कीटों (थ्रिप्स) के लिएः क्लोरपायरीफ़ोस या इमिडाक्लोप्रिड जैसे कीटनाशकों का उपयोग उन थ्रिप्स को नियंत्रित करने के लिए करें जो पत्तियों पर चांदी की धारियों/कर्लिंग का कारण बनते हैं-ये आलू के लिए प्रभावी और सुरक्षित हैं।
+
+चूहों के लिएः क्लोरपायरीफॉस या इमिडाक्लोप्रिड जैसे कीटनाशकों के साथ कॉपर-आधारित कृन्तकनाशक (जैसे कॉपर सल्फेट) आपकी फसलों को नुकसान पहुँचाने वाले चूहों को नियंत्रित करने के लिए सबसे प्रभावी विकल्प हैं। ये उत्पाद आलू उत्पादन के लिए सुरक्षित साबित हुए हैं और मिट्टी की स्थिति के आधार पर अनुशंसित दरों पर लागू किए जा सकते हैं।
+
+सामान्य सुझावः-केवल मौसम अनुकूल होने पर कीटनाशकों का प्रयोग करें (प्रयोग के दौरान बारिश से बचें)-लेबल निर्देशों का सटीक पालन करें-छोटे खेतों में सावधानीपूर्वक खुराक की आवश्यकता होती है-प्रतिरोध निर्माण को रोकने के लिए कीटनाशकों के प्रकारों को घुमाएं-नुकसान के शुरुआती संकेतों के लिए मौके
+
+क्या आप चाहेंगे कि मैं विशिष्ट कीटनाशक विवरण देखू या आपके खेत की मिट्टी के प्रकार और आकार के आधार पर सही खुराक की गणना करने में मदद करूं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.41s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=7.07GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.86GB | total=2.16GB (30.9%), budget=7.0GB
+[ORCH]         tts infer: 10.49s, observed peak pool ~2.16GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.67s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 110.91s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.67s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

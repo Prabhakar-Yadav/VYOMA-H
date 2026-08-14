@@ -1,0 +1,89 @@
+Flash attention 2 is not installed
+[0;93m2026-08-07 05:11:17.861509872 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Fetching 404 files:   0%|          | 0/404 [00:00<?, ?it/s]Fetching 404 files:   2%|▏         | 8/404 [00:00<00:29, 13.37it/s]Fetching 404 files:   5%|▍         | 20/404 [00:01<00:22, 17.45it/s]Fetching 404 files:   7%|▋         | 27/404 [00:01<00:16, 23.50it/s]Fetching 404 files:   7%|▋         | 27/404 [00:01<00:16, 23.47it/s]Fetching 404 files:   7%|▋         | 28/404 [00:01<00:15, 24.30it/s]Fetching 404 files:   7%|▋         | 30/404 [00:01<00:14, 25.98it/s]Fetching 404 files:   8%|▊         | 34/404 [00:01<00:12, 29.35it/s]Fetching 404 files:  10%|▉         | 39/404 [00:01<00:10, 33.55it/s]Fetching 404 files:  11%|█         | 45/404 [00:01<00:09, 38.56it/s]Fetching 404 files:  44%|████▍     | 179/404 [00:01<00:01, 143.15it/s]Fetching 404 files:  46%|████▌     | 186/404 [00:01<00:01, 148.55it/s]Fetching 404 files:  46%|████▋     | 187/404 [00:01<00:01, 149.19it/s]Fetching 404 files:  47%|████▋     | 188/404 [00:01<00:01, 149.74it/s]Fetching 404 files:  47%|████▋     | 190/404 [00:01<00:01, 151.14it/s]Fetching 404 files:  48%|████▊     | 193/404 [00:01<00:01, 153.12it/s]Fetching 404 files:  49%|████▉     | 198/404 [00:01<00:01, 156.58it/s]Fetching 404 files:  50%|█████     | 204/404 [00:01<00:01, 160.77it/s]Fetching 404 files:  86%|████████▌ | 346/404 [00:01<00:00, 256.04it/s]Fetching 404 files:  87%|████████▋ | 353/404 [00:01<00:00, 260.60it/s]Fetching 404 files:  88%|████████▊ | 356/404 [00:01<00:00, 262.28it/s]Fetching 404 files:  89%|████████▉ | 361/404 [00:01<00:00, 265.26it/s]Fetching 404 files:  90%|████████▉ | 362/404 [00:01<00:00, 265.30it/s]Fetching 404 files: 100%|██████████| 404/404 [00:01<00:00, 290.51it/s]
+[0;93m2026-08-07 05:11:27.777601433 [W:onnxruntime:, transformer_memcpy.cc:111 ApplyImpl] 2 Memcpy nodes are added to the graph main_graph for CUDAExecutionProvider. It might have negative impact on performance (including unable to run CUDA graph). Set session_options.log_severity_level=1 to see the detail logs before this message.[m
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=unloaded embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=ta (Tamil)
+========================================================================================
+[ORCH] LOAD    agent     <- Rule 9: preload during ASR/NMT downtime (async, background thread)
+[ORCH] --- stage: ASR (ta) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ta input
+[ORCH]         agent preload finished in background, 29.86s
+[ORCH]         asr ready in 56.09s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.76GB nmt=unloaded tts=unloaded | total=2.07GB (29.6%), budget=7.0GB
+[ORCH]         asr infer: 15.73s
+[ORCH] EVICT   asr       -> Rule 6: output consumed, freeing before NMT/Agent (process-kill, no standing pool)
+[ORCH]         asr freed in 0.94s
+[PIPE] transcribed (ta): உருளைக்கிழங்கு பூச்சிகள் மற்றும் எலிகளிலிருந்து வெளியேறுவதைத் தடுக்க எனது சிறிய பண்ணையில் நான் பயன்படுத்த வேண்டிய சிறந்த பூச்சிக்கொல்லிகள் யாவை
+[ORCH] --- stage: NMT (ta->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ta->EN)
+[ORCH]         nmt ready in 23.62s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.10GB tts=unloaded | total=2.41GB (34.5%), budget=7.0GB
+[ORCH]         nmt infer: 2.01s
+[PIPE] translated to English: What are the best pesticides I should use on my small farm to prevent potatoes from getting rid of insects and rats?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already fully loaded from Rule-9 preload -- zero additional wait
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.14GB tts=loading | total=2.45GB (35.0%), budget=7.0GB
+    [agent iter 1] load=1133ms prefill=2330ms (2192 tok) gen=20666ms (519 tok)
+    -> query_entomologist({'query': 'potatoes insects rats pests control IPM guidance'}) -> {"query": "potatoes insects rats pests control IPM guidance", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slender insects that rasp leaf
+    [agent iter 2] load=1207ms prefill=203ms (2826 tok) gen=13190ms (342 tok)
+    -> query_entomologist({'query': 'potatoes rats pests insecticide registration MRL India pesticide recommendations small farm'}) -> {"query": "potatoes rats pests insecticide registration MRL India pesticide recommendations small farm", "matched_pest": "Thrips (Thrips parvispinus)", "descrip
+    [agent iter 3] load=1156ms prefill=203ms (3288 tok) gen=30749ms (796 tok)
+    agent turn wall-clock: 71.39s
+[ORCH]         agent turn: 71.39s
+[PIPE] agent answer (English): Based on the available information from my analysis tools:
+
+**Important Note:** Since no photo was attached, I can't analyze it directly or look up pesticide details without knowing your exact crop type and pest situation. However, here's what you should know about insect/rat control for potatoes in India:
+
+1. **Common Registered Insecticides**: Several pesticides are registered with FSSAI (India) that have MRLs suitable for potato crops - specifically imidacloprid at 0.5 mg/kg and chlorpyrifos which has specific food residue limits around 2-3 ppm depending on the formulation.
+
+2. **Best Practice IPM**: For small farms, consider using:
+   - Blue/yellow sticky traps to monitor pest activity (especially for thrips)
+   - Spot-treat hotspots rather than blanket spraying
+   - Avoid excess nitrogen fertilization which can attract pests
+
+3. **For Rats Specifically**: There are some specific products that have been used in India with registered status, but you should verify these through local FSSAI records before applying them to your small farm.
+
+**Recommendation:** Consult the official government pesticide registration database (FSSAI) for exact MRLs and product details relevant to potato crops on your land size. This will ensure compliance with Indian agricultural regulations while providing effective pest control solutions tailored to your situation.
+[ORCH] --- stage: NMT (EN->ta) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=unloaded nmt=1.09GB tts=1.18GB | total=3.57GB (51.0%), budget=7.0GB
+[ORCH]         nmt infer: 9.77s
+[PIPE] translated answer (ta): எனது பகுப்பாய்வு கருவிகளிலிருந்து கிடைக்கக்கூடிய தகவல்களின் அடிப்படையில்ஃ
+
+* * முக்கியமான குறிப்புஃ * * எந்த புகைப்படமும் இணைக்கப்படாததால், உங்கள் சரியான பயிர் வகை மற்றும் பூச்சி நிலைமையை அறியாமல் அதை நேரடியாக பகுப்பாய்வு செய்யவோ அல்லது பூச்சிக்கொல்லி விவரங்களைப் பார்க்கவோ முடியாது. இருப்பினும், இந்தியாவில் உருளைக்கிழங்குக்கான பூச்சி/எலி கட்டுப்பாடு பற்றி நீங்கள் தெரிந்து கொள்ள வேண்டியவை இங்கேஃ
+
+1. * * பதிவுசெய்யப்பட்ட பொதுவான பூச்சிக்கொல்லிகள் * *: உருளைக்கிழங்கு பயிர்களுக்கு ஏற்ற எம்ஆர்எல்-களைக் கொண்ட பல பூச்சிக்கொல்லிகள் எஃப்எஸ்எஸ்ஏஐ (இந்தியா) இல் பதிவு செய்யப்பட்டுள்ளன-குறிப்பாக 0.5 மி. கி/கிலோவில் இமிடாக்ளோப்ரிட் மற்றும் குளோர்பிரிஃபோஸ், அவை குறிப்பிட்ட உணவு எச்ச வரம்புகளை 2 முதல் 3
+
+2. * * சிறந்த நடைமுறை ஐபிஎம் * *: சிறிய பண்ணைகளுக்கு, பூச்சிகளின் செயல்பாட்டைக் கண்காணிக்க நீல/மஞ்சள் ஒட்டும் பொறிகளைப் பயன்படுத்துவதைக் கவனியுங்கள் (குறிப்பாக மிதவைக்கு)-போர்வை தெளிப்பதை விட ஸ்பாட் ட்ரீட் ஹாட்ஸ்பாட்கள்-பூச்சிகளை ஈர்க்கும் அதிகப்படியான நைட்ரஜன்
+
+3. குறிப்பாக எலிகளுக்கு * *: இந்தியாவில் பதிவுசெய்யப்பட்ட நிலையில் பயன்படுத்தப்படும் சில குறிப்பிட்ட தயாரிப்புகள் உள்ளன, ஆனால் அவற்றை உங்கள் சிறிய பண்ணையில் பயன்படுத்துவதற்கு முன்பு உள்ளூர் எஃப்எஸ்எஸ்ஏஐ பதிவுகள் மூலம் சரிபார்க்க வேண்டும்.
+
+* * பரிந்துரைஃ * * உங்கள் நில அளவில் உருளைக்கிழங்கு பயிர்களுக்கு பொருத்தமான சரியான எம்ஆர்எல் மற்றும் தயாரிப்பு விவரங்களுக்கு அதிகாரப்பூர்வ அரசாங்க பூச்சிக்கொல்லி பதிவு தரவுத்தளத்தை (எஃப்எஸ்எஸ்ஏஐ) அணுகவும். இது உங்கள் சூழ்நிலைக்கு ஏற்ப பயனுள்ள பூச்சிக் கட்டுப்பாட்டு தீர்வுகளை வழங்கும்போது இந்திய விவசாய விதிமுறைகளுக்கு இணங்குவதை உறுதி செய்யும்.
+[ORCH] --- stage: TTS (Tamil, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.41s
+[ORCH]         Rule 8 (mms_tts, conditional): projected 5.01GB fits 7.0GB budget -- keeping Agent resident (mms_tts's peak is small/predictable enough not to need the unconditional evict)
+[ORCH]         TTS-peak check after Rule 2/7/8: projected-at-peak=5.01GB vs budget=7.0GB
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=1.18GB | total=2.48GB (35.5%), budget=7.0GB
+[ORCH]         tts infer: 12.87s, observed peak pool ~4.90GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.90s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ta.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 197.29s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.11s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

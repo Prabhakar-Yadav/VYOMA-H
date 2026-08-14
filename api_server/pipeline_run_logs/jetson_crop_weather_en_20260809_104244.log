@@ -1,0 +1,76 @@
+Exception in thread Thread-1 (_do_load):
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.10/threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/worker_base.py", line 120, in _do_load
+    engine = engine_factory()
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/workers/tts_worker.py", line 187, in _engine_factory
+    engine = _HybridMmsParlerEngine(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/workers/tts_worker.py", line 122, in __init__
+    from models.mms_tts import MultiLangMmsTtsEngine
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/models/mms_tts/__init__.py", line 1, in <module>
+    from .model_loader import MmsTtsEngine, MultiLangMmsTtsEngine, LANGUAGE_TO_REPO
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/models/mms_tts/model_loader.py", line 57, in <module>
+    import torch
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/torch/__init__.py", line 442, in <module>
+    from torch._C import *  # noqa: F403
+ImportError: libcudss.so.0: cannot open shared object file: No such file or directory
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 51.77s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [crop-weather 1/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: Something is eating holes in my potato leaves. What pest could this be, and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=loading | total=2.58GB (36.9%), budget=7.0GB
+    [agent iter 1] load=823ms prefill=6176ms (4635 tok) gen=23796ms (384 tok)
+    -> query_entomologist({'query': 'potato leaves have holes eaten by pests - visible damage on plant foliage'}) -> {"query": "potato leaves have holes eaten by pests - visible damage on plant foliage", "matched_pest": "Thrips (Thrips parvispinus)", "description": "Tiny slend
+    [agent iter 2] load=1214ms prefill=283ms (5139 tok) gen=39745ms (639 tok)
+    agent turn wall-clock: 72.33s
+[ORCH]         agent turn: 72.33s
+[PIPE] agent answer (English, raw): Thrips are likely causing this damage - they're tiny insects that rasp through plant surfaces, creating silvery streaks or holes in leaves. They commonly affect chilli and pepper plants too.
+
+For potato leaf thrips management:
+- Use blue/yellow sticky traps to monitor infestation levels
+- Avoid excess nitrogen fertilizer which encourages more pest growth
+- Spot-treat affected areas rather than spraying the whole field at once
+- Check for aphids that might also be present - they create honeydew and attract sooty mold
+
+I can check the weather forecast in your district to tell you when it's best time to spray if needed. What state are you located in?
+[PIPE] agent answer (English, markdown-stripped): Thrips are likely causing this damage - they're tiny insects that rasp through plant surfaces, creating silvery streaks or holes in leaves. They commonly affect chilli and pepper plants too.
+
+For potato leaf thrips management:
+Use blue/yellow sticky traps to monitor infestation levels
+Avoid excess nitrogen fertilizer which encourages more pest growth
+Spot-treat affected areas rather than spraying the whole field at once
+Check for aphids that might also be present - they create honeydew and attract sooty mold
+
+I can check the weather forecast in your district to tell you when it's best time to spray if needed. What state are you located in?
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.79GB vs budget=7.0GB
+[ORCH] LOAD    tts       <- tts stage starting (no successful preload)
+Traceback (most recent call last):
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 491, in <module>
+    sys.exit(main())
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 436, in main
+    result = run_full_pipeline(
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/test_orchestrated_pipeline.py", line 327, in run_full_pipeline
+    tts_result = orch.run_tts(cfg["tts_name"], _tts_call, batch_size=tts_batch_size,
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/orchestrator.py", line 532, in run_tts
+    self._load("tts", reason="tts stage starting (no successful preload)")
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/api_server/orchestrator.py", line 211, in _load
+    r.raise_for_status()
+  File "/home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/venv/lib/python3.10/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 500 Server Error: Internal Server Error for url: http://127.0.0.1:11400/tts/load

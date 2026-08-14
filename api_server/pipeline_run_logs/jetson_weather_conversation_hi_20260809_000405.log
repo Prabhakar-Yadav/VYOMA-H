@@ -1,0 +1,255 @@
+Flash attention 2 is not installed
+[0;93m2026-08-09 09:35:26.098392190 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[0;93m2026-08-09 09:38:01.021650281 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 51.86s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.58GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.58GB (36.9%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [weather 1/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 16.34s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.64GB nmt=unloaded tts=unloaded | total=3.23GB (46.1%), budget=7.0GB
+[ORCH]         asr infer: 7.97s
+[PIPE] transcribed (hi): मैं केरल के त्रिशूर जिले का एक किसान हूँ अगले महीने मौसम कैसा रहता है
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 18.29s
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.64GB nmt=0.54GB tts=unloaded | total=3.77GB (53.8%), budget=7.0GB
+[ORCH]         nmt infer: 1.44s
+[PIPE] translated to English: I am a farmer from Thrissur district of Kerala. What is the weather like next month?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.64GB nmt=0.54GB tts=loading | total=3.77GB (53.8%), budget=7.0GB
+    [agent iter 1] load=1391ms prefill=6882ms (4632 tok) gen=21135ms (338 tok)
+    -> get_weather_forecast({'district': 'Thrissur', 'state': 'Kerala'}) -> {"rain": "weeks of Aug 10, Aug 17, Aug 24: moderate chance of rain (~56%), expect moderate rain (~16.2mm) when it falls; weeks of Aug 31, Sep 7: high chance of 
+    [agent iter 2] load=2348ms prefill=1369ms (5188 tok) gen=25703ms (396 tok)
+    agent turn wall-clock: 64.52s
+[ORCH]         agent turn: 64.52s
+[PIPE] agent answer (English, raw): Thrissur district in Kerala is expecting a rainy season this month with moderate rainfall expected around August 10th, 17th and 24th (about 56% chance of rain), plus high chances on the last week of August and first two weeks of September (around 64% chance). You'll also feel quite muggy due to high humidity during these wet periods. However, there's no significant flood risk or heat wave expected this month - wind conditions are generally low throughout.
+[PIPE] agent answer (English, markdown-stripped): Thrissur district in Kerala is expecting a rainy season this month with moderate rainfall expected around August 10th, 17th and 24th (about 56% chance of rain), plus high chances on the last week of August and first two weeks of September (around 64% chance). You'll also feel quite muggy due to high humidity during these wet periods. However, there's no significant flood risk or heat wave expected this month - wind conditions are generally low throughout.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.64GB nmt=0.54GB tts=0.03GB | total=3.80GB (54.3%), budget=7.0GB
+[ORCH]         nmt infer: 3.94s
+[PIPE] translated answer (hi): केरल के त्रिशूर जिले में इस महीने बारिश का मौसम होने की उम्मीद है, जिसमें 10,17 और 24 अगस्त के आसपास मध्यम बारिश (बारिश की लगभग 56 प्रतिशत संभावना) होने की उम्मीद है, साथ ही अगस्त के अंतिम सप्ताह और सितंबर के पहले दो सप्ताह (लगभग 64 प्रतिशत संभावना) में बारिश होने की संभावना है। इन गीले समय के दौरान उच्च आर्द्रता के कारण आप काफी गंदी भी महसूस करेंगे। हालाँकि, इस महीने बाढ़ का कोई महत्वपूर्ण खतरा या गर्मी की लहर की उम्मीद नहीं है-हवा की स्थिति आम तौर पर कम होती है।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=7.20GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.76s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.54GB tts=0.03GB | total=3.16GB (45.1%), budget=7.0GB
+[ORCH]         tts infer: 29.39s, observed peak pool ~3.16GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.75s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_weather_1of5.wav (engine=mms_tts, 3 chunks)
+[PIPE] total turn wall-clock: 148.02s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [weather 2/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 13.34s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.07GB nmt=0.54GB tts=unloaded | total=3.19GB (45.6%), budget=7.0GB
+[ORCH]         asr infer: 9.51s
+[PIPE] transcribed (hi): मेरे लिए अपनी फ़सों पर कीटनाशक का छिड़का़व करने का अच्छा समय कब है
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.07GB nmt=0.54GB tts=unloaded | total=3.19GB (45.6%), budget=7.0GB
+[ORCH]         nmt infer: 0.78s
+[PIPE] translated to English: when is a good time for me to spray my ticks with pesticide
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.07GB nmt=0.54GB tts=loading | total=3.19GB (45.6%), budget=7.0GB
+    [agent iter 1] load=1476ms prefill=2846ms (5018 tok) gen=12696ms (200 tok)
+    -> query_spray_window({'district': 'Thrissur', 'state': 'Kerala'}) -> {"spray_window": "No window found that's both dry and calm enough to spray safely in this period -- check the rain and wind highlights for the least-risky days.
+    [agent iter 2] load=2276ms prefill=804ms (5328 tok) gen=15995ms (250 tok)
+    agent turn wall-clock: 39.96s
+[ORCH]         agent turn: 39.96s
+Flash attention 2 is not installed
+[0;93m2026-08-09 09:39:59.318225495 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[PIPE] agent answer (English, raw): Based on the current conditions, there isn't an ideal time to spray pesticides yet in Thrissur district because neither rain nor wind is calm enough for safety. However, you should skip watering during these rainy periods: August 10th, August 15-17th, and from late August through September 7th when moderate rainfall is expected. The best days would be the other weeks of August (like around mid-August) or early September after those rain dates pass - but I'd recommend checking back later for a fresh window that's both dry and calm enough to spray safely without risk of drift or wash-off from rain.
+[PIPE] agent answer (English, markdown-stripped): Based on the current conditions, there isn't an ideal time to spray pesticides yet in Thrissur district because neither rain nor wind is calm enough for safety. However, you should skip watering during these rainy periods: August 10th, August 15-17th, and from late August through September 7th when moderate rainfall is expected. The best days would be the other weeks of August (like around mid-August) or early September after those rain dates pass - but I'd recommend checking back later for a fresh window that's both dry and calm enough to spray safely without risk of drift or wash-off from rain.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.07GB nmt=0.54GB tts=loading | total=3.91GB (55.8%), budget=7.0GB
+[ORCH]         nmt infer: 5.27s
+[PIPE] translated answer (hi): वर्तमान परिस्थितियों के आधार पर, त्रिशूर जिले में कीटनाशकों का छिड़काव करने के लिए अभी तक कोई आदर्श समय नहीं है क्योंकि न तो बारिश और न ही हवा सुरक्षा के लिए पर्याप्त शांत है। हालाँकि, आपको इन वर्षा अवधि के दौरान पानी देना छोड़ देना चाहिएः 10 अगस्त, अगस्त 15-17 और अगस्त के अंत से 7 सितंबर तक जब मध्यम वर्षा होने की उम्मीद है। सबसे अच्छे दिन अगस्त के अन्य सप्ताह होंगे (जैसे कि मध्य अगस्त के आसपास) या सितंबर की शुरुआत में उन बारिश की तारीखों के बीत जाने के बाद-लेकिन मैं बाद में एक ऐसी नई खिड़की के लिए वापस जाने की सलाह दूंगा जो सूखे और शांत दोनों हो और बिना बारिश के बहाव या धोने के जोखिम
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=7.99GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.82s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 0.14s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.54GB tts=0.00GB | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         tts infer: 32.22s, observed peak pool ~3.12GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.72s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_weather_2of5.wav (engine=mms_tts, 3 chunks)
+[PIPE] total turn wall-clock: 107.66s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [weather 3/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 14.03s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=unloaded | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         asr infer: 9.19s
+[PIPE] transcribed (hi): मैं धान उगाना चाहता हूँ मुझे इसे कब बोना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=unloaded | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         nmt infer: 0.66s
+[PIPE] translated to English: I want to grow rice when should I sow it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=loading | total=3.12GB (44.6%), budget=7.0GB
+    [agent iter 1] load=1381ms prefill=3052ms (5320 tok) gen=16562ms (264 tok)
+    -> query_sowing_window({'district': 'Thrissur', 'state': 'Kerala', 'water_need': 'wet'}) -> {"sowing_window": "Best sowing window for a 'wet'-preference crop: weeks of Aug 31. Soil moisture profile expected saturated -- monitor for waterlogging (GWETPR
+    [agent iter 2] load=1233ms prefill=504ms (5675 tok) gen=9861ms (154 tok)
+    agent turn wall-clock: 35.33s
+[ORCH]         agent turn: 35.33s
+[PIPE] agent answer (English, raw): For growing rice in Thrissur district, the best sowing window is around August 31st when soil moisture will be saturated and ideal for wet crops like rice. However, you'll need to monitor closely during this period since there's a risk of waterlogging - keep an eye on groundwater levels (GWETPROF) to ensure it stays within safe limits before planting begins.
+[PIPE] agent answer (English, markdown-stripped): For growing rice in Thrissur district, the best sowing window is around August 31st when soil moisture will be saturated and ideal for wet crops like rice. However, you'll need to monitor closely during this period since there's a risk of waterlogging - keep an eye on groundwater levels (GWETPROF) to ensure it stays within safe limits before planting begins.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=loading | total=3.68GB (52.6%), budget=7.0GB
+[ORCH]         nmt infer: 6.61s
+Flash attention 2 is not installed
+[0;93m2026-08-09 09:41:53.921247970 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[PIPE] translated answer (hi): त्रिशूर जिले में चावल उगाने के लिए सबसे अच्छी बुवाई 31 अगस्त के आसपास होती है जब मिट्टी की नमी संतृप्त हो जाएगी और चावल जैसी गीली फसलों के लिए आदर्श होगी। हालाँकि, आपको इस अवधि के दौरान बारीकी से निगरानी करने की आवश्यकता होगी क्योंकि जलभराव का खतरा है-यह सुनिश्चित करने के लिए कि यह रोपण शुरू होने से पहले सुरक्षित सीमा के भीतर रहे, भूजल स्तर (जी. डब्ल्यू. ई. टी. पी. आर. ओ. एफ.) पर नज़र
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.99GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.57s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 4.84s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.54GB tts=0.00GB | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         tts infer: 28.71s, observed peak pool ~3.12GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.80s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_weather_3of5.wav (engine=mms_tts, 2 chunks)
+[PIPE] total turn wall-clock: 104.99s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [weather 4/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 13.67s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=unloaded | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         asr infer: 9.24s
+[PIPE] transcribed (hi): क्या मुझे जल्द ही मेरी फसलों पर कीटों के हमले की चिंता करनी चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=unloaded | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         nmt infer: 0.65s
+[PIPE] translated to English: Should I worry about pest attacks on my crops soon?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=loading | total=3.12GB (44.6%), budget=7.0GB
+    [agent iter 1] load=1673ms prefill=3445ms (5564 tok) gen=14391ms (230 tok)
+    -> query_pest_pressure_window({'district': 'Thrissur', 'state': 'Kerala'}) -> {"pest_pressure": "weeks of Aug 10, Aug 17, Aug 24, Aug 31, Sep 7: high pest-favorable conditions (~99% of years warm+humid) -- extra scouting recommended.", "c
+    [agent iter 2] load=1535ms prefill=556ms (5883 tok) gen=11610ms (183 tok)
+    agent turn wall-clock: 37.49s
+[ORCH]         agent turn: 37.49s
+[PIPE] agent answer (English, raw): Based on recent conditions in Thrissur district and Kerala's typical climate patterns, there are several weeks next month (particularly around August 10th through September 7th) where warm + humid weather typically favors insect activity - this is a general seasonal pattern rather than a specific forecast for one named pest species. During these periods, extra scouting of your crops would be recommended to check for any signs of pests or diseases that might have emerged from the warmer conditions.
+[PIPE] agent answer (English, markdown-stripped): Based on recent conditions in Thrissur district and Kerala's typical climate patterns, there are several weeks next month (particularly around August 10th through September 7th) where warm + humid weather typically favors insect activity - this is a general seasonal pattern rather than a specific forecast for one named pest species. During these periods, extra scouting of your crops would be recommended to check for any signs of pests or diseases that might have emerged from the warmer conditions.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=loading | total=3.70GB (52.8%), budget=7.0GB
+[ORCH]         nmt infer: 5.61s
+[PIPE] translated answer (hi): त्रिशूर जिले में हाल की स्थितियों और केरल के विशिष्ट जलवायु पैटर्न के आधार पर, अगले महीने कई सप्ताह होते हैं (विशेष रूप से 10 अगस्त से 7 सितंबर के आसपास) जहां गर्म + आर्द्र मौसम आमतौर पर कीट गतिविधि का समर्थन करता है-यह एक नामित कीट प्रजाति के लिए एक विशिष्ट पूर्वानुमान के बजाय एक सामान्य मौसमी इन अवधि के दौरान, गर्म स्थितियों से उत्पन्न होने वाले कीटों या बीमारियों के किसी भी संकेत की जांच करने के लिए आपकी फसलों की अतिरिक्त खोज की सिफारिश की जाएगी।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=7.29GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.63s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 4.73s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.54GB tts=0.00GB | total=3.12GB (44.6%), budget=7.0GB
+[ORCH]         tts infer: 37.27s, observed peak pool ~3.12GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.87s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_weather_4of5.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 114.53s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+[0;93m2026-08-09 09:43:59.082538623 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+FULL PIPELINE -- language=hi (Hindi) [weather 5/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 14.33s for asr's async preload to finish
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.18GB nmt=0.54GB tts=unloaded | total=3.31GB (47.2%), budget=7.0GB
+[ORCH]         asr infer: 9.15s
+[PIPE] transcribed (hi): क्या यहाँ टमाकर उगाने का ये अच्छा मौसम है
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.18GB nmt=0.54GB tts=unloaded | total=3.31GB (47.2%), budget=7.0GB
+[ORCH]         nmt infer: 0.64s
+[PIPE] translated to English: is this a good growing season for tamarind here
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.18GB nmt=0.54GB tts=loading | total=3.31GB (47.2%), budget=7.0GB
+    [agent iter 1] load=1569ms prefill=3508ms (5809 tok) gen=12201ms (196 tok)
+    -> query_crop_suitability({'district': 'Thrissur', 'state': 'Kerala', 'water_need': 'dry'}) -> {"forecast": {"rain": "weeks of Aug 10, Aug 17, Aug 24: moderate chance of rain (~56%), expect moderate rain (~16.2mm) when it falls; weeks of Aug 31: high chan
+    [agent iter 2] load=1697ms prefill=1028ms (6351 tok) gen=21544ms (329 tok)
+    agent turn wall-clock: 46.75s
+[ORCH]         agent turn: 46.75s
+[PIPE] agent answer (English, raw): Based on the weather outlook for Thrissur district in Kerala next month: While temperatures will remain comfortable (around 25-26°C) with low wind and no significant heat waves or flood risks, there's a concern about rainfall - moderate rain is expected during several weeks of August through early September. Since tamarind requires dry soil conditions to grow properly without waterlogging issues, the upcoming rainy periods may not be ideal for this crop. The weather outlook covers approximately 2 months ahead and shows that while it won't have extreme heat or flooding risks, the moderate rainfall could potentially impact proper drying needed for optimal growth of your tamarind crops in Thrissur district.
+[PIPE] agent answer (English, markdown-stripped): Based on the weather outlook for Thrissur district in Kerala next month: While temperatures will remain comfortable (around 25-26°C) with low wind and no significant heat waves or flood risks, there's a concern about rainfall - moderate rain is expected during several weeks of August through early September. Since tamarind requires dry soil conditions to grow properly without waterlogging issues, the upcoming rainy periods may not be ideal for this crop. The weather outlook covers approximately 2 months ahead and shows that while it won't have extreme heat or flooding risks, the moderate rainfall could potentially impact proper drying needed for optimal growth of your tamarind crops in Thrissur district.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.58GB embedder=unloaded asr=0.18GB nmt=0.54GB tts=0.47GB | total=3.77GB (53.9%), budget=7.0GB
+[ORCH]         nmt infer: 5.12s
+[PIPE] translated answer (hi): अगले महीने केरल के त्रिशूर जिले के मौसम के दृष्टिकोण के आधार परः जबकि तापमान कम हवा के साथ आरामदायक (लगभग 25-26 डिग्री सेल्सियस) रहेगा और गर्मी की लहरों या बाढ़ का कोई महत्वपूर्ण खतरा नहीं है, वर्षा के बारे में चिंता है-अगस्त के कई हफ्तों के दौरान मध्यम बारिश की उम्मीद चूँकि इमली को जलभराव की समस्याओं के बिना ठीक से बढ़ने के लिए सूखी मिट्टी की स्थिति की आवश्यकता होती है, इसलिए आगामी वर्षा अवधि इस फसल के लिए आदर्श नहीं हो सकती है। मौसम का दृष्टिकोण लगभग 2 महीने पहले तक है और यह दर्शाता है कि हालांकि इसमें अत्यधिक गर्मी या बाढ़ का खतरा नहीं होगा, मध्यम वर्षा संभावित रूप से त्रिशूर जिले में आपकी इमली की फसलों के इष्टतम विकास के लिए आवश्यक उचित सुखाने को प्रभावित कर सकती है।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=7.59GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.82s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.58GB embedder=unloaded asr=unloaded nmt=0.54GB tts=0.47GB | total=3.59GB (51.3%), budget=7.0GB
+[ORCH]         tts infer: 40.38s, observed peak pool ~3.59GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.83s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_weather_5of5.wav (engine=mms_tts, 2 chunks)
+[PIPE] total turn wall-clock: 121.75s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.17s
+[ORCH] EVICT   nmt       -> session teardown (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.75s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

@@ -1,0 +1,106 @@
+"""One-time build script: translates STATUS_MESSAGES_EN (below) through this project's own
+real NMT engine (models/nmt/model_loader.py -- the same IndicTrans2 model the live pipeline
+uses, not a guess/hand-translation) into hi/ta/ml, and writes the baked-in preset config file
+`agent/status_messages.py` that `agent/agent.py`'s `run_turn(status_cb=...)` and
+gramsahayak_app.py actually read at runtime.
+
+Why baked-in presets, not a live translation call per status update: the whole point of a
+status message is to show up INSTANTLY the moment a stage/tool starts -- an extra real NMT
+call per status update would add real latency for a farmer-facing UI cue, working against
+its own purpose. Translate once, here, offline; read a plain dict at runtime (zero model
+calls, zero real cost per display).
+
+Run (GX10, real GPU venv -- see image-audio-test-suite/build_suite.py's own docstring for why
+this specific venv, not gramsahayak/venv):
+    cd gramsahayak && ../venv/bin/python3 agent/build_status_messages.py
+"""
+import json
+import os
+import sys
+
+_AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_ROOT_DIR = os.path.dirname(_AGENT_DIR)
+sys.path.insert(0, _ROOT_DIR)
+
+from models.nmt.model_loader import NMTEngine
+
+# Keys match exactly what agent.py's status_cb / gramsahayak_app.py pass: pipeline stages by
+# name, and tool status keyed "tool:<tool_name>" for every real tool in agent.py's TOOLS list
+# (see that file's own "name" fields -- kept in sync by hand, not derived automatically,
+# since TOOLS is a static schema list, not something this build script should import agent.py
+# itself just to read 15 strings out of -- that would pull in ollama/ordinal heavy deps for a
+# translation-only build step).
+STATUS_MESSAGES_EN = {
+    # Pipeline stages (non-tool)
+    "asr": "Listening to your question...",
+    "nmt_in": "Understanding your question...",
+    "agent_thinking": "Thinking about your question...",
+    # 2026-08-14: split from the single "agent_thinking" after real testing showed it firing
+    # 6 times in one turn (once per ollama.chat() call -- before every tool AND after every
+    # tool result comes back), dominating screen time since the model's own reasoning between
+    # tool calls (4-33s per real test) is slower than the tool calls themselves (0.09-5.9s).
+    # Genuinely different moments, not just variety for its own sake: this fires on the
+    # SECOND+ call of a turn, when at least one real tool result is already in hand -- the
+    # agent is reviewing what it found and deciding the next real step (call another tool, or
+    # answer), not still parsing the raw question for the first time.
+    "agent_reviewing": "Looking at what was found and deciding the next step...",
+    "nmt_out": "Translating your answer...",
+    "tts": "Getting your answer ready to speak...",
+    "fallback": "Working on your question...",
+    # Tool calls -- one per real tool in agent.py's TOOLS list
+    "tool:analyze_photo": "Looking closely at your photo...",
+    "tool:plant_disease_lookup": "Searching for matching plant diseases...",
+    "tool:plant_entomology_lookup": "Looking up pest information...",
+    "tool:get_treatment_details": "Finding the right treatment and dose...",
+    "tool:get_guidelines_and_safety": "Checking safety guidelines...",
+    "tool:pesticide_lookup": "Checking pesticide details...",
+    "tool:get_scheme_details": "Looking up scheme details...",
+    "tool:match_eligible_schemes": "Checking schemes you may be eligible for...",
+    "tool:get_disaster_relief_options": "Checking disaster relief options...",
+    "tool:get_subsidy_details": "Looking up subsidy details...",
+    "tool:get_weather_forecast": "Checking the weather forecast...",
+    "tool:query_spray_window": "Checking the best time to spray...",
+    "tool:query_sowing_window": "Checking the best sowing time...",
+    "tool:query_pest_pressure_window": "Checking pest risk for this time of year...",
+    "tool:query_crop_suitability": "Checking crop suitability...",
+}
+
+TARGET_LANGUAGES = ["hi", "ta", "ml"]  # matches config.WORKERS["asr"]["languages"] -- the
+                                        # only non-English languages this device actually
+                                        # supports end to end
+
+
+def main():
+    print("[BUILD] loading NMT engine...")
+    nmt = NMTEngine()
+    nmt.load()
+
+    result = {}
+    for key, en_text in STATUS_MESSAGES_EN.items():
+        result[key] = {"en": en_text}
+        for lang in TARGET_LANGUAGES:
+            translated = nmt.infer(en_text, "EN", lang)["translated_text"]
+            result[key][lang] = translated
+            print(f"[BUILD] {key} [{lang}]: {translated}")
+
+    nmt.unload()
+
+    out_path = os.path.join(_AGENT_DIR, "status_messages.py")
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(
+            '"""Preset status messages shown on the device screen while a turn is in progress '
+            '-- one entry per pipeline stage / real tool, in en/hi/ta/ml. Generated by '
+            'build_status_messages.py via this project\'s own real NMT engine (IndicTrans2), '
+            'NOT hand-translated -- re-run that script if STATUS_MESSAGES_EN there changes or '
+            'a new tool is added to agent.py\'s TOOLS list. See agent.py\'s '
+            'get_status_message() for how this is actually read at runtime (graceful fallback '
+            'if a key/language is missing, never a crash over a missing status string).\n"""\n\n'
+        )
+        f.write("STATUS_MESSAGES = ")
+        f.write(json.dumps(result, ensure_ascii=False, indent=4))
+        f.write("\n")
+    print(f"\n[BUILD] wrote {out_path} ({len(result)} keys x {1 + len(TARGET_LANGUAGES)} languages)")
+
+
+if __name__ == "__main__":
+    main()

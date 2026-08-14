@@ -1,0 +1,90 @@
+W0808 23:31:15.584000 4098314 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+W0808 23:31:36.848000 4098558 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+W0808 23:32:18.214000 4099130 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 5.41s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.65GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.65GB (37.8%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [weather 1/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: I am a farmer in Thrissur district, Kerala. What is the weather usually like over the next month?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=unloaded nmt=unloaded tts=loading | total=2.65GB (37.8%), budget=7.0GB
+    [agent iter 1] load=572ms prefill=1259ms (4635 tok) gen=4334ms (269 tok)
+    -> get_weather_forecast({'district': 'Thrissur', 'state': 'Kerala', 'period': 30}) -> {"rain": "weeks of Aug 9, Aug 16, Aug 23: moderate chance of rain (~55%), expect moderate rain (~16.5mm) when it falls; weeks of Aug 30, Sep 6: high chance of r
+    [agent iter 2] load=2087ms prefill=400ms (5117 tok) gen=6582ms (406 tok)
+    agent turn wall-clock: 15.85s
+[ORCH]         agent turn: 15.85s
+[PIPE] agent answer (English, raw): Over the next 30 days, here's what you'll typically experience in Thrissur district, Kerala:
+
+There are several weeks with moderate rain expected - specifically around August 9th, 16th and 23rd (about 55% chance each day), plus another week on August 30th and September 6th. On those rainy days you'll get about 14 to 17 millimeters of light rain that will make the air feel much warmer and muggier than just the temperature alone suggests, around 25 degrees Celsius with high humidity.
+
+The wind risk is low throughout this period, which means it should be safe for spraying pesticides if needed. Most weeks you'll get moderate to good sunlight - particularly September 6th has excellent sun conditions that will help dry crops well. There's no significant flood or heat wave expected during these months.
+[PIPE] agent answer (English, markdown-stripped): Over the next 30 days, here's what you'll typically experience in Thrissur district, Kerala:
+
+There are several weeks with moderate rain expected - specifically around August 9th, 16th and 23rd (about 55% chance each day), plus another week on August 30th and September 6th. On those rainy days you'll get about 14 to 17 millimeters of light rain that will make the air feel much warmer and muggier than just the temperature alone suggests, around 25 degrees Celsius with high humidity.
+
+The wind risk is low throughout this period, which means it should be safe for spraying pesticides if needed. Most weeks you'll get moderate to good sunlight - particularly September 6th has excellent sun conditions that will help dry crops well. There's no significant flood or heat wave expected during these months.
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.25GB vs budget=7.0GB
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 7.22s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=unloaded tts=1.00GB | total=3.65GB (52.1%), budget=7.0GB
+[ORCH]         tts infer: 7.61s, observed peak pool ~3.65GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.67s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_en_weather_1of5.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 33.85s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=en (English) [weather 2/5]
+========================================================================================
+[PIPE] English input -- skipping ASR and input-NMT
+[PIPE] query: When is a good time for me to spray pesticide on my crops?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=unloaded tts=loading | total=2.65GB (37.8%), budget=7.0GB
+    [agent iter 1] load=1147ms prefill=380ms (5112 tok) gen=2230ms (137 tok)
+    -> query_spray_window({'district': 'Thrissur', 'state': 'Kerala', 'period': 30}) -> {"spray_window": "No window found that's both dry and calm enough to spray safely in this period -- check the rain and wind highlights for the least-risky days.
+    [agent iter 2] load=1172ms prefill=63ms (5361 tok) gen=7419ms (448 tok)
+    agent turn wall-clock: 12.98s
+[ORCH]         agent turn: 12.98s
+[PIPE] agent answer (English, raw): Based on my analysis of weather conditions over the next 30 days, here's what you need to know about pesticide spraying:
+
+**Spray Timing:** There isn't a single day where both dry weather AND calm wind are present - that combination is crucial because rain washes off pesticides and strong winds can cause drift. However, I found these specific dates when it will be safest for application (dry conditions):
+- **August 9th through August 10** 
+- **August 15th through August 17th**
+- **September 6th**
+
+These are the days with no rain expected and you can spray. The rest of this period has moderate to high rainfall, so spraying would be ineffective or dangerous anyway.
+
+Since there's no flood risk in Thrissur during these months, you don't need special protection for sensitive crops like rice or sugarcane. For most vegetables and fruits grown here, the weather conditions are generally safe for pesticide application when it's dry and wind-free - typically early morning before midday heat sets in is best practice to minimize drift risk while ensuring good coverage on your crops.
+[PIPE] agent answer (English, markdown-stripped): Based on my analysis of weather conditions over the next 30 days, here's what you need to know about pesticide spraying:
+
+Spray Timing: There isn't a single day where both dry weather AND calm wind are present - that combination is crucial because rain washes off pesticides and strong winds can cause drift. However, I found these specific dates when it will be safest for application (dry conditions):
+August 9th through August 10
+August 15th through August 17th
+September 6th
+
+These are the days with no rain expected and you can spray. The rest of this period has moderate to high rainfall, so spraying would be ineffective or dangerous anyway.
+
+Since there's no flood risk in Thrissur during these months, you don't need special protection for sensitive crops like rice or sugarcane. For most vegetables and fruits grown here, the weather conditions are generally safe for pesticide application when it's dry and wind-free - typically early morning before midday heat sets in is best practice to minimize drift risk while ensuring good coverage on your crops.
+[ORCH] --- stage: TTS (English, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.54GB vs budget=7.0GB
+Flash attention 2 is not installed
+W0808 23:32:53.775000 4099636 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed

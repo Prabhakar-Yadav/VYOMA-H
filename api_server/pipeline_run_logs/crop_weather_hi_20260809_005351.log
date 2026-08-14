@@ -1,0 +1,356 @@
+W0809 00:54:19.354000 2285 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 5.82s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.65GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=2.65GB (37.8%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [crop-weather 1/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 2.58s
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=unloaded tts=unloaded | total=2.65GB (37.8%), budget=7.0GB
+[ORCH]         asr infer: 3.95s
+[PIPE] transcribed (hi): मेरे आलू के पत्तों में कुछ छेद हो रहा है ये कौन सा कीट हो सकता है और मुझे इसके बारे में क्या करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 5.13s
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.34s
+[PIPE] translated to English: My potato leaves are having some holes in what insect it could be and what should I do about it.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1410ms prefill=1012ms (4633 tok) gen=8996ms (560 tok)
+    -> query_entomologist({'query': 'potato leaves have holes from insect feeding damage - what pests could cause this and how should I treat it?'}) -> {"query": "potato leaves have holes from insect feeding damage - what pests could cause this and how should I treat it?", "matched_pest": "Thrips (Thrips parvis
+    [agent iter 2] load=1130ms prefill=63ms (5320 tok) gen=16497ms (612 tok)
+    agent turn wall-clock: 29.33s
+[ORCH]         agent turn: 29.33s
+[PIPE] agent answer (English, raw): Based on your description of potato leaf damage from insects, here's what you should know:
+
+**What could cause holes in potato leaves?**
+Thrips are a common pest that causes small feeding damage - they create tiny silvery patches or stippling rather than obvious "holes," but can also weaken plant tissue. Other potential culprits include aphids (sucking sap), beetles, and caterpillars like the Colorado beetle which creates characteristic skeletonized leaves with visible holes.
+
+**What should you do about it?**
+- **Monitor closely**: Watch for sticky residue on your plants - this indicates thrips feeding activity
+- **Avoid excess nitrogen fertilizer**: This weakens potato plants making them more vulnerable to pests
+- **Spot-treat affected areas rather than spraying everywhere**: Target the specific hotspots where damage is visible
+
+**Additional tips:**
+- Check upper leaf surfaces and stems for signs of insect presence - they often hide there
+- If you notice silvery streaks or curling, thrips are likely involved
+- Consider using blue/yellow sticky traps to monitor populations without harming beneficial insects
+
+I can also check the weather forecast if needed to help with timing any necessary treatments.
+[PIPE] agent answer (English, markdown-stripped): Based on your description of potato leaf damage from insects, here's what you should know:
+
+What could cause holes in potato leaves?
+Thrips are a common pest that causes small feeding damage - they create tiny silvery patches or stippling rather than obvious "holes," but can also weaken plant tissue. Other potential culprits include aphids (sucking sap), beetles, and caterpillars like the Colorado beetle which creates characteristic skeletonized leaves with visible holes.
+
+What should you do about it?
+Monitor closely: Watch for sticky residue on your plants - this indicates thrips feeding activity
+Avoid excess nitrogen fertilizer: This weakens potato plants making them more vulnerable to pests
+Spot-treat affected areas rather than spraying everywhere: Target the specific hotspots where damage is visible
+
+Additional tips:
+Check upper leaf surfaces and stems for signs of insect presence - they often hide there
+If you notice silvery streaks or curling, thrips are likely involved
+Consider using blue/yellow sticky traps to monitor populations without harming beneficial insects
+
+I can also check the weather forecast if needed to help with timing any necessary treatments.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=1.06GB | total=4.65GB (66.5%), budget=7.0GB
+[ORCH]         nmt infer: 11.38s
+Flash attention 2 is not installed
+W0809 00:55:32.466000 3360 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+[PIPE] translated answer (hi): कीटों से आलू के पत्ते को हुए नुकसान के आपके विवरण के आधार पर, आपको जो पता होना चाहिए वह यहां दिया गया हैः
+
+आलू के पत्तों में छेद होने का कारण क्या हो सकता है? थ्रिप्स एक आम कीट है जो खाने में छोटी क्षति का कारण बनता है-वे स्पष्ट "छेद" के बजाय छोटे चांदी के धब्बे या स्टिपलिंग बनाते हैं, लेकिन पौधे के ऊतक को भी कमजोर कर सकते हैं। अन्य संभावित दोषियों में एफिड्स (रस चूसने वाला), भृंग और कोलोराडो भृंग जैसे कैटरपिलर शामिल हैं जो दिखाई देने वाले छेद के साथ विशिष्ट कंकालदार पत्ते बनाते हैं।
+
+आपको इसके बारे में क्या करना चाहिए? बारीकी से निगरानी करें-अपने पौधों पर चिपचिपे अवशेषों पर नज़र रखें-यह दर्शाता है कि खाद्य पदार्थ खाने की गतिविधि अधिक नाइट्रोजन उर्वरक से बचेंः यह आलू के पौधों को कमजोर कर देता है जिससे वे कीटों के प्रति अधिक संवेदनशील हो जाते हैं, न कि हर जगह छिड़काव करने के बजाय
+
+अतिरिक्त सुझावः कीटों की उपस्थिति के संकेतों के लिए ऊपरी पत्ती की सतहों और तनों की जांच करें-वे अक्सर वहाँ छिप जाते हैं यदि आप चांदी की धारियों या कर्लिंग को देखते हैं, तो थ्रिप्स शामिल होने की संभावना है लाभकारी कीटों को नुकसान पहुंचाए बिना आबादी की निगरानी के
+
+अगर आवश्यक हो तो मैं मौसम के पूर्वानुमान की भी जांच कर सकता हूं ताकि किसी भी आवश्यक उपचार के समय में मदद मिल सके।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.83GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.37s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=1.06GB | total=4.65GB (66.5%), budget=7.0GB
+[ORCH]         tts infer: 6.01s, observed peak pool ~4.65GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.72s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_crop-weather_1of5.wav (engine=mms_tts, 6 chunks)
+[PIPE] total turn wall-clock: 64.79s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [crop-weather 2/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 3.23s
+[PIPE] transcribed (hi): हां कृपया देखें कि मेरे लिए छिड़काव करने का अच्छा समय कब है
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.75s
+[PIPE] translated to English: Yes please see when is a good time for me to spray
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1082ms prefill=546ms (5070 tok) gen=3648ms (146 tok)
+    agent turn wall-clock: 5.35s
+[ORCH]         agent turn: 5.35s
+[PIPE] agent answer (English, raw): Before I check when it's safe to spray, I need your location information. Could you please tell me which district/state/pincode area is where your potato farm is located? This helps me give you accurate timing for spraying.
+[PIPE] agent answer (English, markdown-stripped): Before I check when it's safe to spray, I need your location information. Could you please tell me which district/state/pincode area is where your potato farm is located? This helps me give you accurate timing for spraying.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=4.18GB (59.7%), budget=7.0GB
+[ORCH]         nmt infer: 2.38s
+[PIPE] translated answer (hi): इससे पहले कि मैं जाँच करूं कि छिड़काव कब सुरक्षित है, मुझे आपके स्थान की जानकारी चाहिए। क्या आप कृपया मुझे बता सकते हैं कि आपका आलू का खेत किस जिले/राज्य/पिनकोड क्षेत्र में स्थित है? इससे मुझे छिड़काव के लिए सही समय देने में मदद मिलती है।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=6.73GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.80s
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 12.52s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=0.33GB | total=3.92GB (56.0%), budget=7.0GB
+[ORCH]         tts infer: 3.57s, observed peak pool ~3.92GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.83s
+W0809 00:56:15.286000 4093 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Flash attention 2 is not installed
+W0809 00:56:57.411000 4883 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_crop-weather_2of5.wav (engine=mms_tts, 1 chunks)
+[PIPE] total turn wall-clock: 34.71s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [crop-weather 3/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 2.50s
+[PIPE] transcribed (hi): मैं भोपाल में हूँ मेरा पिनखून दिखा रही है
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.33s
+[PIPE] translated to English: I am in Bhopal showing my pincher.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1851ms prefill=589ms (5137 tok) gen=3940ms (159 tok)
+    -> query_spray_window({'district': 'Pinch', 'state': 'Madhya Pradesh'}) -> {"spray_window": "No window found that's both dry and calm enough to spray safely in this period -- check the rain and wind highlights for the least-risky days.
+    [agent iter 2] load=1722ms prefill=59ms (5401 tok) gen=5832ms (226 tok)
+    agent turn wall-clock: 16.30s
+[ORCH]         agent turn: 16.30s
+[PIPE] agent answer (English, raw): Unfortunately, there isn't an ideal time right now in Pinch where both the weather is dry and calm enough for safe spraying - this area typically has rain during August 10-31 which washes away any pesticide you apply anyway. 
+
+**What to do:**
+Wait until after these rains have passed or at least before heavy rainfall occurs, when conditions are more favorable for effective treatment of thrips damage on your potato leaves.
+
+Once the weather is dry and calm (no rain expected), I can check again what's the best time to spray in Pinch this coming season.
+[PIPE] agent answer (English, markdown-stripped): Unfortunately, there isn't an ideal time right now in Pinch where both the weather is dry and calm enough for safe spraying - this area typically has rain during August 10-31 which washes away any pesticide you apply anyway.
+
+What to do:
+Wait until after these rains have passed or at least before heavy rainfall occurs, when conditions are more favorable for effective treatment of thrips damage on your potato leaves.
+
+Once the weather is dry and calm (no rain expected), I can check again what's the best time to spray in Pinch this coming season.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=4.67GB (66.8%), budget=7.0GB
+[ORCH]         nmt infer: 6.00s
+[PIPE] translated answer (hi): दुर्भाग्य से, पिंच में अभी कोई आदर्श समय नहीं है जहां मौसम शुष्क और सुरक्षित छिड़काव के लिए पर्याप्त शांत हो-इस क्षेत्र में आम तौर पर अगस्त 10-31 के दौरान बारिश होती है जो आपके द्वारा लगाए गए किसी भी कीटनाशक को धो देती है।
+
+क्या करेंः इन बारिशों के बीत जाने तक या कम से कम भारी बारिश होने तक प्रतीक्षा करें, जब आपके आलू के पत्तों पर थ्रिप्स के नुकसान के प्रभावी उपचार के लिए परिस्थितियाँ अधिक अनुकूल हों।
+
+एक बार जब मौसम शुष्क और शांत हो जाता है (बारिश की कोई उम्मीद नहीं है), तो मैं फिर से देख सकता हूं कि आने वाले मौसम में पिंच में छिड़काव करने का सबसे अच्छा समय क्या है।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.89GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.48s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=0.93GB | total=4.52GB (64.6%), budget=7.0GB
+[ORCH]         tts infer: 9.14s, observed peak pool ~4.52GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.74s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_crop-weather_3of5.wav (engine=mms_tts, 3 chunks)
+[PIPE] total turn wall-clock: 40.02s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [crop-weather 4/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 2.84s
+[PIPE] transcribed (hi): अगले कुछ हफ़्तों में मौसम कैसा रहने वाला है
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.26s
+[PIPE] translated to English: what is the weather going to be like in the next few weeks
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1183ms prefill=686ms (5425 tok) gen=4475ms (187 tok)
+    -> get_weather_forecast({'district': 'Pinch', 'state': 'Madhya Pradesh'}) -> {"rain": "weeks of Aug 10, Aug 17, Aug 24: high chance of rain (~71%), expect moderate rain (~13.8mm) when it falls; weeks of Aug 31, Sep 7: moderate chance of 
+    [agent iter 2] load=1383ms prefill=97ms (5811 tok) gen=11360ms (418 tok)
+    agent turn wall-clock: 21.00s
+[ORCH]         agent turn: 21.00s
+Flash attention 2 is not installed
+W0809 00:57:48.845000 5598 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+[PIPE] agent answer (English, raw): Based on your location in Pinch, Madhya Pradesh here's what to expect:
+
+**Rain Forecast:** You're looking at several weeks with moderate rain expected - specifically August 10th (high chance ~71%, about 13.8mm), August 17th (~54% chance, ~11.8mm), and continuing through late September around the 24-31st dates.
+
+**What this means for your potato treatment:**
+The cool temperatures during these rainy periods (around 25°C) are actually good conditions for healthy potato growth - you don't want to spray when it's hot or humid as that can wash away any pesticide anyway and might harm beneficial insects. The low wind risk throughout the period is also favorable, meaning your treatment will stay on longer if applied during these dry windows.
+
+**Best timing:** Wait until after August 31st or early September before needing to spray again for thrips damage - this gives you a full week of calm weather with no rain expected in between when conditions are ideal for effective pesticide application.
+[PIPE] agent answer (English, markdown-stripped): Based on your location in Pinch, Madhya Pradesh here's what to expect:
+
+Rain Forecast: You're looking at several weeks with moderate rain expected - specifically August 10th (high chance 71%, about 13.8mm), August 17th (54% chance, 11.8mm), and continuing through late September around the 24-31st dates.
+
+What this means for your potato treatment:
+The cool temperatures during these rainy periods (around 25°C) are actually good conditions for healthy potato growth - you don't want to spray when it's hot or humid as that can wash away any pesticide anyway and might harm beneficial insects. The low wind risk throughout the period is also favorable, meaning your treatment will stay on longer if applied during these dry windows.
+
+Best timing: Wait until after August 31st or early September before needing to spray again for thrips damage - this gives you a full week of calm weather with no rain expected in between when conditions are ideal for effective pesticide application.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=1.07GB | total=4.66GB (66.6%), budget=7.0GB
+[ORCH]         nmt infer: 6.28s
+[PIPE] translated answer (hi): मध्य प्रदेश के पिंच में आपके स्थान के आधार पर यहाँ क्या उम्मीद की जा सकती हैः
+
+वर्षा का पूर्वानुमानः आप कई हफ्तों तक मध्यम वर्षा की उम्मीद कर रहे हैं-विशेष रूप से 10 अगस्त (उच्च संभावना 71 प्रतिशत, लगभग 13.8mm), 17 अगस्त (54 प्रतिशत संभावना, 11.8mm), और सितंबर के अंत तक 24-31 पहली तारीखों के आसपास जारी है
+
+आलू के उपचार के लिए इसका क्या मतलब हैः इन वर्षा अवधि (लगभग 25 डिग्री सेल्सियस) के दौरान ठंडा तापमान वास्तव में आलू के स्वस्थ विकास के लिए अच्छी स्थिति है-आप गर्म या आर्द्र होने पर छिड़काव नहीं करना चाहते हैं क्योंकि यह किसी भी कीटनाशक को वैसे भी धो सकता है और फायदेमंद कीटों को नुकसान पहुंचा सकता पूरे समय में हवा का कम जोखिम भी अनुकूल है, जिसका अर्थ है कि इन सूखी खिड़कियों के दौरान लागू करने पर आपका उपचार लंबे समय तक चलेगा।
+
+सबसे अच्छा समयः थ्रिप्स क्षति के लिए फिर से छिड़काव करने की आवश्यकता से पहले 31 अगस्त के बाद या सितंबर की शुरुआत तक प्रतीक्षा करें-यह आपको एक पूरा सप्ताह शांत मौसम देता है जिसमें बीच में बारिश की कोई उम्मीद नहीं होती है जब परिस्थितियाँ प्रभावी कीटनाशक अनुप्रयोग के लिए आदर्श होती हैं।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.24GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.43s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=1.07GB | total=4.66GB (66.6%), budget=7.0GB
+[ORCH]         tts infer: 5.42s, observed peak pool ~4.66GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.92s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_crop-weather_4of5.wav (engine=mms_tts, 4 chunks)
+[PIPE] total turn wall-clock: 39.94s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [crop-weather 5/5]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         asr infer: 3.03s
+[PIPE] transcribed (hi): क्या मुझे आलू की फसल पर और कीटों के हमले की चिंता करनी चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=unloaded | total=3.60GB (51.4%), budget=7.0GB
+[ORCH]         nmt infer: 0.30s
+[PIPE] translated to English: Should I worry about further pest attacks on the potato crop?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=3.60GB (51.4%), budget=7.0GB
+    [agent iter 1] load=1807ms prefill=973ms (5910 tok) gen=16119ms (575 tok)
+    agent turn wall-clock: 18.99s
+[ORCH]         agent turn: 18.99s
+Flash attention 2 is not installed
+[PIPE] agent answer (English, raw): Based on your situation in Pinch with moderate rain expected through late August into early September:
+
+**Don't worry about major attacks right now**, but here's what you should do instead:
+
+1. **Stay vigilant during the rainy period**: The cool temperatures (around 25°C) combined with humidity are actually good for potato growth - they don't stress your crop as much as hot, dry weather would. However, thrips thrive in humid conditions and can become more active when it rains heavily or stays wet after treatment.
+
+2. **Monitor closely**: Watch for sticky residue on leaves (thrips feeding indicator) or any new silvery patches appearing - these are early signs before visible damage spreads.
+
+3. **Wait until the spray window opens up again** (after August 31st/early September): Once conditions dry out, there will be better opportunities to treat thrips damage effectively without rain washing away your treatment anyway.
+
+4. **Consider alternative protection**: While waiting for ideal spraying weather, you might want to:
+   - Apply a light organic spray with neem oil or insecticidal soap during the coolest parts of these rainy days (before heavy rainfall) if conditions allow
+   - Focus on spot-treating only areas showing visible damage rather than blanket treatment
+
+The good news is that moderate rain actually helps manage diseases like blight, so you're in a relatively favorable position overall. Just stay alert and ready to act when the weather clears up for effective treatment next season!
+[PIPE] agent answer (English, markdown-stripped): Based on your situation in Pinch with moderate rain expected through late August into early September:
+
+Don't worry about major attacks right now, but here's what you should do instead:
+
+Stay vigilant during the rainy period: The cool temperatures (around 25°C) combined with humidity are actually good for potato growth - they don't stress your crop as much as hot, dry weather would. However, thrips thrive in humid conditions and can become more active when it rains heavily or stays wet after treatment.
+
+Monitor closely: Watch for sticky residue on leaves (thrips feeding indicator) or any new silvery patches appearing - these are early signs before visible damage spreads.
+
+Wait until the spray window opens up again (after August 31st/early September): Once conditions dry out, there will be better opportunities to treat thrips damage effectively without rain washing away your treatment anyway.
+
+Consider alternative protection: While waiting for ideal spraying weather, you might want to:
+Apply a light organic spray with neem oil or insecticidal soap during the coolest parts of these rainy days (before heavy rainfall) if conditions allow
+Focus on spot-treating only areas showing visible damage rather than blanket treatment
+
+The good news is that moderate rain actually helps manage diseases like blight, so you're in a relatively favorable position overall. Just stay alert and ready to act when the weather clears up for effective treatment next season!
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.65GB embedder=unloaded asr=0.00GB nmt=0.95GB tts=loading | total=4.96GB (70.8%), budget=7.0GB
+[ORCH]         nmt infer: 9.22s
+[PIPE] translated answer (hi): पिंच में आपकी स्थिति के आधार पर अगस्त के अंत से सितंबर की शुरुआत तक मध्यम बारिश की उम्मीद हैः
+
+अभी बड़े हमलों के बारे में चिंता न करें, लेकिन इसके बजाय आपको क्या करना चाहिएः
+
+बरसात की अवधि के दौरान सतर्क रहेंः आर्द्रता के साथ ठंडा तापमान (लगभग 25 डिग्री सेल्सियस) वास्तव में आलू के विकास के लिए अच्छा है-वे आपकी फसल पर उतना दबाव नहीं डालते जितना गर्म, शुष्क मौसम। हालांकि, थ्रिप आर्द्र परिस्थितियों में पनपती है और अधिक सक्रिय हो सकती है जब भारी बारिश होती है या उपचार के बाद गीली रहती है।
+
+बारीकी से निगरानी करें-पत्तियों पर चिपचिपे अवशेष (थ्रिप्स फीडिंग इंडिकेटर) या किसी भी नए चांदी के धब्बे दिखाई देने पर नज़र रखें-ये दृश्यमान क्षति फैलाने से पहले के शुरुआती संकेत हैं।
+
+स्प्रे विंडो फिर से खुलने तक प्रतीक्षा करें (31 अगस्त के बाद/सितंबर की शुरुआत में): एक बार जब स्थिति सूख जाएगी, तो बारिश के बिना आपके उपचार को धोए प्रभावी ढंग से उपचार करने के बेहतर अवसर होंगे।
+
+वैकल्पिक सुरक्षा पर विचार करेंः छिड़काव के लिए आदर्श मौसम की प्रतीक्षा करते समय, आप चाह सकते हैंः इन बारिश के दिनों के सबसे ठंडे हिस्सों (भारी बारिश से पहले) के दौरान नीम के तेल या कीटनाशक साबुन के साथ एक हल्का जैविक छिड़काव लागू करें यदि परिस्थितियाँ अनुमति देती हैं तो केवल उस स्थान पर उपचार पर ध्यान केंद्रित
+
+अच्छी खबर यह है कि मध्यम बारिश वास्तव में ब्लाइट जैसी बीमारियों को प्रबंधित करने में मदद करती है, इसलिए आप कुल मिलाकर अपेक्षाकृत अनुकूल स्थिति में हैं। बस सतर्क रहें और अगले मौसम में प्रभावी उपचार के लिए मौसम साफ होने पर कार्रवाई करने के लिए तैयार रहें!
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=10.91GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.37s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.65GB embedder=unloaded asr=unloaded nmt=0.95GB tts=1.01GB | total=4.61GB (65.9%), budget=7.0GB
+[ORCH]         tts infer: 5.99s, observed peak pool ~4.61GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.73s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/davidacad10/Documents/github/blue-parrot/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi_crop-weather_5of5.wav (engine=mms_tts, 7 chunks)
+[PIPE] total turn wall-clock: 42.32s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 1.63s
+[ORCH] EVICT   nmt       -> session teardown (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.57s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

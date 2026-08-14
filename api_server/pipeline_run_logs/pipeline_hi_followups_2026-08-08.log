@@ -1,0 +1,294 @@
+Flash attention 2 is not installed
+[0;93m2026-08-08 18:54:28.158743040 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 23.41s
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 1/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing hi input
+[ORCH]         asr ready in 15.69s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.65GB nmt=unloaded tts=unloaded | total=1.96GB (28.0%), budget=7.0GB
+[ORCH]         asr infer: 5.78s
+[PIPE] transcribed (hi): आलू को कीटों और चूहों से बचाने के लिए मुझे अपने छोटे से खेत में सबसे अच्छे कीटनाशकों का उपयोग करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 15.52s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.65GB nmt=0.54GB tts=unloaded | total=2.49GB (35.6%), budget=7.0GB
+[ORCH]         nmt infer: 1.76s
+[PIPE] translated to English: I should use the best pesticides on my small farm to protect the potatoes from insects and rats.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.65GB nmt=0.54GB tts=loading | total=2.49GB (35.6%), budget=7.0GB
+    [agent iter 1] load=870ms prefill=1952ms (2188 tok) gen=20012ms (508 tok)
+    -> analyze_photo({}) -> "No image was attached to this message \u2014 nothing to analyze."
+    [agent iter 2] load=1428ms prefill=125ms (2723 tok) gen=13382ms (345 tok)
+    -> pesticide_lookup({'pesticide_name': 'Chlorpyrifos'}) -> {"found": true, "pesticide": "Chlorpyrifos", "pid": "Chlorpyrifos", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Chlorpyrifos&
+    [agent iter 3] load=1142ms prefill=946ms (4046 tok) gen=5987ms (156 tok)
+    -> pesticide_lookup({'pesticide_name': 'Imidacloprid'}) -> {"found": true, "pesticide": "Imidacloprid", "pid": "Imidacloprid", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Imidacloprid&
+    [agent iter 4] load=1032ms prefill=731ms (4952 tok) gen=2680ms (70 tok)
+    -> pesticide_lookup({'pesticide_name': 'Carbaryl'}) -> {"found": true, "pesticide": "Carbofuran", "pid": "Carbofuran", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Carbofuran&type='
+    [agent iter 5] load=1217ms prefill=2171ms (7340 tok) gen=7241ms (185 tok)
+    -> pesticide_lookup({'pesticide_name': 'Chlorpyrifos'}) -> {"found": true, "pesticide": "Chlorpyrifos", "pid": "Chlorpyrifos", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Chlorpyrifos&
+    [agent iter final] load=1147ms prefill=5447ms (7402 tok) gen=30297ms (769 tok)
+    agent turn wall-clock: 98.90s
+[ORCH]         agent turn: 98.90s
+[PIPE] agent answer (English): Based on my available research tools, I cannot determine if any specific pesticide was identified as being "on" your small farm's potatoes from the image or general knowledge alone. 
+
+To properly protect your potato crops against insects and rats using best pesticides, you need to:
+
+1. **Identify which active ingredients are actually present** on your crop label (this requires analyzing a photo of the product)
+2. **Use only registered pesticides with legal residue limits** - for example, Chlorpyrifos has an ADI of 0.01 mg/kg and is highly toxic but legally available in India's FSSAI dataset
+
+Since I can't identify your specific potato pesticide from my current searches (only general uses were listed), you should:
+- Check the label on your actual product bottle/packet to see what active ingredients are present
+- Use registered pesticides with legal MRLs for potatoes, such as **Imidacloprid** or other insecticides that have been approved and regulated in India
+
+Would you like me to look up any specific pesticide names if you can identify the exact label on your product?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.65GB nmt=0.54GB tts=0.87GB | total=3.37GB (48.1%), budget=7.0GB
+[ORCH]         nmt infer: 6.72s
+[PIPE] translated answer (hi): मेरे उपलब्ध शोध उपकरणों के आधार पर, मैं यह निर्धारित नहीं कर सकता कि क्या किसी विशिष्ट कीटनाशक की पहचान केवल छवि या सामान्य ज्ञान से आपके छोटे खेत के आलू पर "पर" होने के रूप में की गई थी।
+
+सर्वोत्तम कीटनाशकों का उपयोग करके अपनी आलू की फसलों को कीटों और चूहों से ठीक से बचाने के लिए, आपको निम्नलिखित की आवश्यकता हैः
+
+1. * * पहचानें कि वास्तव में आपके फसल के लेबल पर कौन से सक्रिय तत्व मौजूद हैं (इसके लिए उत्पाद की तस्वीर का विश्लेषण करने की आवश्यकता है) 2. * * केवल कानूनी अवशेष सीमा के साथ पंजीकृत कीटनाशकों का उपयोग करें * *-उदाहरण के लिए, क्लोरपायरिफोस में 0
+
+चूँकि मैं अपनी वर्तमान खोजों से आपके विशिष्ट आलू कीटनाशक की पहचान नहीं कर सकता (केवल सामान्य उपयोग सूचीबद्ध थे), आपकोः-अपनी वास्तविक उत्पाद बोतल/पैकेट पर लेबल की जांच करें कि कौन से सक्रिय तत्व मौजूद हैं-आलू के लिए कानूनी एम. आर. एल. के साथ पंजीकृत कीटनाशकों का उपयोग
+
+क्या आप चाहेंगे कि मैं किसी विशिष्ट कीटनाशक के नामों की खोज करूं यदि आप अपने उत्पाद पर सटीक लेबल की पहचान कर सकते हैं?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.41s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=7.32GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.37s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.87GB | total=2.18GB (31.2%), budget=7.0GB
+[0;93m2026-08-08 18:57:17.767393153 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+Flash attention 2 is not installed
+[0;93m2026-08-08 18:59:12.973459822 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH]         tts infer: 17.57s, observed peak pool ~2.18GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.52s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 166.95s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 2/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 4.16s for asr's async preload to finish
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.13GB nmt=unloaded tts=unloaded | total=1.44GB (20.6%), budget=7.0GB
+[ORCH]         asr infer: 6.76s
+[PIPE] transcribed (hi): इस पौधे में क्या गड़बड़ है और मुझे इसके बारे में क्या करना चाहिए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 15.58s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.13GB nmt=0.48GB tts=unloaded | total=1.92GB (27.5%), budget=7.0GB
+[ORCH]         nmt infer: 1.31s
+[PIPE] translated to English: What's wrong with this plant and what should I do about it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.13GB nmt=0.48GB tts=loading | total=1.92GB (27.5%), budget=7.0GB
+    [agent iter 1] load=866ms prefill=372ms (7654 tok) gen=16810ms (421 tok)
+    -> analyze_photo({}) -> "No image was attached to this message \u2014 nothing to analyze."
+    [agent iter 2] load=1325ms prefill=186ms (8102 tok) gen=23137ms (572 tok)
+    agent turn wall-clock: 43.21s
+[ORCH]         agent turn: 43.21s
+[PIPE] agent answer (English): It seems like you're asking about something that wasn't analyzed before - but since there's still no visual evidence of plant damage, disease symptoms, or crop problems in our conversation history (we only looked at pesticide labels for your potatoes), I need more information. 
+
+Could you please describe:
+- What specific "plant" issue are you referring to? Is it a potato problem from earlier, or something else like plants in general?
+
+Or perhaps this is about a different crop entirely - what's the name of the plant and what symptoms do you see (wilting, discoloration, pest damage, etc.) that need identification?
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.13GB nmt=0.48GB tts=0.74GB | total=2.67GB (38.1%), budget=7.0GB
+[ORCH]         nmt infer: 4.59s
+[PIPE] translated answer (hi): ऐसा लगता है कि आप कुछ ऐसे बारे में पूछ रहे हैं जिसका पहले विश्लेषण नहीं किया गया था-लेकिन चूंकि हमारे वार्तालाप के इतिहास में अभी भी पौधों की क्षति, बीमारी के लक्षणों या फसल की समस्याओं का कोई दृश्य प्रमाण नहीं है (हमने केवल आपके आलू के लिए कीटनाशक लेबल को देखा), मुझे अधिक जानकारी की
+
+क्या आप कृपया वर्णन कर सकते हैंः-आप किस विशिष्ट "पादप" मुद्दे की बात कर रहे हैं? क्या यह पहले से आलू की समस्या है, या सामान्य रूप से पौधों जैसी कुछ और?
+
+या शायद यह पूरी तरह से एक अलग फसल के बारे में है-पौधे का नाम क्या है और आप किन लक्षणों (मुरझाना, रंग बदलना, कीट क्षति, आदि) को देखते हैं जिन्हें पहचानने की आवश्यकता है?
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.37s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=5.43GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.41s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.74GB | total=2.05GB (29.3%), budget=7.0GB
+[ORCH]         tts infer: 17.80s, observed peak pool ~2.05GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.57s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 3 chunks)
+[PIPE] total turn wall-clock: 103.27s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 3/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 4.15s for asr's async preload to finish
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.58GB nmt=unloaded tts=unloaded | total=1.89GB (27.0%), budget=7.0GB
+[ORCH]         asr infer: 9.03s
+[PIPE] transcribed (hi): मैं कर्नाटक में बेलगावी ज़िले में हूँ मैं दो एकड़ में कुफरी ज्योति आलू उगा रहा हूँ जो वर्तमान में कंध विकास के चरण में है मैं पत्तियों में छोटे छोटे छेद चबाते देख रहा हूँ और कुछ कंधों पर काटने के निशान होते हैं और मैदान के किनारों के पास चूहे के गड्ढे होते हैं
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 17.26s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.58GB nmt=0.52GB tts=unloaded | total=2.41GB (34.4%), budget=7.0GB
+[ORCH]         nmt infer: 4.37s
+[PIPE] translated to English: I am in Belagavi district in Karnataka I am growing Kufri Jyoti potatoes on two acres which is currently in the shoulder development stage I see small holes in the leaves and some of the shoulders have bite marks and near the edges of the field are rat holes.
+Flash attention 2 is not installed
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.58GB nmt=0.52GB tts=loading | total=2.41GB (34.4%), budget=7.0GB
+    [agent iter 1] load=1024ms prefill=5975ms (7888 tok) gen=16897ms (416 tok)
+    -> query_disease_diagnosis_index({'description': 'potato leaf damage bite marks rat holes small hole in leaves shoulder development stage Belagavi district Karnataka'}) -> {"query": "potato leaf damage bite marks rat holes small hole in leaves shoulder development stage Belagavi district Karnataka", "matches": [{"disease": "Bacter
+    [agent iter 2] load=1458ms prefill=335ms (8461 tok) gen=10505ms (261 tok)
+    -> query_harvest_weather_risk({'crop': 'Kufri Jyoti potatoes', 'district': 'Belagavi district, Karnataka', 'harvest_window_days': 10}) -> {"crop": "Kufri Jyoti potatoes", "district": "Belagavi district, Karnataka", "window_days": 10, "rain_risk_pct": 35, "recommendation": "Moderate rain risk in th
+    [agent iter 3] load=1213ms prefill=195ms (8827 tok) gen=20242ms (509 tok)
+    -> query_disease_diagnosis_index({'description': 'Potato Rust Brown Leaf Spot Bite marks near field edges rat holes shoulder development stage Kufri Jyoti potatoes Belagavi district Karnataka'}) -> {"query": "Potato Rust Brown Leaf Spot Bite marks near field edges rat holes shoulder development stage Kufri Jyoti potatoes Belagavi district Karnataka", "matc
+    [agent iter 4] load=1127ms prefill=264ms (9501 tok) gen=20554ms (515 tok)
+    -> query_disease_diagnosis_index({'description': 'aphid feeding damage potato leaf hole near field edge Belagavi district Karnataka shoulder development stage Kufri Jyoti potatoes'}) -> {"query": "aphid feeding damage potato leaf hole near field edge Belagavi district Karnataka shoulder development stage Kufri Jyoti potatoes", "matches": [{"dis
+    [agent iter 5] load=1274ms prefill=248ms (10178 tok) gen=11998ms (300 tok)
+    -> query_disease_diagnosis_index({'description': 'Potato rust Brown Leaf Spot Bite marks near edge rat holes shoulder development stage Kufri Jyoti Belagavi district Karnataka'}) -> {"query": "Potato rust Brown Leaf Spot Bite marks near edge rat holes shoulder development stage Kufri Jyoti Belagavi district Karnataka", "matches": [{"disease
+    [agent iter final] load=1236ms prefill=6811ms (8938 tok) gen=21163ms (533 tok)
+    agent turn wall-clock: 124.30s
+[ORCH]         agent turn: 124.30s
+[PIPE] agent answer (English): Based on my analysis of your Belagavi district Kufri Jyoti potatoes in shoulder development stage with bite marks and rat holes near field edges:
+
+**Most likely diagnosis:** Bacterial leaf spot (78% confidence) - this is a common potato disease that causes small water-soaked spots turning brown with yellow halos on leaves. Treatment involves copper-based bactericides, avoiding overhead irrigation, and removing infected debris from the shoulders where you're seeing damage.
+
+However, I should note:
+- Early blight (41% confidence) could also be present as it's another common potato disease that causes concentric dark rings on older leaves
+- Both diseases can coexist in your field
+
+**Immediate action:** 
+1. Remove all infected shoulders from the field where you see bite marks and rat holes - this is critical to prevent spreading of both bacterial leaf spot and early blight
+2. Apply copper-based bactericides (avoiding overhead irrigation) as recommended for Bacterial leaf spot treatment
+3. Consider crop rotation if symptoms persist
+
+**Weather risk:** There's a 35% rain risk in your harvest window, so consider harvesting potatoes 1-2 days earlier to avoid potential damage from heavy rains during the shoulder development stage.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.58GB nmt=0.52GB tts=0.77GB | total=3.18GB (45.4%), budget=7.0GB
+[ORCH]         nmt infer: 9.11s
+[PIPE] translated answer (hi): आपके बेलगावी जिले के कुफरी ज्योति आलू के मेरे विश्लेषण के आधार पर जो कंधे के विकास के चरण में है और क्षेत्र के किनारों के पास चूहे के छेद हैंः
+
+सबसे अधिक संभावित निदानः जीवाणुरोधी पत्ती का धब्बा (78 प्रतिशत आत्मविश्वास)-यह आलू की एक आम बीमारी है जो पानी में भिजे छोटे धब्बे को पीले रंग के प्रभामंडल के साथ भूरे रंग में बदल देती है। उपचार में तांबे पर आधारित जीवाणुनाशक शामिल हैं, ऊपर की सिंचाई से बचना, और कंधों से संक्रमित मलबे को हटाना जहां आप नुकसान देख रहे हैं।
+
+लेकिन मुझे ध्यान देना चाहिएः-प्रारंभिक रोग (41 प्रतिशत आत्मविश्वास) भी मौजूद हो सकता है क्योंकि यह आलू की एक और आम बीमारी है जो पुरानी पत्तियों पर काले रंग के वलय का कारण बनती है-दोनों बीमारियां आपके खेत में सह-अस्तित्व में हो सकती हैं।
+
+तत्काल कार्रवाईः * * 1। उस खेत से सभी संक्रमित कंधों को हटा दें जहाँ आप काटने के निशान और चूहे के छेद देखते हैं-यह बैक्टीरिया के पत्ते के धब्बे और शुरुआती ब्लाइट दोनों के प्रसार को रोकने के लिए महत्वपूर्ण है। 3. बैक्टीरियल लीफ स्पॉट उपचार के लिए अनुशंसित तांबे आधारित जीवाणुनाशक दवाएँ (ऊपर से सिंचाई से बचना) लागू करें। यदि लक्षण बने रहते हैं तो फसल आवर्तन पर विचार करें।
+
+मौसम का जोखिमः आपकी फसल की खिड़की में 35 प्रतिशत बारिश का जोखिम है, इसलिए कंधे के विकास के चरण के दौरान भारी बारिश से संभावित नुकसान से बचने के लिए आलू की कटाई को 1-2 दिन पहले करने पर विचार करें।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.42s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=8.55GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.46s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.77GB | total=2.07GB (29.6%), budget=7.0GB
+[0;93m2026-08-08 19:02:43.065797643 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH]         tts infer: 19.68s, observed peak pool ~2.07GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.57s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 6 chunks)
+[PIPE] total turn wall-clock: 199.58s
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+
+========================================================================================
+FULL PIPELINE -- language=hi (Hindi) [follow-up 4/4]
+========================================================================================
+[ORCH] --- stage: ASR (hi) ----------------------------------------
+[ORCH]         ASR was preloading during the previous turn's downtime -- waiting on it now
+[ORCH]         waited 4.00s for asr's async preload to finish
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.00GB nmt=unloaded tts=unloaded | total=1.31GB (18.7%), budget=7.0GB
+[ORCH]         asr infer: 10.98s
+[PIPE] transcribed (hi): आपका काली मिर्च का पौधा जीवाणुओं के पत्ते के धब्बे के शुरुआती संकेत दिखाता है जो पत्तियों पर पीले प्रभा मंडल के सा छोटे्षी हए
+[ORCH] --- stage: NMT (hi->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (hi->EN)
+[ORCH]         nmt ready in 14.51s
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=unloaded | total=1.85GB (26.4%), budget=7.0GB
+[ORCH]         nmt infer: 1.86s
+[PIPE] translated to English: Your pepper plant shows early signs of bacterial leaf spots, which are tiny yellow spots on the leaves.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during Agent turn (async, fire-and-forget)
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=loading | total=1.85GB (26.4%), budget=7.0GB
+    [agent iter 1] load=1104ms prefill=408ms (9222 tok) gen=14450ms (365 tok)
+    -> query_disease_diagnosis_index({'description': 'pepper bacterial leaf spot small yellow spots on leaves shoulder development stage Belagavi district Karnataka'}) -> {"query": "pepper bacterial leaf spot small yellow spots on leaves shoulder development stage Belagavi district Karnataka", "matches": [{"disease": "Bacterial l
+    [agent iter 2] load=1115ms prefill=246ms (9742 tok) gen=22513ms (545 tok)
+    -> query_disease_diagnosis_index({'description': 'pepper bacterial leaf spot small yellow spots on leaves shoulder development stage Belagavi district Karnataka'}) -> {"query": "pepper bacterial leaf spot small yellow spots on leaves shoulder development stage Belagavi district Karnataka", "matches": [{"disease": "Bacterial l
+    [agent iter 3] load=947ms prefill=254ms (10442 tok) gen=15389ms (383 tok)
+    -> query_harvest_weather_risk({'crop': 'pepper', 'district': 'Belagavi district, Karnataka', 'harvest_window_days': 10}) -> {"crop": "pepper", "district": "Belagavi district, Karnataka", "window_days": 10, "rain_risk_pct": 35, "recommendation": "Moderate rain risk in the harvest wind
+    [agent iter 4] load=1837ms prefill=222ms (10925 tok) gen=13129ms (325 tok)
+    -> query_disease_diagnosis_index({'description': 'pepper rust brown leaf spot bite marks near field edges rat holes shoulder development stage Belagavi district Karnataka'}) -> {"query": "pepper rust brown leaf spot bite marks near field edges rat holes shoulder development stage Belagavi district Karnataka", "matches": [{"disease": "B
+    [agent iter 5] load=2225ms prefill=264ms (11408 tok) gen=15208ms (376 tok)
+    -> query_disease_diagnosis_index({'description': 'pepper rust brown leaf spot bite marks near edge rat holes shoulder development stage Belagavi district Karnataka'}) -> {"query": "pepper rust brown leaf spot bite marks near edge rat holes shoulder development stage Belagavi district Karnataka", "matches": [{"disease": "Bacteria
+    [agent iter final] load=1362ms prefill=7966ms (10218 tok) gen=20832ms (521 tok)
+    agent turn wall-clock: 120.92s
+[ORCH]         agent turn: 120.92s
+[PIPE] agent answer (English): Based on my search for pepper plant issues with small yellow spots, I found that **Bacterial Leaf Spot** (78% confidence) is most likely your problem - this causes tiny water-soaked spots turning brown with a yellow halo on leaves. The symptoms match what you're seeing: bite marks near field edges and rat holes could also indicate pest activity or disease spread between plants in the pepper crop.
+
+The weather risk for peppers in Belagavi district during harvest is **35% rain**, so consider harvesting 1-2 days earlier if at maturity to avoid potential damage from heavy rains.
+
+**Immediate action:**
+1. Remove all infected leaves and shoulders where you see bite marks - this helps prevent disease spread between plants
+2. Apply copper-based bactericides (avoid overhead irrigation) as recommended for Bacterial Leaf Spot treatment on peppers
+3. Monitor the crop closely to ensure no new symptoms appear after removing affected areas
+
+**Note:** Early blight is also a concern at 41% confidence with concentric dark rings, but bacterial leaf spot appears more likely based on your symptom description of small yellow spots turning brown with halos.
+[ORCH] --- stage: NMT (EN->hi) ----------------------------------------
+[ORCH] ready: agent=1.31GB embedder=unloaded asr=0.00GB nmt=0.54GB tts=0.70GB | total=2.55GB (36.4%), budget=7.0GB
+[ORCH]         nmt infer: 12.09s
+Flash attention 2 is not installed
+[PIPE] translated answer (hi): छोटे पीले धब्बों वाले काली मिर्च के पौधे की समस्याओं के लिए मेरी खोज के आधार पर, मैंने पाया कि जीवाण्विक पत्ती का धब्बा * * (78 प्रतिशत विश्वास) सबसे अधिक संभावना है कि आपकी समस्या है-इससे पानी से भिजे छोटे धब्बे भूरे हो जाते हैं और पत्तियों पर पीले रंग लक्षण आप जो देख रहे हैं उससे मेल खाते हैंः खेत के किनारों के पास काटने के निशान और चूहे के छेद भी काली मिर्च की फसल में पौधों के बीच कीट गतिविधि या बीमारी के फैलने का संकेत दे सकते हैं।
+
+बेलगावी जिले में फसल कटाई के दौरान मिर्च के लिए मौसम का खतरा 35 प्रतिशत बारिश है, इसलिए भारी बारिश से संभावित नुकसान से बचने के लिए यदि परिपक्वता पर हो तो 1-2 दिन पहले कटाई करने पर विचार करें।
+
+तत्काल कार्रवाईः * * 1। सभी संक्रमित पत्तियों और कंधों को हटा दें जहां आपको काटने के निशान दिखाई देते हैं-यह पौधों के बीच रोग के प्रसार को रोकने में मदद करता है। काली मिर्च पर बैक्टीरियल लीफ स्पॉट उपचार के लिए अनुशंसित तांबे आधारित जीवाणुनाशक दवाएं (ऊपर की सिंचाई से बचें) लगाएं। फसल की बारीकी से निगरानी करें ताकि यह सुनिश्चित किया जा सके कि प्रभावित क्षेत्रों को हटाने के बाद कोई नया लक्षण दिखाई न दें।
+
+* * नोटः * * प्रारंभिक रोग भी 41 प्रतिशत आत्मविश्वास के साथ एक चिंता का विषय है, लेकिन बैक्टीरिया के पत्ते का धब्बा आपके लक्षण विवरण के आधार पर दिखाई देता है कि छोटे पीले धब्बे प्रभामंडल के साथ भूरे हो जाते हैं।
+[ORCH] --- stage: TTS (Hindi, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> Rule 2: evict before TTS peak (output already cached) (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.42s
+[ORCH]         TTS-peak check after Rule 2/7 (Rule 8 removed, Agent never evicted): projected-at-peak=7.88GB vs budget=7.0GB
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.74s
+[ORCH]         TTS already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=1.31GB embedder=unloaded asr=unloaded nmt=unloaded tts=0.70GB | total=2.01GB (28.8%), budget=7.0GB
+[ORCH]         tts infer: 27.15s, observed peak pool ~2.01GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.58s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_hi.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 205.42s
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.62s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=unloaded tts=unloaded | total=0.00GB (0.0%), budget=7.0GB

@@ -1,0 +1,716 @@
+[ORCH] LOAD    agent     <- session start -- loaded once, stays resident all session
+[ORCH]         agent ready in 53.75s
+[ORCH] LOAD    embedder  <- session start -- loaded once, stays resident all session
+[ORCH]         embedder ready in 1.18s
+[warmup] warming qwen3.5:2b (num_ctx=16384) with the real system_prompt+tools prefix (7902 chars, 14 tools)...
+[warmup] done in 30.97s -- prefill=4853ms (5863 tok), gen=25422ms (635 tok). Real turns sharing this same system_prompt+tools prefix should now see a fast prefill (confirmed ~4.6x on real hardware, 7435ms cold -> 1599ms warmed for a comparable token count).
+
+========================================================================================
+INITIAL STATE (nothing loaded)
+========================================================================================
+[ORCH] startup: agent=2.44GB embedder=0.00GB asr=unloaded nmt=unloaded tts=unloaded | total=2.44GB (34.8%), budget=7.0GB | real_used=5.29GB real_avail=2.70GB
+
+========================================================================================
+FULL PIPELINE -- language=ml (Malayalam) [multiturn-stress 1/5] + image
+========================================================================================
+[ORCH] --- stage: ASR (ml) ----------------------------------------
+[ORCH] LOAD    asr       <- transcribing ml input
+[0;93m2026-08-12 05:26:33.087381577 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[ORCH]         asr ready in 3.79s
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=unloaded tts=unloaded | total=2.44GB (34.8%), budget=7.0GB | real_used=5.56GB real_avail=2.43GB
+[ORCH]         asr infer: 11.68s
+[PIPE] transcribed (ml): നാസിക് ജില്ലയിലെ ഒരു കർഷകനാണ് എന്റെ ഉരുളക്കിഴങ്ങ് ചെടികളിൽ ഗിലകളിൽ ഈ കറുത പാടുകളുണ്ട് അവ വേഗത്തിൽ വ്യാപിക്കുന്നതായി തോന്നുന്നു ഇതെന്താണ് ഞാനെന്തുചെയ്യാം
+[ORCH] --- stage: NMT (ml->EN) ----------------------------------------
+[ORCH] LOAD    nmt       <- translating (ml->EN)
+[ORCH]         nmt ready in 14.24s
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.54GB tts=unloaded | total=2.98GB (42.6%), budget=7.0GB | real_used=6.80GB real_avail=1.19GB
+[ORCH]         nmt infer: 1.70s
+[PIPE] translated to English: A farmer in Nashik district has these black spots on my potato plants and the gillas seem to be spreading fast.
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.54GB tts=unloaded | total=2.98GB (42.6%), budget=7.0GB | real_used=6.83GB real_avail=1.16GB
+    [agent iter 1] load=657ms prefill=988ms (5895 tok) gen=4921ms (124 tok)
+    -> analyze_photo({}) -> "The image shows what appears to be potato plants with broad leaves exhibiting significant browning and yellowing, indicating widespread stress on the foliage. 
+    [agent iter 2] load=605ms prefill=158ms (6119 tok) gen=11614ms (291 tok)
+    -> plant_disease_lookup({'crop': 'potato', 'description': 'Potato plants showing browning necrotic lesions on stems and leaves, yellowing foliage, curled shriveled leaves at base suggesting wilting or decay - moderately severe condition affecting large portion of plant tissue turning brown dead rather than remaining green healthy.'}) -> {"matches": [{"concept": "Potato early blight", "concept_id": "/diseases/potato-early-blight", "section": "Visual symptoms", "text": "- **Brown-black angular to
+    [agent iter 3] load=644ms prefill=870ms (7340 tok) gen=22187ms (548 tok)
+    -> pesticide_usage_and_dose({'crop': 'potato', 'symptom_or_disease': 'Potato early blight or Potato late blight - fungal diseases causing brown necrotic lesions on stems and leaves, spreading rapidly with galls appearing'}) -> {"matches": [{"concept": "Mancozeb 75% WP", "concept_id": "/treatments/mancozeb-75-wp", "section": "Applies to", "text": "- [Tomato early blight](/diseases/toma
+    [agent iter 4] load=604ms prefill=527ms (8423 tok) gen=20216ms (495 tok)
+    -> get_weather_forecast({'district': 'Nashik', 'state': 'Maharashtra'}) -> {"rain": "weeks of Aug 13, Aug 20, Aug 27, Sep 3, Sep 10: moderate chance of rain (~44%), expect moderate rain (~16.9mm) when it falls.", "comfort": "weeks of A
+    [agent iter 5] load=608ms prefill=260ms (9139 tok) gen=24454ms (595 tok)
+    agent turn wall-clock: 159.22s
+[ORCH]         agent turn: 159.22s
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.34s
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during NMT-out downtime (async, fire-and-forget)
+[PIPE] agent answer (English, raw): Based on the photo analysis and your description of black spots spreading rapidly with galls appearing in Nashik district's potato plants:
+
+The symptoms show early blight or late blight affecting potatoes - fungal diseases causing brown necrotic lesions on stems and leaves, often accompanied by aphid damage that creates gall formations. The weather forecast shows rain expected this week (Aug 13-20) with high wind risk (~53%), which means spraying should be delayed until conditions are dry and calm for better coverage without drift or washoff.
+
+For treatment: Mancozeb 75% WP fungicide is registered for both early blight and late blight in potatoes, applied as a protectant spray every 10-14 days during the growing season to prevent disease spread. Apply when weather conditions are favorable (no rain expected). Also check your plants regularly for aphids that may be causing gall formation - these can be controlled with insecticides if they're present and damaging.
+
+Stay vigilant about moisture levels in Nashik's hot, humid climate as this favors fungal diseases. I can also help you find the best time to spray once weather conditions improve or discuss other agricultural support options available for your crop management needs.
+[PIPE] agent answer (English, markdown-stripped): Based on the photo analysis and your description of black spots spreading rapidly with galls appearing in Nashik district's potato plants:
+
+The symptoms show early blight or late blight affecting potatoes - fungal diseases causing brown necrotic lesions on stems and leaves, often accompanied by aphid damage that creates gall formations. The weather forecast shows rain expected this week (Aug 13-20) with high wind risk (53%), which means spraying should be delayed until conditions are dry and calm for better coverage without drift or washoff.
+
+For treatment: Mancozeb 75% WP fungicide is registered for both early blight and late blight in potatoes, applied as a protectant spray every 10-14 days during the growing season to prevent disease spread. Apply when weather conditions are favorable (no rain expected). Also check your plants regularly for aphids that may be causing gall formation - these can be controlled with insecticides if they're present and damaging.
+
+Stay vigilant about moisture levels in Nashik's hot, humid climate as this favors fungal diseases. I can also help you find the best time to spray once weather conditions improve or discuss other agricultural support options available for your crop management needs.
+[ORCH] --- stage: NMT (EN->ml) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=unloaded nmt=0.54GB tts=loading | total=2.98GB (42.6%), budget=7.0GB | real_used=6.39GB real_avail=1.60GB
+[ORCH]         nmt infer: 8.20s
+[PIPE] translated answer (ml): നാസിക് ജില്ലയിലെ ഉരുളക്കിഴങ്ങ് ചെടികളിൽ കാണപ്പെടുന്ന ബ്ലാക്ക് സ്പോട്ടുകളെക്കുറിച്ചുള്ള ഫോട്ടോ വിശകലനത്തിന്റെയും നിങ്ങളുടെ വിവരണത്തിന്റെയും അടിസ്ഥാനത്തിൽഃ
+
+രോഗലക്ഷണങ്ങൾ ഉരുളക്കിഴങ്ങിനെ ബാധിക്കുന്ന നേരത്തെയുള്ള ബ്ലൈറ്റ് അല്ലെങ്കിൽ വൈകി ബ്ലൈറ്റ് കാണിക്കുന്നു-ഫംഗസ് രോഗങ്ങൾ തണ്ടുകളിലും ഇലകളിലും തവിട്ട് നെക്രോട്ടിക് ക്ഷതങ്ങൾ ഉണ്ടാക്കുന്നു, പലപ്പോഴും പിത്തസഞ്ചി രൂപീകരണം സൃഷ്ടിക്കുന്ന അഫിഡ് കേടുപാടുകൾ ഉണ്ടാകുന്നു. ഉയർന്ന കാറ്റ് അപകടസാധ്യതയുള്ള (53 ശതമാനം) ഈ ആഴ്ച (ഓഗസ്റ്റ് <ഐ. ഡി. 1>) മഴ പ്രതീക്ഷിക്കുന്നതായി കാലാവസ്ഥാ പ്രവചനം കാണിക്കുന്നു, അതായത് ഡ്രിഫ്റ്റോ വാഷ്ഓഫോ ഇല്ലാതെ മികച്ച കവറേജിനായി സാഹചര്യങ്ങൾ വരണ്ടതും ശാന്തവുമായിരിക്കുന്നതുവരെ സ്പ്രേ ചെയ്യുന്നത് വൈകിപ്പിക്ക
+
+ചികിത്സയ്ക്കായിഃ ഉരുളക്കിഴങ്ങിലെ ആദ്യകാല രോഗത്തിനും അവസാനത്തെ രോഗത്തിനും മാൻകോസെബ് 75 ശതമാനം ഡബ്ല്യു. പി. ഫംഗസൈഡ് രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്, രോഗവ്യാപനം തടയുന്നതിനായി വളരുന്ന സീസണിൽ ഓരോ <ഐ. ഡി. 1> ദിവസങ്ങളിലും ഒരു സംരക്ഷണ സ്പ്രേയായി പ്രയോഗിക്കുന്നു. കാലാവസ്ഥ അനുകൂലമാകുമ്പോൾ (മഴ പ്രതീക്ഷിക്കുന്നില്ല) ഇത് പ്രയോഗിക്കുക. പിത്തസഞ്ചി രൂപപ്പെടാൻ കാരണമാകുന്ന അഫിഡുകൾക്കായി നിങ്ങളുടെ ചെടികളെ പതിവായി പരിശോധിക്കുക-അവ ഉണ്ടെങ്കിൽ കീടനാശിനികൾ ഉപയോഗിച്ച് നിയന്ത്രിക്കാൻ കഴിയും.
+
+നാസിക്കിന്റെ ചൂടുള്ളതും ഈർപ്പമുള്ളതുമായ കാലാവസ്ഥയിൽ ഈർപ്പത്തിന്റെ അളവ് സംബന്ധിച്ച് ജാഗ്രത പാലിക്കുക, കാരണം ഇത് ഫംഗസ് രോഗങ്ങൾക്ക് അനുകൂലമാണ്. കാലാവസ്ഥ മെച്ചപ്പെട്ടുകഴിഞ്ഞാൽ സ്പ്രേ ചെയ്യാൻ ഏറ്റവും നല്ല സമയം കണ്ടെത്താനോ നിങ്ങളുടെ വിള മാനേജ്മെന്റ് ആവശ്യങ്ങൾക്കായി ലഭ്യമായ മറ്റ് കാർഷിക പിന്തുണാ ഓപ്ഷനുകൾ ചർച്ച ചെയ്യാനോ എനിക്ക് നിങ്ങളെ സഹായിക്കാനാകും.
+[ORCH] --- stage: TTS (Malayalam, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> evict_nmt_first: freeing headroom before TTS synthesis (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.41s
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=10.40GB vs budget=7.0GB
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 1.96s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.44GB embedder=0.00GB asr=unloaded nmt=unloaded tts=0.00GB | total=2.44GB (34.8%), budget=7.0GB | real_used=5.82GB real_avail=2.17GB
+[ORCH]         [live] tts synthesis pool climbing: 2.438GB (t+0.2s)
+Flash attention 2 is not installed
+[ORCH]         tts infer: 16.88s, observed peak pool ~2.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.48s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[ORCH] LOAD    nmt       <- evict_nmt_first: reloading NMT after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ml_multiturn-stress_1of5.wav (engine=mms_tts, 6 chunks)
+[PIPE] total turn wall-clock: 221.03s
+
+  STAGE TIMES -- after ml turn 1/5
+    ASR       :  15.71s
+    NMT(in)   :  16.35s
+    Agent     : 159.51s
+    NMT(out)  :   8.52s
+    TTS       :  20.34s
+    TOTAL     : 221.03s
+
+========================================================================================
+MEMORY SNAPSHOT -- after ml turn 1/5
+========================================================================================
+  asr       : loading
+  nmt       : loading
+  tts       : unloaded
+  agent     : 2.438GB
+  embedder  : 0.000GB
+  TOTAL     : 2.438GB / 7.0GB budget (34.8%)
+  REAL      : used=6.146GB available=1.844GB (of 7.99GB physical)
+
+====================================================================================================
+LOAD/UNLOAD TIMES
+====================================================================================================
+turn                           language   component  action   duration_sec
+--------------------------------------------------------------------------
+-                              -          agent      load           53.747
+-                              -          embedder   load            1.181
+multiturn-stress 1/5           ml         asr        load            3.794
+multiturn-stress 1/5           ml         asr        infer          11.681
+multiturn-stress 1/5           ml         nmt        load           14.244
+multiturn-stress 1/5           ml         nmt        infer           1.702
+multiturn-stress 1/5           ml         asr        unload          0.337
+multiturn-stress 1/5           ml         nmt        load            6.301
+multiturn-stress 1/5           ml         nmt        infer           8.196
+multiturn-stress 1/5           ml         nmt        unload          0.412
+multiturn-stress 1/5           ml         tts        load            6.052
+multiturn-stress 1/5           ml         tts        infer          16.879
+multiturn-stress 1/5           ml         tts        unload          0.484
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+[0;93m2026-08-12 05:30:15.806083684 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+
+========================================================================================
+FULL PIPELINE -- language=ml (Malayalam) [multiturn-stress 2/5]
+========================================================================================
+[ORCH] --- stage: ASR (ml) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=loading tts=unloaded | total=2.44GB (34.8%), budget=7.0GB | real_used=6.77GB real_avail=1.22GB
+[ORCH]         asr infer: 15.90s
+[PIPE] transcribed (ml): എത്രത്തോളം ഞാൻ എ കറിന ഉപയോഗിക്കണം എത്ര തവണ അത് തലിക്കണം
+[ORCH] --- stage: NMT (ml->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.08GB tts=unloaded | total=2.52GB (35.9%), budget=7.0GB | real_used=6.88GB real_avail=1.11GB
+[ORCH]         nmt infer: 0.62s
+[PIPE] translated to English: How often should I use A. carina and how often should I scrub it?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.08GB tts=unloaded | total=2.52GB (35.9%), budget=7.0GB | real_used=6.92GB real_avail=1.07GB
+    [agent iter 1] load=846ms prefill=2863ms (8175 tok) gen=16440ms (403 tok)
+    -> pesticide_lookup({'pesticide_name': 'Acarina'}) -> {"found": true, "pesticide": "Acetamiprid", "pid": "Acetamiprid", "source_url": "https://sites.fssai.gov.in/dataportal/pesticide_details.php?pid=Acetamiprid&typ
+    [agent iter 2] load=618ms prefill=1253ms (9548 tok) gen=8023ms (195 tok)
+    -> pesticide_lookup({'pesticide_name': 'Mancozeb'}) -> {"found": true, "pesticide": "Dithiocarbamates (maneb, mancozeb, metiram, thiram, zineb, propineb and ziram)", "pid": "Dithiocarbamates (maneb, mancozeb, metira
+    [agent iter 3] load=608ms prefill=1145ms (10774 tok) gen=28626ms (686 tok)
+    agent turn wall-clock: 60.96s
+[ORCH]         agent turn: 60.96s
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.34s
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during NMT-out downtime (async, fire-and-forget)
+[PIPE] agent answer (English, raw): I need to clarify something important - there's no record of a product called "A.carina" in our database. Based on your previous question and the context, you're likely referring to **Mancozeb** (which is commonly abbreviated as MC or sometimes referred by its active ingredient). Mancozeb is a highly toxic fungicide registered for both early blight and late blight of potatoes.
+
+For potato disease management with mancozeb:
+- It's typically applied every 7-14 days during the growing season to prevent fungal diseases from spreading
+- The exact dosage depends on your specific situation - I'd need to check if there are registered treatment recommendations for your particular crop and condition
+- Application should be done when weather conditions allow (no rain expected, dry soil)
+
+For scrubbing or other application methods:
+- Mancozeb fungicides can typically be applied as a spray solution using water at recommended rates
+- The specific concentration depends on the product formulation you're using
+- Always follow label instructions carefully for safety and effectiveness
+
+Since I don't have access to your exact crop details, disease severity level, or current weather conditions in Nashik district right now, could you tell me: What's your typical potato growing season here? Are there any specific diseases affecting your crops this year that we should focus on treating with mancozeb?
+[PIPE] agent answer (English, markdown-stripped): I need to clarify something important - there's no record of a product called "A.carina" in our database. Based on your previous question and the context, you're likely referring to Mancozeb (which is commonly abbreviated as MC or sometimes referred by its active ingredient). Mancozeb is a highly toxic fungicide registered for both early blight and late blight of potatoes.
+
+For potato disease management with mancozeb:
+It's typically applied every 7-14 days during the growing season to prevent fungal diseases from spreading
+The exact dosage depends on your specific situation - I'd need to check if there are registered treatment recommendations for your particular crop and condition
+Application should be done when weather conditions allow (no rain expected, dry soil)
+
+For scrubbing or other application methods:
+Mancozeb fungicides can typically be applied as a spray solution using water at recommended rates
+The specific concentration depends on the product formulation you're using
+Always follow label instructions carefully for safety and effectiveness
+
+Since I don't have access to your exact crop details, disease severity level, or current weather conditions in Nashik district right now, could you tell me: What's your typical potato growing season here? Are there any specific diseases affecting your crops this year that we should focus on treating with mancozeb?
+[ORCH] --- stage: NMT (EN->ml) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=unloaded nmt=0.08GB tts=loading | total=2.52GB (35.9%), budget=7.0GB | real_used=6.29GB real_avail=1.70GB
+[ORCH]         nmt infer: 7.79s
+[PIPE] translated answer (ml): എനിക്ക് പ്രധാനപ്പെട്ട ഒരു കാര്യം വ്യക്തമാക്കേണ്ടതുണ്ട്-ഞങ്ങളുടെ ഡാറ്റാബേസിൽ "A.carina" എന്ന ഉൽപ്പന്നത്തിന്റെ രേഖകളൊന്നുമില്ല. നിങ്ങളുടെ മുൻ ചോദ്യത്തിന്റെയും സന്ദർഭത്തിന്റെയും അടിസ്ഥാനത്തിൽ, നിങ്ങൾ മാൻകോസെബിനെ (ഇത് സാധാരണയായി എംസി എന്ന് ചുരുക്കിയിരിക്കുന്നു അല്ലെങ്കിൽ ചിലപ്പോൾ അതിന്റെ സജീവ ഘടകം കൊണ്ട് പരാമർശിക്കപ്പെടുന്നു) പരാമർശിക്കുന്നുണ്ടാകാം. ഉരുളക്കിഴങ്ങിന്റെ ആദ്യകാല രോഗത്തിനും വൈകിയ രോഗത്തിനും രജിസ്റ്റർ ചെയ്ത വളരെ വിഷലിപ്തമായ ഒരു ഫംഗസൈഡാണ് മാൻകോസെബ്.
+
+മാൻകോസെബ് ഉപയോഗിച്ച് ഉരുളക്കിഴങ്ങ് രോഗനിർവ്വഹണത്തിന്ഃ ഫംഗസ് രോഗങ്ങൾ പടരാതിരിക്കാൻ വളരുന്ന സീസണിൽ എല്ലാ <ഐ. ഡി. 1> ദിവസങ്ങളിലും ഇത് സാധാരണയായി പ്രയോഗിക്കുന്നു. കൃത്യമായ അളവ് നിങ്ങളുടെ പ്രത്യേക സാഹചര്യത്തെ ആശ്രയിച്ചിരിക്കുന്നു-നിങ്ങളുടെ പ്രത്യേക വിളകൾക്ക് രജിസ്റ്റർ
+
+സ്ക്രബ്ബിംഗിനോ മറ്റ് പ്രയോഗ രീതികൾക്കോഃ മാൻകോസെബ് ഫംഗസൈഡുകൾ സാധാരണയായി ശുപാർശ ചെയ്യുന്ന നിരക്കിൽ വെള്ളം ഉപയോഗിച്ച് സ്പ്രേ ലായനിയായി പ്രയോഗിക്കാം. നിർദ്ദിഷ്ട സാന്ദ്രത നിങ്ങൾ ഉപയോഗിക്കുന്ന ഉൽപ്പന്ന രൂപീകരണത്തെ ആശ്രയിച്ചിരിക്കുന്നു. സുരക്ഷയ്ക്കും ഫലപ്രാപ്തിക്കും എല്ലായ
+
+നിങ്ങളുടെ കൃത്യമായ വിള വിശദാംശങ്ങൾ, രോഗത്തിൻറെ തീവ്രത, നാസിക് ജില്ലയിലെ നിലവിലെ കാലാവസ്ഥ എന്നിവയിലേക്ക് എനിക്ക് ഇപ്പോൾ പ്രവേശനമില്ലാത്തതിനാൽ, നിങ്ങൾക്ക് എന്നോട് പറയാമോഃ നിങ്ങളുടെ സാധാരണ ഉരുളക്കിഴങ്ങ് വളർത്തൽ സീസൺ എന്താണ്? മാൻകോസെബ് ഉപയോഗിച്ച് ചികിത്സിക്കുന്നതിൽ ശ്രദ്ധ കേന്ദ്രീകരിക്കേണ്ട ഏതെങ്കിലും പ്രത്യേക രോഗങ്ങൾ ഈ വർഷം നിങ്ങളുടെ വിളകളെ ബാധിക്കുന്നുണ്ടോ?
+[ORCH] --- stage: TTS (Malayalam, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> evict_nmt_first: freeing headroom before TTS synthesis (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.35s
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.86GB vs budget=7.0GB
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 2.89s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.44GB embedder=0.00GB asr=unloaded nmt=unloaded tts=0.00GB | total=2.44GB (34.8%), budget=7.0GB | real_used=5.72GB real_avail=2.27GB
+[ORCH]         [live] tts synthesis pool climbing: 2.438GB (t+0.2s)
+Flash attention 2 is not installed
+[ORCH]         tts infer: 15.91s, observed peak pool ~2.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.48s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[ORCH] LOAD    nmt       <- evict_nmt_first: reloading NMT after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ml_multiturn-stress_2of5.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 107.71s
+
+  STAGE TIMES -- after ml turn 2/5
+    ASR       :  16.42s
+    NMT(in)   :   1.14s
+    Agent     :  61.25s
+    NMT(out)  :   8.13s
+    TTS       :  20.19s
+    TOTAL     : 107.71s
+
+========================================================================================
+MEMORY SNAPSHOT -- after ml turn 2/5
+========================================================================================
+  asr       : loading
+  nmt       : loading
+  tts       : unloaded
+  agent     : 2.438GB
+  embedder  : 0.000GB
+  TOTAL     : 2.438GB / 7.0GB budget (34.8%)
+  REAL      : used=6.113GB available=1.877GB (of 7.99GB physical)
+
+====================================================================================================
+LOAD/UNLOAD TIMES
+====================================================================================================
+turn                           language   component  action   duration_sec
+--------------------------------------------------------------------------
+-                              -          agent      load           53.747
+-                              -          embedder   load            1.181
+multiturn-stress 1/5           ml         asr        load            3.794
+multiturn-stress 1/5           ml         asr        infer          11.681
+multiturn-stress 1/5           ml         nmt        load           14.244
+multiturn-stress 1/5           ml         nmt        infer           1.702
+multiturn-stress 1/5           ml         asr        unload          0.337
+multiturn-stress 1/5           ml         nmt        load            6.301
+multiturn-stress 1/5           ml         nmt        infer           8.196
+multiturn-stress 1/5           ml         nmt        unload          0.412
+multiturn-stress 1/5           ml         tts        load            6.052
+multiturn-stress 1/5           ml         tts        infer          16.879
+multiturn-stress 1/5           ml         tts        unload          0.484
+multiturn-stress 2/5           ml         asr        load            0.000
+multiturn-stress 2/5           ml         asr        infer          15.897
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           0.621
+multiturn-stress 2/5           ml         asr        unload          0.343
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           7.791
+multiturn-stress 2/5           ml         nmt        unload          0.351
+multiturn-stress 2/5           ml         tts        load            5.658
+multiturn-stress 2/5           ml         tts        infer          15.907
+multiturn-stress 2/5           ml         tts        unload          0.483
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+[0;93m2026-08-12 05:32:13.052853774 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+
+========================================================================================
+FULL PIPELINE -- language=ml (Malayalam) [multiturn-stress 3/5]
+========================================================================================
+[ORCH] --- stage: ASR (ml) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=loading tts=unloaded | total=3.15GB (45.0%), budget=7.0GB | real_used=6.87GB real_avail=1.12GB
+[ORCH]         asr infer: 14.45s
+[PIPE] transcribed (ml): രണ്ടാഴ്ച്ക്കുള്ളിൽ നാസിക്കിൽ കാലാവസ്ഥ എങ്ങനെയായിരിക്കും
+[ORCH] --- stage: NMT (ml->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.06GB tts=unloaded | total=2.50GB (35.8%), budget=7.0GB | real_used=6.88GB real_avail=1.11GB
+[ORCH]         nmt infer: 1.10s
+[PIPE] translated to English: what will the weather be like in nashik in two weeks
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.06GB tts=unloaded | total=2.50GB (35.8%), budget=7.0GB | real_used=6.95GB real_avail=1.04GB
+    [agent iter 1] load=792ms prefill=4824ms (10535 tok) gen=7379ms (178 tok)
+    -> get_weather_forecast({'district': 'Nashik', 'state': 'Maharashtra'}) -> {"rain": "weeks of Aug 13, Aug 20, Aug 27, Sep 3, Sep 10: moderate chance of rain (~44%), expect moderate rain (~16.9mm) when it falls.", "comfort": "weeks of A
+    [agent iter 2] load=617ms prefill=265ms (10934 tok) gen=15327ms (368 tok)
+    agent turn wall-clock: 30.28s
+[ORCH]         agent turn: 30.28s
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.29s
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during NMT-out downtime (async, fire-and-forget)
+[PIPE] agent answer (English, raw): Based on the weather forecast for Nashik in about two weeks (late August to early September), here's what you can expect:
+
+**Rain:** There will be some rain coming - a moderate chance of precipitation around 44%, and when it falls, expect approximately 16.9mm of rainfall over several days this week.
+
+**Wind Conditions:** You'll face high wind risk (~53%) during the first two weeks (Aug 13-20), which means avoid spraying your crops at that time to prevent drift or washoff. Starting from Aug 27, there will be moderate wind risk (~22%), still not ideal for application but less severe than before.
+
+**Other Weather Factors:** No significant flood risks are expected during this period, and no heat waves anticipated either - the weather should remain relatively comfortable with about 23°C feeling like it's around that temperature range.
+
+This means you'll want to wait until after Aug 27 when wind conditions improve slightly before considering any pesticide applications for your potato crops in Nashik district.
+[PIPE] agent answer (English, markdown-stripped): Based on the weather forecast for Nashik in about two weeks (late August to early September), here's what you can expect:
+
+Rain: There will be some rain coming - a moderate chance of precipitation around 44%, and when it falls, expect approximately 16.9mm of rainfall over several days this week.
+
+Wind Conditions: You'll face high wind risk (53%) during the first two weeks (Aug 13-20), which means avoid spraying your crops at that time to prevent drift or washoff. Starting from Aug 27, there will be moderate wind risk (22%), still not ideal for application but less severe than before.
+
+Other Weather Factors: No significant flood risks are expected during this period, and no heat waves anticipated either - the weather should remain relatively comfortable with about 23°C feeling like it's around that temperature range.
+
+This means you'll want to wait until after Aug 27 when wind conditions improve slightly before considering any pesticide applications for your potato crops in Nashik district.
+[ORCH] --- stage: NMT (EN->ml) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=unloaded nmt=0.06GB tts=loading | total=2.50GB (35.8%), budget=7.0GB | real_used=6.23GB real_avail=1.76GB
+[ORCH]         nmt infer: 6.80s
+[PIPE] translated answer (ml): ഏകദേശം രണ്ടാഴ്ചയ്ക്കുള്ളിൽ (ഓഗസ്റ്റ് അവസാനം മുതൽ സെപ്റ്റംബർ ആദ്യം വരെ) നാസിക്കിന്റെ കാലാവസ്ഥാ പ്രവചനത്തെ അടിസ്ഥാനമാക്കി, നിങ്ങൾക്ക് പ്രതീക്ഷിക്കാവുന്നത് ഇതാഃ
+
+മഴഃ കുറച്ച് മഴ വരും-ഏകദേശം 44 ശതമാനം മഴയ്ക്ക് മിതമായ സാധ്യതയുണ്ട്, അത് വീഴുമ്പോൾ, ഈ ആഴ്ചയിൽ നിരവധി ദിവസങ്ങളിൽ ഏകദേശം 16.9mm മഴ പ്രതീക്ഷിക്കുക.
+
+കാറ്റിന്റെ അവസ്ഥഃ ആദ്യത്തെ രണ്ടാഴ്ചകളിൽ (ഓഗസ്റ്റ് <ഐ. ഡി. 1>) നിങ്ങൾക്ക് ഉയർന്ന കാറ്റ് അപകടസാധ്യത (53 ശതമാനം) നേരിടേണ്ടിവരും, അതായത് ഒഴുകുകയോ കഴുകപ്പെടുകയോ ചെയ്യുന്നത് തടയാൻ ആ സമയത്ത് നിങ്ങളുടെ വിളകൾ തളിക്കുന്നത് ഒഴിവാക്കുക. ഓഗസ്റ്റ് 27 മുതൽ, മിതമായ കാറ്റ് അപകടസാധ്യത (22 ശതമാനം) ഉണ്ടാകും, ഇപ്പോഴും പ്രയോഗത്തിന് അനുയോജ്യമല്ലെങ്കിലും മുമ്പത്തേതിനേക്കാൾ കഠിനമല്ല.
+
+മറ്റ് കാലാവസ്ഥാ ഘടകങ്ങൾഃ ഈ കാലയളവിൽ കാര്യമായ വെള്ളപ്പൊക്ക അപകടസാധ്യതകളൊന്നും പ്രതീക്ഷിക്കുന്നില്ല, കൂടാതെ ചൂട് തിരമാലകളും പ്രതീക്ഷിക്കുന്നില്ല-ഏകദേശം 23 ഡിഗ്രി സെൽഷ്യസ് താപനില പരിധിക്കടുത്താണെന്ന് തോന്നുന്ന കാലാവസ്ഥ താരതമ്യേന സുഖകരമായിരിക്കണം.
+
+നാസിക് ജില്ലയിലെ നിങ്ങളുടെ ഉരുളക്കിഴങ്ങ് വിളകൾക്കായി ഏതെങ്കിലും കീടനാശിനി പ്രയോഗങ്ങൾ പരിഗണിക്കുന്നതിന് മുമ്പ് ഓഗസ്റ്റ് 27 ന് ശേഷം കാറ്റിന്റെ അവസ്ഥ അല്പം മെച്ചപ്പെടുന്നതുവരെ നിങ്ങൾ കാത്തിരിക്കേണ്ടിവരും എന്നാണ് ഇതിനർത്ഥം.
+[ORCH] --- stage: TTS (Malayalam, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> evict_nmt_first: freeing headroom before TTS synthesis (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.47s
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=8.96GB vs budget=7.0GB
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 3.84s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.44GB embedder=0.00GB asr=unloaded nmt=unloaded tts=0.00GB | total=2.44GB (34.8%), budget=7.0GB | real_used=5.68GB real_avail=2.31GB
+[ORCH]         [live] tts synthesis pool climbing: 2.438GB (t+0.2s)
+Flash attention 2 is not installed
+[ORCH]         tts infer: 15.07s, observed peak pool ~2.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.48s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[ORCH] LOAD    nmt       <- evict_nmt_first: reloading NMT after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ml_multiturn-stress_3of5.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 75.68s
+
+  STAGE TIMES -- after ml turn 3/5
+    ASR       :  15.47s
+    NMT(in)   :   1.50s
+    Agent     :  30.57s
+    NMT(out)  :   7.15s
+    TTS       :  20.43s
+    TOTAL     :  75.68s
+
+========================================================================================
+MEMORY SNAPSHOT -- after ml turn 3/5
+========================================================================================
+  asr       : loading
+  nmt       : loading
+  tts       : unloaded
+  agent     : 2.438GB
+  embedder  : 0.000GB
+  TOTAL     : 2.438GB / 7.0GB budget (34.8%)
+  REAL      : used=6.185GB available=1.805GB (of 7.99GB physical)
+
+====================================================================================================
+LOAD/UNLOAD TIMES
+====================================================================================================
+turn                           language   component  action   duration_sec
+--------------------------------------------------------------------------
+-                              -          agent      load           53.747
+-                              -          embedder   load            1.181
+multiturn-stress 1/5           ml         asr        load            3.794
+multiturn-stress 1/5           ml         asr        infer          11.681
+multiturn-stress 1/5           ml         nmt        load           14.244
+multiturn-stress 1/5           ml         nmt        infer           1.702
+multiturn-stress 1/5           ml         asr        unload          0.337
+multiturn-stress 1/5           ml         nmt        load            6.301
+multiturn-stress 1/5           ml         nmt        infer           8.196
+multiturn-stress 1/5           ml         nmt        unload          0.412
+multiturn-stress 1/5           ml         tts        load            6.052
+multiturn-stress 1/5           ml         tts        infer          16.879
+multiturn-stress 1/5           ml         tts        unload          0.484
+multiturn-stress 2/5           ml         asr        load            0.000
+multiturn-stress 2/5           ml         asr        infer          15.897
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           0.621
+multiturn-stress 2/5           ml         asr        unload          0.343
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           7.791
+multiturn-stress 2/5           ml         nmt        unload          0.351
+multiturn-stress 2/5           ml         tts        load            5.658
+multiturn-stress 2/5           ml         tts        infer          15.907
+multiturn-stress 2/5           ml         tts        unload          0.483
+multiturn-stress 3/5           ml         asr        load            0.000
+multiturn-stress 3/5           ml         asr        infer          14.451
+multiturn-stress 3/5           ml         nmt        load            9.239
+multiturn-stress 3/5           ml         nmt        infer           1.102
+multiturn-stress 3/5           ml         asr        unload          0.286
+multiturn-stress 3/5           ml         nmt        load            9.239
+multiturn-stress 3/5           ml         nmt        infer           6.798
+multiturn-stress 3/5           ml         nmt        unload          0.465
+multiturn-stress 3/5           ml         tts        load            4.853
+multiturn-stress 3/5           ml         tts        infer          15.068
+multiturn-stress 3/5           ml         tts        unload          0.483
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+[0;93m2026-08-12 05:33:41.567195882 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+
+========================================================================================
+FULL PIPELINE -- language=ml (Malayalam) [multiturn-stress 4/5]
+========================================================================================
+[ORCH] --- stage: ASR (ml) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=loading tts=unloaded | total=2.44GB (34.8%), budget=7.0GB | real_used=6.76GB real_avail=1.23GB
+[ORCH]         asr infer: 18.28s
+[PIPE] transcribed (ml): പ്രവചനം കണക്കിലെുമോൾ ഉരുള്ളക്കിഴന്ന്ു വിള്ള തലയ്ക്കാൻ ഇത് നല്ല സമയമാണോ അതോ ഞാൻ കാത്തിരിക്കണോ
+[ORCH] --- stage: NMT (ml->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.12GB tts=unloaded | total=2.55GB (36.5%), budget=7.0GB | real_used=6.85GB real_avail=1.14GB
+[ORCH]         nmt infer: 0.63s
+[PIPE] translated to English: is this a good time to crack the potato in terms of forecast or should i wait
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.12GB tts=unloaded | total=2.55GB (36.5%), budget=7.0GB | real_used=6.91GB real_avail=1.08GB
+    [agent iter 1] load=785ms prefill=5293ms (11043 tok) gen=7455ms (179 tok)
+    -> query_sowing_window({'district': 'Nashik', 'state': 'Maharashtra', 'pincode': '', 'water_need': 'wet'}) -> {"sowing_window": "Best sowing window for a 'wet'-preference crop: weeks of Sep 17. Soil moisture profile expected saturated -- monitor for waterlogging (GWETPR
+    [agent iter 2] load=618ms prefill=332ms (11313 tok) gen=14233ms (340 tok)
+    agent turn wall-clock: 29.88s
+[ORCH]         agent turn: 29.88s
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.29s
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during NMT-out downtime (async, fire-and-forget)
+[PIPE] agent answer (English, raw): Based on the weather forecast for your area:
+
+**Current Situation:** There's moderate rain expected through late August (Aug 13-27), with soil moisture likely remaining saturated during this period due to ongoing precipitation.
+
+**Best Sowing Time:** The ideal window for potato crops in Nashik is from **September 17 onwards**, when the weather will be drier and more suitable for planting potatoes that prefer wet conditions but don't like prolonged waterlogging or drought stress.
+
+**Recommendation: Wait.** It's better to wait until after this rainy period (late August/early September) before sowing potato crops in Nashik district, as you'll want dry soil conditions during the growing season rather than saturated soil from recent rainfall. Planting too soon could lead to waterlogging issues and poor crop establishment.
+
+I can also help you find other agricultural support options like subsidies or schemes that might be available for your farming needs once we wait until a more suitable time, or I can check the weather forecast again if you need updated information on when it's safe to plant in future months.
+[PIPE] agent answer (English, markdown-stripped): Based on the weather forecast for your area:
+
+Current Situation: There's moderate rain expected through late August (Aug 13-27), with soil moisture likely remaining saturated during this period due to ongoing precipitation.
+
+Best Sowing Time: The ideal window for potato crops in Nashik is from September 17 onwards, when the weather will be drier and more suitable for planting potatoes that prefer wet conditions but don't like prolonged waterlogging or drought stress.
+
+Recommendation: Wait. It's better to wait until after this rainy period (late August/early September) before sowing potato crops in Nashik district, as you'll want dry soil conditions during the growing season rather than saturated soil from recent rainfall. Planting too soon could lead to waterlogging issues and poor crop establishment.
+
+I can also help you find other agricultural support options like subsidies or schemes that might be available for your farming needs once we wait until a more suitable time, or I can check the weather forecast again if you need updated information on when it's safe to plant in future months.
+[ORCH] --- stage: NMT (EN->ml) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=unloaded nmt=0.12GB tts=loading | total=2.55GB (36.5%), budget=7.0GB | real_used=6.22GB real_avail=1.77GB
+[ORCH]         nmt infer: 6.66s
+[PIPE] translated answer (ml): നിങ്ങളുടെ പ്രദേശത്തെ കാലാവസ്ഥ പ്രവചനത്തെ അടിസ്ഥാനമാക്കിഃ
+
+നിലവിലെ സ്ഥിതിഃ ഓഗസ്റ്റ് അവസാനത്തോടെ (ഓഗസ്റ്റ് <ഐ. ഡി. 1>) മിതമായ മഴ പ്രതീക്ഷിക്കുന്നു, ഈ കാലയളവിൽ മണ്ണിന്റെ ഈർപ്പം പൂരിതമാകാൻ സാധ്യതയുണ്ട്.
+
+ഏറ്റവും മികച്ച വിതയ്ക്കൽ സമയംഃ നാസിക്കിലെ ഉരുളക്കിഴങ്ങ് വിളകൾക്ക് അനുയോജ്യമായ സമയം സെപ്റ്റംബർ 17 മുതലാണ്, കാലാവസ്ഥ വരണ്ടതും നനഞ്ഞ സാഹചര്യങ്ങൾ ഇഷ്ടപ്പെടുന്നതും എന്നാൽ നീണ്ടുനിൽക്കുന്ന വെള്ളക്കെട്ട് അല്ലെങ്കിൽ വരൾച്ച സമ്മർദ്ദം ഇഷ്ടപ്പെടാത്തതുമായ ഉരുളക്കിഴങ്ങ് നടുന്നതിന്
+
+ശുപാർശഃ കാത്തിരിക്കുക. നാസിക് ജില്ലയിൽ ഉരുളക്കിഴങ്ങ് വിളകൾ വിതയ്ക്കുന്നതിന് മുമ്പ് ഈ മഴക്കാലം (ഓഗസ്റ്റ് അവസാനം/സെപ്റ്റംബർ ആദ്യം) വരെ കാത്തിരിക്കുന്നതാണ് നല്ലത്, കാരണം സമീപകാല മഴയിൽ നിന്ന് പൂരിതമായ മണ്ണിനേക്കാൾ വളരുന്ന സീസണിൽ വരണ്ട മണ്ണിന്റെ അവസ്ഥയാണ് നിങ്ങൾക്ക് വേണ്ടത്. വളരെ വേഗം നട്ടുപിടിപ്പിക്കുന്നത് വെള്ളക്കെട്ട് പ്രശ്നങ്ങളിലേക്കും മോശം വിളസ്ഥാപനങ്ങളിലേക്കും നയിച്ചേക്കാം.
+
+കൂടുതൽ അനുയോജ്യമായ സമയം വരെ കാത്തിരിക്കുമ്പോൾ നിങ്ങളുടെ കാർഷിക ആവശ്യങ്ങൾക്കായി ലഭ്യമായേക്കാവുന്ന സബ്സിഡികൾ അല്ലെങ്കിൽ പദ്ധതികൾ പോലുള്ള മറ്റ് കാർഷിക പിന്തുണാ ഓപ്ഷനുകൾ കണ്ടെത്താനും എനിക്ക് നിങ്ങളെ സഹായിക്കാനാകും, അല്ലെങ്കിൽ ഭാവിയിലെ മാസങ്ങളിൽ എപ്പോൾ പ്ലാന്റ് ചെയ്യുന്നത് സുരക്ഷിതമാണെന്നതിനെക്കുറിച്ചുള്ള
+[ORCH] --- stage: TTS (Malayalam, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> evict_nmt_first: freeing headroom before TTS synthesis (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.34s
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.03GB vs budget=7.0GB
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 4.22s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.44GB embedder=0.00GB asr=unloaded nmt=unloaded tts=0.00GB | total=2.44GB (34.8%), budget=7.0GB | real_used=5.64GB real_avail=2.35GB
+[ORCH]         [live] tts synthesis pool climbing: 2.438GB (t+0.2s)
+Flash attention 2 is not installed
+[ORCH]         tts infer: 16.06s, observed peak pool ~2.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.49s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[ORCH] LOAD    nmt       <- evict_nmt_first: reloading NMT after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ml_multiturn-stress_4of5.wav (engine=mms_tts, 6 chunks)
+[PIPE] total turn wall-clock: 79.27s
+
+  STAGE TIMES -- after ml turn 4/5
+    ASR       :  18.74s
+    NMT(in)   :   1.13s
+    Agent     :  30.16s
+    NMT(out)  :   7.01s
+    TTS       :  21.67s
+    TOTAL     :  79.27s
+
+========================================================================================
+MEMORY SNAPSHOT -- after ml turn 4/5
+========================================================================================
+  asr       : loading
+  nmt       : loading
+  tts       : unloaded
+  agent     : 2.438GB
+  embedder  : 0.000GB
+  TOTAL     : 2.438GB / 7.0GB budget (34.8%)
+  REAL      : used=5.997GB available=1.993GB (of 7.99GB physical)
+
+====================================================================================================
+LOAD/UNLOAD TIMES
+====================================================================================================
+turn                           language   component  action   duration_sec
+--------------------------------------------------------------------------
+-                              -          agent      load           53.747
+-                              -          embedder   load            1.181
+multiturn-stress 1/5           ml         asr        load            3.794
+multiturn-stress 1/5           ml         asr        infer          11.681
+multiturn-stress 1/5           ml         nmt        load           14.244
+multiturn-stress 1/5           ml         nmt        infer           1.702
+multiturn-stress 1/5           ml         asr        unload          0.337
+multiturn-stress 1/5           ml         nmt        load            6.301
+multiturn-stress 1/5           ml         nmt        infer           8.196
+multiturn-stress 1/5           ml         nmt        unload          0.412
+multiturn-stress 1/5           ml         tts        load            6.052
+multiturn-stress 1/5           ml         tts        infer          16.879
+multiturn-stress 1/5           ml         tts        unload          0.484
+multiturn-stress 2/5           ml         asr        load            0.000
+multiturn-stress 2/5           ml         asr        infer          15.897
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           0.621
+multiturn-stress 2/5           ml         asr        unload          0.343
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           7.791
+multiturn-stress 2/5           ml         nmt        unload          0.351
+multiturn-stress 2/5           ml         tts        load            5.658
+multiturn-stress 2/5           ml         tts        infer          15.907
+multiturn-stress 2/5           ml         tts        unload          0.483
+multiturn-stress 3/5           ml         asr        load            0.000
+multiturn-stress 3/5           ml         asr        infer          14.451
+multiturn-stress 3/5           ml         nmt        load            9.239
+multiturn-stress 3/5           ml         nmt        infer           1.102
+multiturn-stress 3/5           ml         asr        unload          0.286
+multiturn-stress 3/5           ml         nmt        load            9.239
+multiturn-stress 3/5           ml         nmt        infer           6.798
+multiturn-stress 3/5           ml         nmt        unload          0.465
+multiturn-stress 3/5           ml         tts        load            4.853
+multiturn-stress 3/5           ml         tts        infer          15.068
+multiturn-stress 3/5           ml         tts        unload          0.483
+multiturn-stress 4/5           ml         asr        load            0.000
+multiturn-stress 4/5           ml         asr        infer          18.277
+multiturn-stress 4/5           ml         nmt        load            8.181
+multiturn-stress 4/5           ml         nmt        infer           0.631
+multiturn-stress 4/5           ml         asr        unload          0.287
+multiturn-stress 4/5           ml         nmt        load            8.181
+multiturn-stress 4/5           ml         nmt        infer           6.664
+multiturn-stress 4/5           ml         nmt        unload          0.339
+multiturn-stress 4/5           ml         tts        load            4.894
+multiturn-stress 4/5           ml         tts        infer          16.062
+multiturn-stress 4/5           ml         tts        unload          0.493
+
+[PIPE] waiting 10s (simulating 10s pause before follow-up question)...
+[0;93m2026-08-12 05:35:08.595384139 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+
+========================================================================================
+FULL PIPELINE -- language=ml (Malayalam) [multiturn-stress 5/5]
+========================================================================================
+[ORCH] --- stage: ASR (ml) ----------------------------------------
+[ORCH]         ASR already fully loaded (golden-window preload paid off, zero wait)
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=loading tts=unloaded | total=3.08GB (44.0%), budget=7.0GB | real_used=6.69GB real_avail=1.30GB
+[ORCH]         asr infer: 16.26s
+[PIPE] transcribed (ml): വിളകൾക്ക് സാരമായ കേടുപാടുകൾ സംഭവിച്ചാൽ നഷ്ടപരിഹാരം നേടാൻ സഹായിക്കുന്ന ഏതെങ്കിലും സർക്കാർ പദ്ധതികളുണ്ടോ
+[ORCH] --- stage: NMT (ml->EN) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.14GB tts=unloaded | total=2.58GB (36.8%), budget=7.0GB | real_used=6.89GB real_avail=1.10GB
+[ORCH]         nmt infer: 1.16s
+[PIPE] translated to English: Are there any government programs that can help you get compensation in case of serious crop damage?
+[ORCH] --- stage: Agent ----------------------------------------
+[ORCH]         agent already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=0.00GB nmt=0.14GB tts=unloaded | total=2.58GB (36.8%), budget=7.0GB | real_used=6.94GB real_avail=1.05GB
+    [agent iter 1] load=914ms prefill=466ms (11450 tok) gen=4534ms (108 tok)
+    -> get_disaster_relief_options({'query': 'potato crop loss disaster relief compensation government scheme Nashik Maharashtra'}) -> {"matches": [{"scheme": "PMFBY \u2014 Pradhan Mantri Fasal Bima Yojana (Crop Insurance)", "concept_id": "/guidelines/pmfby", "section": "", "text": "**What the 
+    [agent iter 2] load=728ms prefill=835ms (12445 tok) gen=17186ms (407 tok)
+    agent turn wall-clock: 25.42s
+[ORCH]         agent turn: 25.42s
+[ORCH] EVICT   asr       -> Rule 1: complementary to tts, must be unloaded first (process-kill, no standing pool)
+[ORCH]         asr freed in 0.29s
+[ORCH] LOAD    tts       <- Rule 5: golden-window preload during NMT-out downtime (async, fire-and-forget)
+[PIPE] agent answer (English, raw): Yes, you're eligible for the **PMFBY – Pradhan Mantri Fasal Bima Yojana**, a government crop insurance scheme that provides financial protection against disaster losses to farmers growing notified crops like potatoes:
+
+**What You Get:**
+- Full sum insured coverage on your potato crop from sowing through harvest (or up to 14 days post-harvest if left in the field)
+- The Central and State Governments pay most of it - you only need to contribute a small premium share (typically around 2% for kharif crops like potatoes, though this can vary by state)
+
+**What's Covered:**
+- Losses from drought, flood, storm, hailstorm, cyclone, pest attacks, disease outbreaks, and other natural calamities affecting your potato crop in Nashik district
+
+**How to Claim (Important):**
+1. Report the loss within 72 hours of discovering damage through: Crop Insurance App, pmfby.gov.in portal, insurance company toll-free number, bank branch with loan account, or local agriculture officer
+2. Provide survey details and affected area information
+3. Helpline for assistance is **14447**
+
+The scheme covers both prevented sowing (when conditions were too bad to plant) and standing crop loss from various disasters. It's voluntary but highly recommended as it provides crucial financial security against unexpected losses that could severely impact your farming income.
+[PIPE] agent answer (English, markdown-stripped): Yes, you're eligible for the PMFBY – Pradhan Mantri Fasal Bima Yojana, a government crop insurance scheme that provides financial protection against disaster losses to farmers growing notified crops like potatoes:
+
+What You Get:
+Full sum insured coverage on your potato crop from sowing through harvest (or up to 14 days post-harvest if left in the field)
+The Central and State Governments pay most of it - you only need to contribute a small premium share (typically around 2% for kharif crops like potatoes, though this can vary by state)
+
+What's Covered:
+Losses from drought, flood, storm, hailstorm, cyclone, pest attacks, disease outbreaks, and other natural calamities affecting your potato crop in Nashik district
+
+How to Claim (Important):
+Report the loss within 72 hours of discovering damage through: Crop Insurance App, pmfby.gov.in portal, insurance company toll-free number, bank branch with loan account, or local agriculture officer
+Provide survey details and affected area information
+Helpline for assistance is 14447
+
+The scheme covers both prevented sowing (when conditions were too bad to plant) and standing crop loss from various disasters. It's voluntary but highly recommended as it provides crucial financial security against unexpected losses that could severely impact your farming income.
+[ORCH] --- stage: NMT (EN->ml) ----------------------------------------
+[ORCH]         nmt already resident
+[ORCH] ready: agent=2.44GB embedder=0.00GB asr=unloaded nmt=0.14GB tts=loading | total=2.58GB (36.8%), budget=7.0GB | real_used=6.25GB real_avail=1.74GB
+[ORCH]         nmt infer: 7.65s
+[PIPE] translated answer (ml): അതെ, ഉരുളക്കിഴങ്ങ് പോലുള്ള വിജ്ഞാപന വിളകൾ വിളയുന്ന കർഷകർക്ക് ദുരന്ത നഷ്ടത്തിൽ നിന്ന് സാമ്പത്തിക സംരക്ഷണം നൽകുന്ന സർക്കാർ വിള ഇൻഷുറൻസ് പദ്ധതിയായ പിഎംഎഫ്ബിവൈ-പ്രധാൻ മന്ത്രി ഫസൽ ബീമാ യോജനയ്ക്ക് നിങ്ങൾ അർഹരാണ്ഃ
+
+നിങ്ങൾക്ക് ലഭിക്കുന്നത്ഃ നിങ്ങളുടെ ഉരുളക്കിഴങ്ങ് വിളകൾക്ക് വിതയ്ക്കുന്നത് മുതൽ വിളവെടുപ്പ് വരെ (അല്ലെങ്കിൽ വിളവെടുപ്പിനു ശേഷമുള്ള 14 ദിവസം വരെ) കേന്ദ്ര-സംസ്ഥാന സർക്കാരുകൾ അതിൽ ഭൂരിഭാഗവും നൽകുന്നു-നിങ്ങൾ ഒരു ചെറിയ പ്രീമിയം വിഹിതം മാത്രമേ നൽകേണ്ടതു
+
+വരൾച്ച, വെള്ളപ്പൊക്കം, കൊടുങ്കാറ്റ്, ആലിപ്പഴം, ചുഴലിക്കാറ്റ്, കീടങ്ങളുടെ ആക്രമണം, രോഗവ്യാപനം, നാസിക് ജില്ലയിലെ നിങ്ങളുടെ ഉരുളക്കിഴങ്ങ് വിളയെ ബാധിക്കുന്ന മറ്റ് പ്രകൃതി ദുരന്തങ്ങൾ എന്നിവയിൽ നിന്നുള്ള നഷ്ടം
+
+എങ്ങനെ ക്ലെയിം ചെയ്യാം (പ്രധാനപ്പെട്ടത്): നാശനഷ്ടങ്ങൾ കണ്ടെത്തി 72 മണിക്കൂറിനുള്ളിൽ നഷ്ടം റിപ്പോർട്ട് ചെയ്യുകഃ ക്രോപ്പ് ഇൻഷുറൻസ് ആപ്പ്, <ഐ. ഡി. 1> പോർട്ടൽ, ഇൻഷുറൻസ് കമ്പനിയുടെ ടോൾ ഫ്രീ നമ്പർ, ലോൺ അക്കൌണ്ടുള്ള
+
+വിതയ്ക്കൽ തടയുകയും (നടീൽ വളരെ മോശമായ സാഹചര്യങ്ങളിൽ) വിവിധ ദുരന്തങ്ങളിൽ നിന്ന് വിളകൾ നഷ്ടപ്പെടുകയും ചെയ്യുന്നതാണ് പദ്ധതി. നിങ്ങളുടെ കാർഷിക വരുമാനത്തെ സാരമായി ബാധിക്കുന്ന അപ്രതീക്ഷിത നഷ്ടങ്ങളിൽ നിന്ന് നിർണായക സാമ്പത്തിക സുരക്ഷ നൽകുന്നതിനാൽ ഇത് സ്വമേധയാ ഉള്ളതാണ്, പക്ഷേ വളരെ ശുപാർശ ചെയ്യുന്നു.
+[ORCH] --- stage: TTS (Malayalam, batch_size=1) ----------------------------------------
+[ORCH] EVICT   nmt       -> evict_nmt_first: freeing headroom before TTS synthesis (process-kill, no standing pool)
+[ORCH]         nmt freed in 0.35s
+[ORCH]         TTS-peak check after Rule 7 (Rules 2/8 removed, NMT/Agent never evicted): projected-at-peak=9.10GB vs budget=7.0GB
+[ORCH]         TTS was preloading during the Agent/NMT downtime -- waiting on it now
+[ORCH]         waited 2.50s for tts's async preload to finish
+[ORCH] steady-state ready, starting synthesis (peak incoming): agent=2.44GB embedder=0.00GB asr=unloaded nmt=unloaded tts=0.00GB | total=2.44GB (34.8%), budget=7.0GB | real_used=5.66GB real_avail=2.33GB
+[ORCH]         [live] tts synthesis pool climbing: 2.438GB (t+0.2s)
+Flash attention 2 is not installed
+[ORCH]         tts infer: 14.63s, observed peak pool ~2.44GB (predicted ~3.70GB for tts alone at batch=1)
+[ORCH] EVICT   tts       -> turn complete, freeing TTS (process-kill, no standing pool)
+[ORCH]         tts freed in 0.43s
+[ORCH] LOAD    asr       <- Rule 10: golden-window preload after TTS eviction (async, fire-and-forget)
+[ORCH] LOAD    nmt       <- evict_nmt_first: reloading NMT after TTS eviction (async, fire-and-forget)
+[PIPE] audio written to /home/jetson/dev-local-test/vyoma-hackathon-bhashini/gramsahayak/sample_audio/pipeline_outputs/orchestrated_ml_multiturn-stress_5of5.wav (engine=mms_tts, 5 chunks)
+[PIPE] total turn wall-clock: 71.19s
+
+  STAGE TIMES -- after ml turn 5/5
+    ASR       :  16.88s
+    NMT(in)   :   1.59s
+    Agent     :  25.71s
+    NMT(out)  :   8.00s
+    TTS       :  18.47s
+    TOTAL     :  71.19s
+
+========================================================================================
+MEMORY SNAPSHOT -- after ml turn 5/5
+========================================================================================
+  asr       : loading
+  nmt       : loading
+  tts       : unloaded
+  agent     : 2.438GB
+  embedder  : 0.000GB
+  TOTAL     : 2.438GB / 7.0GB budget (34.8%)
+  REAL      : used=5.931GB available=2.059GB (of 7.99GB physical)
+
+====================================================================================================
+LOAD/UNLOAD TIMES
+====================================================================================================
+turn                           language   component  action   duration_sec
+--------------------------------------------------------------------------
+-                              -          agent      load           53.747
+-                              -          embedder   load            1.181
+multiturn-stress 1/5           ml         asr        load            3.794
+multiturn-stress 1/5           ml         asr        infer          11.681
+multiturn-stress 1/5           ml         nmt        load           14.244
+multiturn-stress 1/5           ml         nmt        infer           1.702
+multiturn-stress 1/5           ml         asr        unload          0.337
+multiturn-stress 1/5           ml         nmt        load            6.301
+multiturn-stress 1/5           ml         nmt        infer           8.196
+multiturn-stress 1/5           ml         nmt        unload          0.412
+multiturn-stress 1/5           ml         tts        load            6.052
+multiturn-stress 1/5           ml         tts        infer          16.879
+multiturn-stress 1/5           ml         tts        unload          0.484
+multiturn-stress 2/5           ml         asr        load            0.000
+multiturn-stress 2/5           ml         asr        infer          15.897
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           0.621
+multiturn-stress 2/5           ml         asr        unload          0.343
+multiturn-stress 2/5           ml         nmt        load            9.165
+multiturn-stress 2/5           ml         nmt        infer           7.791
+multiturn-stress 2/5           ml         nmt        unload          0.351
+multiturn-stress 2/5           ml         tts        load            5.658
+multiturn-stress 2/5           ml         tts        infer          15.907
+multiturn-stress 2/5           ml         tts        unload          0.483
+multiturn-stress 3/5           ml         asr        load            0.000
+multiturn-stress 3/5           ml         asr        infer          14.451
+multiturn-stress 3/5           ml         nmt        load            9.239
+multiturn-stress 3/5           ml         nmt        infer           1.102
+multiturn-stress 3/5           ml         asr        unload          0.286
+multiturn-stress 3/5           ml         nmt        load            9.239
+multiturn-stress 3/5           ml         nmt        infer           6.798
+multiturn-stress 3/5           ml         nmt        unload          0.465
+multiturn-stress 3/5           ml         tts        load            4.853
+multiturn-stress 3/5           ml         tts        infer          15.068
+multiturn-stress 3/5           ml         tts        unload          0.483
+multiturn-stress 4/5           ml         asr        load            0.000
+multiturn-stress 4/5           ml         asr        infer          18.277
+multiturn-stress 4/5           ml         nmt        load            8.181
+multiturn-stress 4/5           ml         nmt        infer           0.631
+multiturn-stress 4/5           ml         asr        unload          0.287
+multiturn-stress 4/5           ml         nmt        load            8.181
+multiturn-stress 4/5           ml         nmt        infer           6.664
+multiturn-stress 4/5           ml         nmt        unload          0.339
+multiturn-stress 4/5           ml         tts        load            4.894
+multiturn-stress 4/5           ml         tts        infer          16.062
+multiturn-stress 4/5           ml         tts        unload          0.493
+multiturn-stress 5/5           ml         asr        load            0.001
+multiturn-stress 5/5           ml         asr        infer          16.260
+multiturn-stress 5/5           ml         nmt        load            9.853
+multiturn-stress 5/5           ml         nmt        infer           1.164
+multiturn-stress 5/5           ml         asr        unload          0.294
+multiturn-stress 5/5           ml         nmt        load            9.853
+multiturn-stress 5/5           ml         nmt        infer           7.651
+multiturn-stress 5/5           ml         nmt        unload          0.346
+multiturn-stress 5/5           ml         tts        load            4.953
+multiturn-stress 5/5           ml         tts        infer          14.627
+multiturn-stress 5/5           ml         tts        unload          0.433
+
+========================================================================================
+SESSION TEARDOWN
+========================================================================================
+[ORCH] --- teardown: releasing everything still resident --------------------
+[ORCH] EVICT   agent     -> session teardown (process-kill)
+[ORCH]         agent freed in 0.69s
+[ORCH] EVICT   embedder  -> session teardown (process-kill)
+[ORCH]         embedder freed in 0.46s
+[ORCH] after teardown: agent=unloaded embedder=unloaded asr=loading nmt=loading tts=unloaded | total=0.00GB (0.0%), budget=7.0GB | real_used=1.82GB real_avail=6.17GB
