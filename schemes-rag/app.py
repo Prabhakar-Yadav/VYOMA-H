@@ -74,12 +74,15 @@ def run_interactive_terminal():
             res = rag_engine.query_schemes(user_query)
             
             if res.get("status") == "success":
+                print("\n" + "=" * 60)
                 print(f"MATCH: {res.get('scheme_name')} ({res.get('scheme_id')})")
                 print(f"CONFIDENCE SCORE: {res.get('confidence_score')}")
-                print(f"\nANSWER:\n{res.get('text')}\n")
+                print("-" * 60)
+                print(f"ANSWER:\n{res.get('text')}")
+                print("=" * 60 + "\n")
             else:
-                print(f"STATUS: {res.get('status').upper()}")
-                print(f"\nRESPONSE:\n{res.get('text')}\n")
+                print(f"\nSTATUS: {res.get('status').upper()}")
+                print(f"RESPONSE:\n{res.get('text')}\n")
             
         except (KeyboardInterrupt, EOFError):
             break
