@@ -23,7 +23,7 @@ def get_rag_engine() -> GovernmentSchemesRAGEngine:
     global _rag_engine_instance
     if _rag_engine_instance is None:
         logger.info("Initializing Government Schemes RAG Tool Engine...")
-        _rag_engine_instance = GovernmentSchemesRAGEngine(jsonl_file="enriched_schemes_dataset.jsonl")
+        _rag_engine_instance = GovernmentSchemesRAGEngine(jsonl_file="schemes_dataset.jsonl")
     return _rag_engine_instance
 
 def match_eligible_schemes_tool(farmer_profile: str, top_n: int = 3) -> Dict[str, Any]:

@@ -35,8 +35,11 @@ NMT = HERE / "pipeline/models/nmt/indicTrans2"
 
 def peak_kb():
     """This process's own high-water anonymous memory, reported on exit."""
-    import resource
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    try:
+        import resource
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    except Exception:
+        return 0
 
 
 def load_asr_cpu():
@@ -108,7 +111,7 @@ def main():
             sys.path.insert(0, str(schemes_dir))
             from government_schemes_rag import GovernmentSchemesRAGEngine
             
-            engine = GovernmentSchemesRAGEngine(jsonl_file=str(schemes_dir / "enriched_schemes_dataset.jsonl"))
+            engine = GovernmentSchemesRAGEngine(jsonl_file=str(schemes_dir / "schemes_dataset.jsonl"))
             res = engine.query_schemes(q)
             
             outcome = res.get("status", "success")

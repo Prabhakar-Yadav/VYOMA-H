@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     global rag_engine
     if not rag_engine:
         logger.info("Initializing RAG Engine for Web API...")
-        rag_engine = GovernmentSchemesRAGEngine("enriched_schemes_dataset.jsonl")
+        rag_engine = GovernmentSchemesRAGEngine("schemes_dataset.jsonl")
         logger.info("RAG Engine ready for Web API queries!")
     yield
 
@@ -47,7 +47,7 @@ def query_schemes_endpoint(request: QueryRequest) -> Dict[str, Any]:
     """Web API endpoint for query processing."""
     global rag_engine
     if not rag_engine:
-        rag_engine = GovernmentSchemesRAGEngine("enriched_schemes_dataset.jsonl")
+        rag_engine = GovernmentSchemesRAGEngine("schemes_dataset.jsonl")
 
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")

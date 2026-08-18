@@ -1,10 +1,8 @@
 """
 Government Schemes RAG Engine
 
-NOTE: This module manages local FAISS and BM25 indexing/retrieval for edge execution 
-(NVIDIA Jetson Orin Nano). However, full offline capability still depends on the 
-Bhashini NMT pipeline (which translates farmer queries to English) being deployed 
-locally. If Bhashini relies on cloud endpoints, the system is NOT fully offline.
+NOTE: This module manages local FAISS and BM25 indexing/retrieval for edge execution
+(NVIDIA Jetson Orin Nano). It operates on Bhashini NMT translated English inputs.
 """
 import gc
 import json
@@ -15,7 +13,6 @@ import sys
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
-# Environmental Flags - Force local offline mode for Jetson edge deployment
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
@@ -36,52 +33,40 @@ from config import (
     FALLBACK_BM25_THRESHOLD,
     ACRONYM_BOOST_MULTIPLIER,
     CATEGORY_SOFT_BOOST,
-    RRF_K
+    RRF_K,
 )
 from formatters import (
     extract_answer_by_intent,
     format_lcd_display_card,
-    format_voice_text
+    format_voice_text,
 )
 
-# Configure clean logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("RAG_Engine")
 
-# Silence noisy third-party loggers
-for logger_name in [
-    "sentence_transformers",
-    "transformers",
-    "urllib3",
-    "httpx",
-    "filelock",
-]:
+for logger_name in ["sentence_transformers", "transformers", "urllib3", "httpx", "filelock"]:
     logging.getLogger(logger_name).setLevel(logging.WARNING)
 
-# Force UTF-8 encoding for Windows/Linux terminal compatibility
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 
 def fast_tokenizer(text: str) -> List[str]:
-    """Lightweight word-level regex tokenizer (low RAM footprint)."""
-    return re.findall(r"\w+", text.lower())
+    """Word-level tokenizer. Keeps internal hyphens (pm-kisan, pm-jay) as single tokens."""
+    return re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*", text.lower())
 
 
-# ---------------------------------------------------------------------------
-# Core Helpers & Index Classes
-# ---------------------------------------------------------------------------
+def acronym_in_query(acronym: str, query_lower: str, query_tokens: set) -> bool:
+    """Matches an acronym whether it contains a space or a hyphen, via word-boundary regex."""
+    if " " in acronym or "-" in acronym:
+        return bool(re.search(rf"\b{re.escape(acronym)}\b", query_lower))
+    return acronym in query_tokens
+
+
 def expand_query(raw_query: str) -> Tuple[str, str]:
-    """
-    Expands raw user query using synonyms and acronym maps.
-    Returns (vector_query, bm25_query).
-    bm25_query avoids broad synonyms to prevent BM25 dilution.
-    """
+    """Expands raw user query using synonyms and acronym maps. Returns (vector_query, bm25_query)."""
     query_lower = raw_query.lower()
 
-    # Vector query: get broad synonyms and full descriptive acronym map
     vector_query = raw_query
     for phrase, expansions in SYNONYM_MAP.items():
         if " " in phrase and phrase in query_lower:
@@ -90,7 +75,6 @@ def expand_query(raw_query: str) -> Tuple[str, str]:
     tokens = fast_tokenizer(vector_query)
     vector_expanded_terms = set(tokens)
 
-    # Check multi-word descriptive acronyms for vector query
     for phrase, expansion in SCHEME_ACRONYM_MAP.items():
         if " " in phrase and re.search(rf"\b{re.escape(phrase)}\b", query_lower):
             vector_expanded_terms.update(fast_tokenizer(expansion))
@@ -101,28 +85,22 @@ def expand_query(raw_query: str) -> Tuple[str, str]:
         if token in SYNONYM_MAP and " " not in token:
             vector_expanded_terms.update(SYNONYM_MAP[token])
 
-    # BM25 query: only inject exact canonical names for acronyms, no broad synonyms
     bm25_tokens = fast_tokenizer(raw_query)
     bm25_expanded_terms = set(bm25_tokens)
-    
-    # Check multi-word canonical names
+
     for phrase, canonical in SCHEME_CANONICAL_NAMES.items():
         if " " in phrase and re.search(rf"\b{re.escape(phrase)}\b", query_lower):
             bm25_expanded_terms.update(fast_tokenizer(canonical))
-            
-    # Check single-word canonical names
+
     for token in bm25_tokens:
         if token in SCHEME_CANONICAL_NAMES:
             bm25_expanded_terms.update(fast_tokenizer(SCHEME_CANONICAL_NAMES[token]))
 
-    # Fallback to raw query if BM25 expansion resulted in empty set
     bm25_final = " ".join(bm25_expanded_terms) if bm25_expanded_terms else raw_query
-
     return " ".join(vector_expanded_terms), bm25_final
 
 
 def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
-    """Loads and sanitizes the JSONL scheme dataset."""
     schemes = []
     if not os.path.exists(jsonl_path):
         logger.error(f"Dataset file not found at: {jsonl_path}")
@@ -133,9 +111,7 @@ def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
             if line.strip():
                 try:
                     data = json.loads(line.strip())
-                    s_id = data.get("scheme_id", "")
                     name = data.get("scheme_name", "")
-
                     searchable_text = data.get(
                         "searchable_text",
                         f"{name} {data.get('target_beneficiary', '')}"
@@ -144,9 +120,8 @@ def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
                         f" {data.get('how_to_apply', '')}"
                         f" {data.get('documents_required', '')}",
                     )
-
                     schemes.append({
-                        "scheme_id": s_id,
+                        "scheme_id": data.get("scheme_id", ""),
                         "scheme_name": name,
                         "category": data.get("category", "Other"),
                         "target_beneficiary": data.get("target_beneficiary", ""),
@@ -163,7 +138,6 @@ def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
 
 
 class SchemesFAISSVectorIndex:
-
     def __init__(self, schemes: List[Dict[str, Any]]):
         self.schemes = schemes
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -177,19 +151,16 @@ class SchemesFAISSVectorIndex:
             try:
                 self.index = faiss.read_index(self.cache_index_path)
             except Exception as e:
-                logger.warning(f"Failed to read FAISS cache {self.cache_index_path}. Rebuilding index: {e}")
+                logger.warning(f"Failed to read FAISS cache. Rebuilding: {e}")
                 self._build_index()
         else:
             self._build_index()
 
     def _build_index(self):
         searchable_texts = [s["searchable_text"] for s in self.schemes]
-        embeddings = self.model.encode(
-            searchable_texts, show_progress_bar=False, batch_size=32
-        )
+        embeddings = self.model.encode(searchable_texts, show_progress_bar=False, batch_size=32)
         embeddings = np.array(embeddings, dtype="float32")
         faiss.normalize_L2(embeddings)
-
         self.index = faiss.IndexFlatIP(self.dimension)
         self.index.add(embeddings)
         faiss.write_index(self.index, self.cache_index_path)
@@ -198,7 +169,6 @@ class SchemesFAISSVectorIndex:
         query_embedding = self.model.encode([query], show_progress_bar=False)
         query_embedding = np.array(query_embedding, dtype="float32")
         faiss.normalize_L2(query_embedding)
-
         distances, indices = self.index.search(query_embedding, top_k)
         results = []
         for i, idx in enumerate(indices[0]):
@@ -213,10 +183,8 @@ class SchemesFAISSVectorIndex:
 
 
 class SchemesSimpleBM25Index:
-
     def __init__(self, schemes: List[Dict[str, Any]]):
         from rank_bm25 import BM25Okapi
-
         self.schemes = schemes
         corpus_tokens = [fast_tokenizer(s["searchable_text"]) for s in self.schemes]
         self.bm25 = BM25Okapi(corpus_tokens)
@@ -227,7 +195,6 @@ class SchemesSimpleBM25Index:
             return []
         scores = self.bm25.get_scores(query_tokens)
         top_indices = np.argsort(scores)[::-1][:top_k]
-
         results = []
         for rank, idx in enumerate(top_indices):
             results.append({
@@ -244,43 +211,37 @@ def reciprocal_rank_fusion(
     bm25_results: List[Dict[str, Any]],
     rrf_k: int = RRF_K,
 ) -> List[Dict[str, Any]]:
-    rrf_scores = {}
-    scheme_map = {}
+    rrf_scores, scheme_map, vector_score_map, bm25_score_map = {}, {}, {}, {}
 
     for item in vector_results:
         s_id = item["scheme_id"]
         scheme_map[s_id] = item["scheme"]
+        vector_score_map[s_id] = item["score"]
         rrf_scores[s_id] = rrf_scores.get(s_id, 0.0) + (1.0 / (rrf_k + item["rank"]))
 
     for item in bm25_results:
         s_id = item["scheme_id"]
         scheme_map[s_id] = item["scheme"]
+        bm25_score_map[s_id] = item["score"]
         rrf_scores[s_id] = rrf_scores.get(s_id, 0.0) + (1.0 / (rrf_k + item["rank"]))
 
     sorted_schemes = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
     return [
-        {"scheme_id": s_id, "rrf_score": round(score, 6), "scheme": scheme_map[s_id]}
+        {
+            "scheme_id": s_id,
+            "rrf_score": round(score, 6),
+            "scheme": scheme_map[s_id],
+            "vector_score": vector_score_map.get(s_id, 0.0),
+            "bm25_score": bm25_score_map.get(s_id, 0.0),
+        }
         for s_id, score in sorted_schemes
     ]
 
 
-# ---------------------------------------------------------------------------
-# Main RAG Engine Class
-# ---------------------------------------------------------------------------
 class GovernmentSchemesRAGEngine:
-
-    def __init__(self, jsonl_file: str = "enriched_schemes_dataset.jsonl"):
+    def __init__(self, jsonl_file: str = "schemes_dataset.jsonl"):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         jsonl_path = os.path.join(base_dir, jsonl_file)
-
-        if not os.path.exists(jsonl_path):
-            fallback_path = os.path.join(base_dir, "schemes_dataset.jsonl")
-            if os.path.exists(fallback_path):
-                logger.info(
-                    f"Enriched dataset not found at {jsonl_path}, falling back to"
-                    f" {fallback_path}"
-                )
-                jsonl_path = fallback_path
 
         logger.info("Initializing Government Schemes RAG Engine...")
         self.schemes = load_schemes_dataset(jsonl_path)
@@ -289,46 +250,54 @@ class GovernmentSchemesRAGEngine:
         self.vector_index = SchemesFAISSVectorIndex(self.schemes)
         self.bm25_index = SchemesSimpleBM25Index(self.schemes)
 
-        self.categories = list(
-            set([
-                s.get("category", "Other")
-                for s in self.schemes
-                if s.get("category", "Other") != "Other"
-            ])
-        )
-        self.category_embeddings = self.vector_index.model.encode(
-            self.categories, show_progress_bar=False
-        )
-        self.category_embeddings = np.array(
-            self.category_embeddings, dtype="float32"
-        )
+        self.categories = list(set(
+            s.get("category", "Other") for s in self.schemes if s.get("category", "Other") != "Other"
+        ))
+        self.category_embeddings = self.vector_index.model.encode(self.categories, show_progress_bar=False)
+        self.category_embeddings = np.array(self.category_embeddings, dtype="float32")
         faiss.normalize_L2(self.category_embeddings)
 
-        # Build an exact dictionary lookup for scheme_name and scheme_id
-        self.scheme_lookup = {}
+        self.scheme_lookup: Dict[str, Dict[str, Any]] = {}
         for s in self.schemes:
             s_name = s["scheme_name"].lower()
             s_id = s.get("scheme_id", "").lower()
             self.scheme_lookup[s_name] = s
             if s_id:
                 self.scheme_lookup[s_id] = s
-            
-            # Extract parenthetical acronyms for quick lookup
-            match = re.search(r'\((.*?)\)', s_name)
+
+            match = re.search(r"\((.*?)\)", s_name)
             if match:
-                acronym = match.group(1).strip()
+                acronym = match.group(1).strip().lower()
                 self.scheme_lookup[acronym] = s
-                # Also index the name without the acronym
-                name_without_acronym = s_name.replace(f'({match.group(1)})', '').strip()
+                name_without_acronym = s_name.replace(f"({match.group(1)})", "").strip()
                 self.scheme_lookup[name_without_acronym] = s
 
+            if "/" in s_name:
+                for part in [p.strip() for p in s_name.split("/")]:
+                    self.scheme_lookup[part] = s
+                    part_clean = re.sub(r"\(.*?\)", "", part).strip()
+                    if part_clean:
+                        self.scheme_lookup[part_clean] = s
+
+        # Backfill any canonical-name alias not yet indexed, using a word-boundary
+        # match (not a bare substring check) to avoid short acronyms like "aif" or
+        # "nlm" accidentally matching inside an unrelated scheme name.
+        for alias, canonical in SCHEME_CANONICAL_NAMES.items():
+            alias_lower = alias.lower()
+            if alias_lower in self.scheme_lookup:
+                continue
+            canonical_pattern = re.compile(rf"\b{re.escape(canonical.lower())}\b")
+            for s in self.schemes:
+                s_name_lower = s["scheme_name"].lower()
+                if canonical_pattern.search(s_name_lower):
+                    self.scheme_lookup[alias_lower] = s
+                    break
+
         gc.collect()
-        logger.info("RAG Engine Initialization Complete!")
+        logger.info(f"RAG Engine ready. {len(self.scheme_lookup)} alias lookup keys indexed.")
 
     def predict_category(self, user_question: str) -> Tuple[Optional[str], float]:
-        query_embedding = self.vector_index.model.encode(
-            [user_question], show_progress_bar=False
-        )
+        query_embedding = self.vector_index.model.encode([user_question], show_progress_bar=False)
         query_embedding = np.array(query_embedding, dtype="float32")
         faiss.normalize_L2(query_embedding)
         similarities = np.dot(query_embedding, self.category_embeddings.T)[0]
@@ -338,10 +307,7 @@ class GovernmentSchemesRAGEngine:
         logger.info(f"Category '{pred_cat}' predicted with score: {pred_score:.4f}")
         return pred_cat, pred_score
 
-    def query_schemes(
-        self, user_question: str, category: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """Queries government schemes and returns structured dictionary for downstream agent integration."""
+    def query_schemes(self, user_question: str, category: Optional[str] = None) -> Dict[str, Any]:
         start_time = time.time()
 
         target_category = category
@@ -351,12 +317,10 @@ class GovernmentSchemesRAGEngine:
                 target_category = pred_cat
 
         vector_query, bm25_query = expand_query(user_question)
-
         vector_results = self.vector_index.search(vector_query, top_k=5)
         bm25_results = self.bm25_index.search(bm25_query, top_k=5)
         fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
 
-        # Exact Acronym Priority Boost
         user_q_lower = user_question.lower()
         user_tokens = set(fast_tokenizer(user_q_lower))
         boosted_schemes = set()
@@ -364,28 +328,17 @@ class GovernmentSchemesRAGEngine:
         for item in fused_results:
             s_name = item["scheme"]["scheme_name"].lower()
             s_id = item["scheme"]["scheme_id"].lower()
-            
             if s_id in boosted_schemes:
                 continue
 
-            # Check if any acronym from config matches the user query
             for acronym in SCHEME_CANONICAL_NAMES.keys():
-                is_match = False
-                if " " in acronym:
-                    # Multi-word phrase: match using regex word boundaries
-                    if re.search(rf"\b{re.escape(acronym)}\b", user_q_lower):
-                        is_match = True
-                else:
-                    # Single-word: match against token set
-                    if acronym in user_tokens:
-                        is_match = True
-
-                if is_match and (acronym in s_name or acronym in s_id):
+                if acronym_in_query(acronym, user_q_lower, user_tokens) and (
+                    acronym in s_name or acronym in s_id
+                ):
                     item["rrf_score"] *= ACRONYM_BOOST_MULTIPLIER
                     boosted_schemes.add(s_id)
-                    break # Apply boost only once per scheme
+                    break
 
-        # Soft-Gating Boost
         if target_category:
             for item in fused_results:
                 if item["scheme"].get("category") == target_category:
@@ -394,18 +347,13 @@ class GovernmentSchemesRAGEngine:
         fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
 
         if not fused_results:
-            return {
-                "status": "error",
-                "message": "No matching government schemes found.",
-            }
+            return {"status": "error", "message": "No matching government schemes found."}
 
         top_fused_item = fused_results[0]
         best = top_fused_item["scheme"]
-        raw_score = vector_results[0]["score"] if vector_results else 0.0
-        top_cosine_score = round(float(np.clip(raw_score, -1.0, 1.0)), 4)
-        top_bm25_score = bm25_results[0]["score"] if bm25_results else 0.0
+        top_cosine_score = round(float(np.clip(top_fused_item.get("vector_score", 0.0), -1.0, 1.0)), 4)
+        top_bm25_score = round(float(top_fused_item.get("bm25_score", 0.0)), 4)
 
-        # Safety Fallback
         is_out_of_domain = bool(OUT_OF_DOMAIN_PATTERN.search(user_question))
         is_fallback = is_out_of_domain or (
             top_cosine_score < FALLBACK_COSINE_THRESHOLD and top_bm25_score < FALLBACK_BM25_THRESHOLD
@@ -425,8 +373,7 @@ class GovernmentSchemesRAGEngine:
                 "text": fallback_msg,
                 "bhashini_voice_text": fallback_msg,
                 "tft_lcd_display_card": (
-                    "=== SYSTEM ===\nScheme not found.\nPlease ask about a\nspecific"
-                    " govt scheme."
+                    "=== SYSTEM ===\nScheme not found.\nPlease ask about a\nspecific govt scheme."
                 ),
                 "scheme_name": None,
                 "scheme_id": None,
@@ -435,7 +382,6 @@ class GovernmentSchemesRAGEngine:
             }
 
         answer = extract_answer_by_intent(user_question, best)
-
         return {
             "outcome": "scheme_found",
             "status": "success",
@@ -456,37 +402,29 @@ class GovernmentSchemesRAGEngine:
         }
 
     def match_eligible_schemes(self, farmer_profile: str, top_n: int = 3) -> Dict[str, Any]:
-        """Matches farmer profile to schemes and returns the top N eligible schemes."""
         start_time = time.time()
         vector_query, bm25_query = expand_query(farmer_profile)
-        vector_results = self.vector_index.search(vector_query, top_k=top_n*2)
-        bm25_results = self.bm25_index.search(bm25_query, top_k=top_n*2)
+        vector_results = self.vector_index.search(vector_query, top_k=top_n * 2)
+        bm25_results = self.bm25_index.search(bm25_query, top_k=top_n * 2)
         fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
-        
         fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
-        top_schemes = fused_results[:top_n]
-        
-        results = []
-        for item in top_schemes:
-            scheme = item["scheme"]
-            results.append({
-                "scheme_name": scheme["scheme_name"],
-                "eligibility_reason": scheme.get("eligibility_criteria", "Eligibility criteria not found in dataset."),
-                "rrf_score": item["rrf_score"]
-            })
-            
-        return {
-            "status": "success",
-            "matches": results,
-            "latency_seconds": round(time.time() - start_time, 4)
-        }
+
+        results = [
+            {
+                "scheme_name": item["scheme"]["scheme_name"],
+                "eligibility_reason": item["scheme"].get(
+                    "eligibility_criteria", "Eligibility criteria not found in dataset."
+                ),
+                "rrf_score": item["rrf_score"],
+            }
+            for item in fused_results[:top_n]
+        ]
+        return {"status": "success", "matches": results, "latency_seconds": round(time.time() - start_time, 4)}
 
     def get_scheme_details(self, scheme_name: str, user_question: str) -> Dict[str, Any]:
-        """Fetches a specific scheme by name and answers the user's question about it."""
         start_time = time.time()
-        s_name_lower = scheme_name.lower().strip()
-        exact = self.scheme_lookup.get(s_name_lower)
-        
+        exact = self.scheme_lookup.get(scheme_name.lower().strip())
+
         if exact:
             answer = extract_answer_by_intent(user_question, exact)
             return {
@@ -508,66 +446,51 @@ class GovernmentSchemesRAGEngine:
                 "latency_seconds": round(time.time() - start_time, 4),
             }
 
-        # Fallback to RRF
-        combined_query = f"{scheme_name} {user_question}"
-        return self.query_schemes(user_question=combined_query)
+        return self.query_schemes(user_question=f"{scheme_name} {user_question}")
 
     def get_disaster_relief_options(self, disaster_context: str) -> Dict[str, Any]:
-        """Finds disaster relief/insurance schemes based on the disaster context."""
         start_time = time.time()
         vector_query, bm25_query = expand_query(disaster_context)
-        
         vector_results = self.vector_index.search(vector_query, top_k=5)
         bm25_results = self.bm25_index.search(bm25_query, top_k=5)
         fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
         fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
-        
-        results = []
-        for item in fused_results[:3]: # Top 3 options
-            scheme = item["scheme"]
-            results.append({
-                "scheme_name": scheme["scheme_name"],
-                "how_to_apply": scheme.get("how_to_apply", "Application details not found."),
-                "benefit_details": scheme.get("benefit_details", "Benefit details not found.")
-            })
-            
-        return {
-            "status": "success",
-            "options": results,
-            "latency_seconds": round(time.time() - start_time, 4)
-        }
+
+        results = [
+            {
+                "scheme_name": item["scheme"]["scheme_name"],
+                "how_to_apply": item["scheme"].get("how_to_apply", "Application details not found."),
+                "benefit_details": item["scheme"].get("benefit_details", "Benefit details not found."),
+            }
+            for item in fused_results[:3]
+        ]
+        return {"status": "success", "options": results, "latency_seconds": round(time.time() - start_time, 4)}
 
     def get_subsidy_details(self, scheme_name: str) -> Dict[str, Any]:
-        """Retrieves raw, deterministic subsidy/benefit details for a specific scheme."""
         start_time = time.time()
-        
-        s_name_lower = scheme_name.lower().strip()
-        exact = self.scheme_lookup.get(s_name_lower)
-        
+        exact = self.scheme_lookup.get(scheme_name.lower().strip())
+
         if exact:
             return {
                 "status": "success",
                 "scheme_name": exact["scheme_name"],
                 "raw_benefit_details": exact.get("benefit_details", "No benefit details found in dataset."),
-                "latency_seconds": round(time.time() - start_time, 4)
+                "latency_seconds": round(time.time() - start_time, 4),
             }
 
-        # Fallback to RRF
         vector_query, bm25_query = expand_query(scheme_name)
-        
         vector_results = self.vector_index.search(vector_query, top_k=3)
         bm25_results = self.bm25_index.search(bm25_query, top_k=3)
         fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
         fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
-        
+
         if not fused_results:
-             return {"status": "error", "message": "Scheme not found."}
-             
+            return {"status": "error", "message": "Scheme not found."}
+
         best = fused_results[0]["scheme"]
-        
         return {
             "status": "success",
             "scheme_name": best["scheme_name"],
             "raw_benefit_details": best.get("benefit_details", "No benefit details found in dataset."),
-            "latency_seconds": round(time.time() - start_time, 4)
+            "latency_seconds": round(time.time() - start_time, 4),
         }

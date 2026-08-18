@@ -8,12 +8,12 @@ def extract_answer_by_intent(user_question: str, scheme: Dict[str, Any]) -> str:
     if INTENT_PATTERNS["documents_required"].search(user_question):
         raw_text = scheme.get("documents_required", "")
         prefix = f"Documents required for {name}: "
-    elif INTENT_PATTERNS["how_to_apply"].search(user_question):
-        raw_text = scheme.get("how_to_apply", "")
-        prefix = f"To apply for {name}: "
     elif INTENT_PATTERNS["eligibility_criteria"].search(user_question):
         raw_text = scheme.get("eligibility_criteria", "")
         prefix = f"Eligibility criteria for {name}: "
+    elif INTENT_PATTERNS["how_to_apply"].search(user_question):
+        raw_text = scheme.get("how_to_apply", "")
+        prefix = f"To apply for {name}: "
     elif INTENT_PATTERNS["benefit_details"].search(user_question):
         raw_text = scheme.get("benefit_details", "")
         prefix = f"Benefits under {name}: "
