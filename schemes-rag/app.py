@@ -61,7 +61,7 @@ def query_schemes_endpoint(request: QueryRequest) -> Dict[str, Any]:
 def run_interactive_terminal():
     """Clean interactive terminal loop when running python app.py directly."""
     global rag_engine
-    rag_engine = GovernmentSchemesRAGEngine("enriched_schemes_dataset.jsonl")
+    rag_engine = GovernmentSchemesRAGEngine("schemes_dataset.jsonl")
     
     while True:
         try:
