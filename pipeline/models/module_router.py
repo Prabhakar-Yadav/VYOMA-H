@@ -72,6 +72,7 @@ SCHEME_NAMES = (
     "lakhpati didi", "drone didi", "vishwakarma", "svamitva", "ujjwala",
     "ayushman", "pm-jay", "pmgkay", "pmay", "pmay-g", "green credit",
     "carbon credit", "carbon market", "stubble burning", "livestock mission", "nlm",
+    "pm-ddky", "pmddky", "dhan-dhaanya", "pmjdy", "jan dhan", "acabc", "agriclinic", "gokul", "rgm", "jal jeevan", "jjm",
 )
 
 # Words that signal a benefits/administration question rather than a plant one.

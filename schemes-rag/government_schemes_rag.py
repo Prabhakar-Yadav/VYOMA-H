@@ -66,38 +66,19 @@ def acronym_in_query(acronym: str, query_lower: str, query_tokens: set) -> bool:
 def expand_query(raw_query: str) -> Tuple[str, str]:
     """Expands raw user query using synonyms and acronym maps. Returns (vector_query, bm25_query)."""
     query_lower = raw_query.lower()
-
-    vector_query = raw_query
-    for phrase, expansions in SYNONYM_MAP.items():
-        if " " in phrase and phrase in query_lower:
-            vector_query += " " + " ".join(expansions)
-
-    tokens = fast_tokenizer(vector_query)
-    vector_expanded_terms = set(tokens)
-
-    for phrase, expansion in SCHEME_ACRONYM_MAP.items():
-        if " " in phrase and re.search(rf"\b{re.escape(phrase)}\b", query_lower):
-            vector_expanded_terms.update(fast_tokenizer(expansion))
-
-    for token in tokens:
-        if token in SCHEME_ACRONYM_MAP:
-            vector_expanded_terms.update(fast_tokenizer(SCHEME_ACRONYM_MAP[token]))
-        if token in SYNONYM_MAP and " " not in token:
-            vector_expanded_terms.update(SYNONYM_MAP[token])
-
     bm25_tokens = fast_tokenizer(raw_query)
     bm25_expanded_terms = set(bm25_tokens)
 
-    for phrase, canonical in SCHEME_CANONICAL_NAMES.items():
-        if " " in phrase and re.search(rf"\b{re.escape(phrase)}\b", query_lower):
-            bm25_expanded_terms.update(fast_tokenizer(canonical))
+    for phrase, expansion in SCHEME_ACRONYM_MAP.items():
+        if re.search(rf"\b{re.escape(phrase)}\b", query_lower):
+            bm25_expanded_terms.update(fast_tokenizer(expansion))
 
     for token in bm25_tokens:
-        if token in SCHEME_CANONICAL_NAMES:
-            bm25_expanded_terms.update(fast_tokenizer(SCHEME_CANONICAL_NAMES[token]))
+        if token in SYNONYM_MAP and " " not in token:
+            bm25_expanded_terms.update(SYNONYM_MAP[token])
 
     bm25_final = " ".join(bm25_expanded_terms) if bm25_expanded_terms else raw_query
-    return " ".join(vector_expanded_terms), bm25_final
+    return raw_query, bm25_final
 
 
 def load_schemes_dataset(jsonl_path: str) -> List[Dict[str, Any]]:
@@ -312,15 +293,10 @@ class GovernmentSchemesRAGEngine:
     def query_schemes(self, user_question: str, category: Optional[str] = None) -> Dict[str, Any]:
         start_time = time.time()
 
-        target_category = category
-        if not category:
-            pred_cat, pred_score = self.predict_category(user_question)
-            if pred_score > SIMILARITY_THRESHOLD:
-                target_category = pred_cat
-
         vector_query, bm25_query = expand_query(user_question)
-        vector_results = self.vector_index.search(vector_query, top_k=5)
-        bm25_results = self.bm25_index.search(bm25_query, top_k=5)
+        top_cand = max(15, len(self.schemes))
+        vector_results = self.vector_index.search(vector_query, top_k=top_cand)
+        bm25_results = self.bm25_index.search(bm25_query, top_k=top_cand)
         fused_results = reciprocal_rank_fusion(vector_results, bm25_results)
 
         user_q_lower = user_question.lower()
@@ -333,18 +309,17 @@ class GovernmentSchemesRAGEngine:
             if s_id in boosted_schemes:
                 continue
 
-            for acronym in SCHEME_CANONICAL_NAMES.keys():
-                if acronym_in_query(acronym, user_q_lower, user_tokens) and (
-                    acronym in s_name or acronym in s_id
-                ):
-                    item["rrf_score"] *= ACRONYM_BOOST_MULTIPLIER
-                    boosted_schemes.add(s_id)
-                    break
-
-        if target_category:
-            for item in fused_results:
-                if item["scheme"].get("category") == target_category:
-                    item["rrf_score"] *= CATEGORY_SOFT_BOOST
+            for acronym, canonical in SCHEME_CANONICAL_NAMES.items():
+                if acronym_in_query(acronym, user_q_lower, user_tokens):
+                    canon_lower = canonical.lower()
+                    if (
+                        re.search(rf"\b{re.escape(acronym)}\b", s_name)
+                        or re.search(rf"\b{re.escape(acronym)}\b", s_id)
+                        or canon_lower in s_name
+                    ):
+                        item["rrf_score"] *= ACRONYM_BOOST_MULTIPLIER
+                        boosted_schemes.add(s_id)
+                        break
 
         fused_results.sort(key=lambda x: x["rrf_score"], reverse=True)
 
