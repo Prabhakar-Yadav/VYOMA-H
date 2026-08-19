@@ -4,7 +4,8 @@ schemes_faiss_index.bin.sha256
 schemes.db
 model_fp32.onnx*
 *.onnx.data
-verify_rag.py
+verify_*.py
+test_*.py
 __pycache__/
 *.pyc
 .pytest_cache/
