@@ -1,0 +1,46 @@
+{
+  "id": 4,
+  "category": "covered_crop_disease",
+  "config": "gpu20-parler-swap",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू की खेती बहुत मुरझाया हुआ है उसका पत्ता, कौन सी बीज चाहिए?",
+  "expect": "diagnose or name the condition; a dose only if a CIB&RC record exists",
+  "must_not": "must not invent a dose or name a product with no label record",
+  "audio_seconds": 8.57,
+  "t_asr": 0.56,
+  "res_after_asr": {
+    "gpu_used_mb": 1369,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 36.8,
+    "host_rss_mb": 4960.9
+  },
+  "asr_text": "आलू के खेत बहुत मुरछाया हुआ है उसका पत्ता कौन सी भी चाहिए",
+  "asr_wer": 30.8,
+  "asr_cer": 8.5,
+  "t_nmt_in": 1.01,
+  "english": "The potato field is very dry, which leaf should it be?",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/potato-tuber-moth",
+  "label_ids": [],
+  "answer_en": "This could be Potato tuber moth or Potato early blight. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.8370995572209357,
+  "t_nmt_out": 0.15,
+  "answer_native": "यह आलू ट्यूबर मॉथ या आलू का प्रारंभिक रोग हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 7.17,
+  "res_after_tts": {
+    "gpu_used_mb": 3049,
+    "torch_alloc_mb": 855.2,
+    "torch_peak_mb": 1322.0,
+    "host_rss_mb": 4964.5
+  },
+  "res_after_tts_unload": {
+    "gpu_used_mb": 1349,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 1322.0,
+    "host_rss_mb": 4964.5
+  },
+  "tts_audio_seconds": 8.06,
+  "status": "ok"
+}

@@ -33,3 +33,77 @@ device_test_audio/
 device_test_audio_batch2/
 tegrastats_run*.log
 
+# Generated — rebuild with: python src/cli.py build
+krishi-rag/index/
+
+# Local environment
+.venv/
+__pycache__/
+*.pyc
+
+# API keys — never commit
+.env
+*.env
+!.env.example
+
+# Extracted model weights and generated audio (large, reproducible from the zips)
+bhashini-eval/models/
+bhashini-eval/audio/
+bhashini-eval/veena_audio/
+
+# Reference copies of the organisers' inference scripts, kept locally for reading
+bhashini-eval/ref/
+
+# Console captures; the .json result files are the real artefacts
+bhashini-eval/*_out.txt
+bhashini-eval/nmt_report.txt
+
+# Organisers' upstream repo (cloned separately, ~2.6 GB with Git LFS)
+suno-sutra-sw/
+
+# Local reference documents, not ours to redistribute
+*.pdf
+
+# Working notes — kept locally, not published
+krishi-rag/CHECKPOINT.md
+krishi-rag/NOTES-asr-robustness.md
+
+# Pipeline test models (large, downloaded)
+# ---- device pipeline -------------------------------------------------
+# Model weights are NOT in git. Several files exceed GitHub's 100 MB hard
+# limit (encoder.onnx.data is 838 MB), so the push would be rejected outright.
+# pipeline/README.md gives the download commands, and verify_asr.py checks
+# every file against the source repo - that check is what caught 52 corrupt
+# files the first time round.
+pipeline/models/ai4bharat/
+pipeline/models/ai4bharat-int8/
+pipeline/models/ai4bharat-int8-FROM-CORRUPT-SOURCE/
+pipeline/models/nmt/
+pipeline/models/smtiitm/
+pipeline/models/tts/
+
+# Generated speech. A sample of 10 per run is committed so the voices can be
+# compared without a GPU; the rest is regenerable from the scripts.
+pipeline/results/**/07_output.wav
+pipeline/results/*.zip
+
+# Only the three runs named for the push are committed. The laptop-CPU run is
+# superseded by the GPU ones and adds nothing a reader needs.
+pipeline/results/int8-fastspeech2/
+pipeline/results/gpu20-fs2-swap/
+
+# Working notes kept local: the README carries the findings that matter.
+pipeline/models/MEMORY-BUDGET.md
+pipeline/results/COMPARISON.md
+pipeline/results/FINDINGS-fp32.md
+pipeline/results/TREATMENT-COVERAGE.md
+pipeline/results/GROUP-MESSAGE-DRAFT.md
+
+# Old layout, before the three pipeline-* folders were grouped under pipeline/
+pipeline-models/
+pipeline-audio-tests/
+pipeline-results/
+
+# Real audio test clips (downloaded from HF)
+pipeline-audio-tests/audio/
+pipeline-audio-tests/hindi.csv

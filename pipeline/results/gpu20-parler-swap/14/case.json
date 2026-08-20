@@ -1,0 +1,46 @@
+{
+  "id": 14,
+  "category": "covered_crop_disease",
+  "config": "gpu20-parler-swap",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू के झुलसा रोग के दवा।",
+  "expect": "diagnose or name the condition; a dose only if a CIB&RC record exists",
+  "must_not": "must not invent a dose or name a product with no label record",
+  "audio_seconds": 5.63,
+  "t_asr": 0.71,
+  "res_after_asr": {
+    "gpu_used_mb": 1453,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 35.2,
+    "host_rss_mb": 5055.5
+  },
+  "asr_text": "आलू के झुलसा रोग के दवा",
+  "asr_wer": 0.0,
+  "asr_cer": 0.0,
+  "t_nmt_in": 0.89,
+  "english": "Medicines for potato scabies",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/potato-late-blight",
+  "label_ids": [],
+  "answer_en": "This could be Potato late blight or Potato black scurf and stem canker. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.6415489507496601,
+  "t_nmt_out": 0.18,
+  "answer_native": "यह आलू लेट ब्लाइट या आलू ब्लैक स्कर्फ और स्टेम कैंकर हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 10.18,
+  "res_after_tts": {
+    "gpu_used_mb": 3477,
+    "torch_alloc_mb": 855.2,
+    "torch_peak_mb": 1572.4,
+    "host_rss_mb": 5057.8
+  },
+  "res_after_tts_unload": {
+    "gpu_used_mb": 1433,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 1572.4,
+    "host_rss_mb": 5057.8
+  },
+  "tts_audio_seconds": 12.46,
+  "status": "ok"
+}

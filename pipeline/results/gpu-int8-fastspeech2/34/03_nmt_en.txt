@@ -1,0 +1,5 @@
+HINDI IN:
+मटर का उत्पादन सोनपुर प्रखंड के दियरा क्षेत्र में कितना हो पाएगा
+
+ENGLISH OUT (what the RAG sees):
+How much pea will be produced in the Diara area of Sonepur block?

@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूँ की फसल में कीड़ा लगने की दवा बताइए कौन से होते हैं
+
+ENGLISH OUT (what the RAG sees):
+Tell me which are the medicines for pests in wheat crop.

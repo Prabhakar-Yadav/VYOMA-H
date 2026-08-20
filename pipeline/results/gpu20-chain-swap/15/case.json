@@ -1,0 +1,56 @@
+{
+  "id": 15,
+  "category": "pest_insect",
+  "peak_mb": 2165,
+  "peak_anon": 1762,
+  "peak_gpu": 403,
+  "wall_s": 22.73,
+  "wer": 27.3,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "बैगन के पत्ता पर कीड़ा लग रहा है उसका उपाय बता है",
+  "english": "Tell me how to treat a bug on a brinjal leaf.",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.76,
+      "anon": 1762,
+      "gpu": 403,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.27,
+      "anon": 774,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.41,
+      "anon": 657,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.78,
+      "anon": 922,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 10.51,
+      "anon": 1328,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

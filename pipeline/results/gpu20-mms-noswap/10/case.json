@@ -1,0 +1,42 @@
+{
+  "id": 10,
+  "category": "open_ended_vague",
+  "config": "gpu20-mms-noswap",
+  "asr_variant": "int8",
+  "reference_hindi": "धान में झुलसा रोग क्यों लगता हैं ?",
+  "expect": "too little information; ask for detail or refuse honestly",
+  "must_not": "must not guess a disease and prescribe",
+  "audio_seconds": 9.19,
+  "t_asr": 0.42,
+  "res_after_asr": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 176.8,
+    "host_rss_mb": 4493.4
+  },
+  "asr_text": "धान में झूलसा रोग क्यों लगता है",
+  "asr_wer": 28.6,
+  "asr_cer": 6.2,
+  "t_nmt_in": 1.08,
+  "english": "Why paddy catches Jhulsa disease",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "GROUNDED",
+  "condition": "/diseases/rice-bacterial-leaf-blight",
+  "label_ids": [
+    "CIBRC-COPP-50WP-RICE-001"
+  ],
+  "answer_en": "Your crop has Rice bacterial leaf blight. Use Copper oxychloride 50% WP (sold as Blitox). Mix 3 g in one litre of water. For one acre, use 1000 g in 200 L of water. Do not harvest for 15 days after applying. The label has a blue triangle. Cover your mouth and hands. Do not spray against the wind.",
+  "confidence": 0.6039695747196674,
+  "t_nmt_out": 0.27,
+  "answer_native": "आपकी फसल में चावल के पत्ते में बैक्टीरिया की समस्या होती है। कॉपर ऑक्सीक्लोराइड 50 प्रतिशत डब्ल्यूपी (ब्लिटॉक्स के रूप में बेचा जाता है) का उपयोग करें। एक लीटर पानी में 3 ग्राम मिलाएँ। एक एकड़ के लिए, 200 लीटर पानी में 1000 ग्राम का उपयोग करें। लगाने के बाद 15 दिनों तक फसल न काटें। लेबल में एक नीला त्रिकोण है। अपने मुँह और हाथों को ढक लें। हवा के खिलाफ छिड़काव न करें।",
+  "t_tts": 0.11,
+  "res_after_tts": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 582.1,
+    "host_rss_mb": 4500.5
+  },
+  "tts_audio_seconds": 27.98,
+  "status": "ok"
+}

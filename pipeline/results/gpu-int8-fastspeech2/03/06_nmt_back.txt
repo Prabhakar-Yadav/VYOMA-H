@@ -1,0 +1,5 @@
+ENGLISH:
+(model may answer this directly)
+
+BACK TO HI:
+(मॉडल इसका सीधा जवाब दे सकता है)

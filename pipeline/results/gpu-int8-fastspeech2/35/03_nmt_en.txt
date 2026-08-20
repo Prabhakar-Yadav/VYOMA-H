@@ -1,0 +1,5 @@
+HINDI IN:
+फसल का कुल आय तीन हज़ार एक सौ चौसठ रुपये तो शुद्ध लाभ कितना होगा लेकर बताएं
+
+ENGLISH OUT (what the RAG sees):
+If the total income of the crop is three thousand one hundred and sixty-four rupees, tell me what the net profit will be.

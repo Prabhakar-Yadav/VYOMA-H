@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+मकई में कीड़ा क्यों लग जाता है?
+
+ASR HEARD (int8):
+मकई में कीड़ा क्यों लग जाता है
+
+WER 0.0%   CER 0.0%   0.49s

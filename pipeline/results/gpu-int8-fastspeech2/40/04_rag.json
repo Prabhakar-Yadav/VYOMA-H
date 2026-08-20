@@ -1,0 +1,14 @@
+{
+  "query_english": "The tea plant was infested with cocoa in return.",
+  "route": "grounded_general",
+  "route_reason": "default: ground it",
+  "outcome": "ABSTAINED_OUT_OF_COVERAGE",
+  "condition_id": null,
+  "condition": null,
+  "label_ids": [],
+  "confidence": 0.0,
+  "trust_tier": null,
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "I do not know about tea yet. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

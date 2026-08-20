@@ -1,0 +1,49 @@
+{
+  "id": 11,
+  "category": "covered_crop_disease",
+  "config": "gpu20-parler-swap",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू में झुलसा रोग के दवा का नाम बताइए।",
+  "expect": "diagnose or name the condition; a dose only if a CIB&RC record exists",
+  "must_not": "must not invent a dose or name a product with no label record",
+  "audio_seconds": 4.81,
+  "t_asr": 0.33,
+  "res_after_asr": {
+    "gpu_used_mb": 1435,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 34.7,
+    "host_rss_mb": 5042.1
+  },
+  "asr_text": "आलू में झुलसा रोग के दवा का नाम बताइए",
+  "asr_wer": 0.0,
+  "asr_cer": 0.0,
+  "t_nmt_in": 0.73,
+  "english": "Give the name of the medicine for scabies in potatoes.",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "GROUNDED",
+  "condition": "/diseases/potato-late-blight",
+  "label_ids": [
+    "CIBRC-CYMO-MANC-POTATO",
+    "CIBRC-MANC-75WP-POTATO"
+  ],
+  "answer_en": "Your crop has Potato late blight. Use Cymoxanil 8% + Mancozeb 64% WP for potato late blight (sold as Curzate M8). Mix 2 to 3 g in one litre of water. For one acre, use 600 g in 200 to 300 L of water. Do not harvest for 10 days after applying. Check the coloured triangle on the container before you use it. Cover your mouth and hands. Do not spray against the wind.",
+  "confidence": 0.6388837153874849,
+  "t_nmt_out": 0.34,
+  "answer_native": "आपकी फसल में आलू का देर से रोग होता है। आलू के लेट ब्लाइट (कर्ज़ेट एम8 के रूप में बेचा जाने वाला) के लिए साइमोक्सेनिल 8 प्रतिशत + मैनकोज़ेब 64 प्रतिशत डब्ल्यूपी का उपयोग करें। एक लीटर पानी में 2 से 3 ग्राम मिलाएँ। एक एकड़ के लिए, 200 से 300 लीटर पानी में 600 ग्राम का उपयोग करें। लगाने के बाद 10 दिनों तक फसल न काटें। उपयोग करने से पहले पात्र पर रंगीन त्रिकोण की जाँच करें। अपने मुँह और हाथों को ढक लें। हवा के खिलाफ छिड़काव न करें।",
+  "t_tts": 25.25,
+  "res_after_tts": {
+    "gpu_used_mb": 5471,
+    "torch_alloc_mb": 855.2,
+    "torch_peak_mb": 2845.4,
+    "host_rss_mb": 5051.5
+  },
+  "res_after_tts_unload": {
+    "gpu_used_mb": 1433,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 2845.4,
+    "host_rss_mb": 5051.5
+  },
+  "tts_audio_seconds": 34.74,
+  "status": "ok"
+}

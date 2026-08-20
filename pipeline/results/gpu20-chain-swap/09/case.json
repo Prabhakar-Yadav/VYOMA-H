@@ -1,0 +1,56 @@
+{
+  "id": 9,
+  "category": "garbled_asr_input",
+  "peak_mb": 2166,
+  "peak_anon": 1763,
+  "peak_gpu": 403,
+  "wall_s": 15.22,
+  "wer": 27.3,
+  "outcome": "out_of_scope_topic",
+  "label_ids": [],
+  "heard": "आलू फसल में हिस्सा के लिए कौन सी जगह है",
+  "english": "What is the place for a share in the potato crop?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 5.82,
+      "anon": 1763,
+      "gpu": 403,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.24,
+      "anon": 773,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 0.22,
+      "anon": 18,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.28,
+      "anon": 775,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 4.66,
+      "anon": 511,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

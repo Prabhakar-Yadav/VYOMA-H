@@ -1,0 +1,5 @@
+HINDI IN:
+मकई में कीड़ा क्यों लग जाता है
+
+ENGLISH OUT (what the RAG sees):
+Why does corn get pests?

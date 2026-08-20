@@ -1,0 +1,1131 @@
+[
+  {
+    "id": 1,
+    "category": "covered_crop_disease",
+    "peak_mb": 2140,
+    "peak_anon": 1755,
+    "peak_gpu": 385,
+    "wall_s": 21.48,
+    "wer": 18.2,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "आलू में झूसा रोग पर कौन सा दवा का प्रयोग करें",
+    "english": "Which medicine to use for Zoosa in potatoes?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 7.04,
+        "anon": 1755,
+        "gpu": 385,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.23,
+        "anon": 773,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.35,
+        "anon": 641,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.6,
+        "anon": 886,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 8.26,
+        "anon": 1159,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 2,
+    "category": "open_ended_vague",
+    "peak_mb": 2176,
+    "peak_anon": 1771,
+    "peak_gpu": 405,
+    "wall_s": 21.79,
+    "wer": 66.7,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "भिन्दी में कौन सा रोग लाग था",
+    "english": "What disease did Bhindi contract?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.97,
+        "anon": 1771,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 771,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.38,
+        "anon": 642,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.59,
+        "anon": 892,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 9.6,
+        "anon": 1090,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 3,
+    "category": "covered_crop_disease",
+    "peak_mb": 2168,
+    "peak_anon": 1765,
+    "peak_gpu": 403,
+    "wall_s": 15.9,
+    "wer": 25.0,
+    "outcome": "out_of_scope_topic",
+    "label_ids": [],
+    "heard": "आलू में झुलसा रोग का क्या उपाय है उपाय",
+    "english": "What is the cure for scabies in potatoes?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.92,
+        "anon": 1765,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.24,
+        "anon": 772,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 0.28,
+        "anon": 23,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.26,
+        "anon": 775,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.2,
+        "anon": 538,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 4,
+    "category": "covered_crop_disease",
+    "peak_mb": 2175,
+    "peak_anon": 1770,
+    "peak_gpu": 405,
+    "wall_s": 17.32,
+    "wer": 46.2,
+    "outcome": "abstained_ambiguous",
+    "label_ids": [],
+    "heard": "आलू के खेत बहुत मुरछाया हुआ है उसका पत्ता कौन सी भी चाहिए",
+    "english": "The potato field is very dry, which leaf should it be?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.07,
+        "anon": 1770,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.26,
+        "anon": 774,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.43,
+        "anon": 696,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.31,
+        "anon": 800,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.25,
+        "anon": 785,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 5,
+    "category": "covered_crop_disease",
+    "peak_mb": 2190,
+    "peak_anon": 1785,
+    "peak_gpu": 405,
+    "wall_s": 21.81,
+    "wer": 14.3,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "आलू को झुलसा रोग से कैसे बचाए",
+    "english": "How to protect potatoes from scabies",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.25,
+        "anon": 1785,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.22,
+        "anon": 772,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.44,
+        "anon": 695,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.63,
+        "anon": 886,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 9.27,
+        "anon": 1079,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 6,
+    "category": "open_ended_vague",
+    "peak_mb": 2177,
+    "peak_anon": 1772,
+    "peak_gpu": 405,
+    "wall_s": 17.95,
+    "wer": 50.0,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "गेहूं की खेती में कौन सा गेहूँ रोग लगता है ये तो बहुत",
+    "english": "Which wheat disease is found in wheat cultivation?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.02,
+        "anon": 1772,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 773,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.43,
+        "anon": 661,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.29,
+        "anon": 802,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.96,
+        "anon": 791,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 7,
+    "category": "deficiency_khaira",
+    "peak_mb": 2175,
+    "peak_anon": 1770,
+    "peak_gpu": 405,
+    "wall_s": 18.59,
+    "wer": 37.5,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "धान में खरा रोग कर निदान कैसे करें",
+    "english": "How to diagnose a true disease in rice",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.07,
+        "anon": 1770,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 771,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.4,
+        "anon": 710,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.31,
+        "anon": 803,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 6.56,
+        "anon": 847,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 8,
+    "category": "open_ended_vague",
+    "peak_mb": 2234,
+    "peak_anon": 1829,
+    "peak_gpu": 405,
+    "wall_s": 20.09,
+    "wer": 46.7,
+    "outcome": "grounded",
+    "label_ids": [
+      "CIBRC-EMAM-5SG-MAIZE-001",
+      "CIBRC-CHLO-18SC-MAIZE-001"
+    ],
+    "heard": "मक्का की कौनसी वेराइटी मक्का में लगने वाले रोगों का नाम",
+    "english": "Which variety of maize is known to cause diseases in maize?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.8,
+        "anon": 1829,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.24,
+        "anon": 774,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.41,
+        "anon": 695,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.44,
+        "anon": 872,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 7.2,
+        "anon": 845,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 9,
+    "category": "garbled_asr_input",
+    "peak_mb": 2166,
+    "peak_anon": 1763,
+    "peak_gpu": 403,
+    "wall_s": 15.22,
+    "wer": 27.3,
+    "outcome": "out_of_scope_topic",
+    "label_ids": [],
+    "heard": "आलू फसल में हिस्सा के लिए कौन सी जगह है",
+    "english": "What is the place for a share in the potato crop?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.82,
+        "anon": 1763,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.24,
+        "anon": 773,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 0.22,
+        "anon": 18,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.28,
+        "anon": 775,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 4.66,
+        "anon": 511,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 10,
+    "category": "open_ended_vague",
+    "peak_mb": 2172,
+    "peak_anon": 1767,
+    "peak_gpu": 405,
+    "wall_s": 17.56,
+    "wer": 25.0,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "धान में झुलसा रोग क्यों लगता है",
+    "english": "Why does scabies occur in rice?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.04,
+        "anon": 1767,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.23,
+        "anon": 771,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.4,
+        "anon": 685,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.34,
+        "anon": 800,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.55,
+        "anon": 802,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 11,
+    "category": "covered_crop_disease",
+    "peak_mb": 2142,
+    "peak_anon": 1757,
+    "peak_gpu": 385,
+    "wall_s": 20.45,
+    "wer": 11.1,
+    "outcome": "grounded",
+    "label_ids": [
+      "CIBRC-CYMO-MANC-POTATO",
+      "CIBRC-MANC-75WP-POTATO"
+    ],
+    "heard": "आलू में झुलसा रोग के दवा का नाम बताइए",
+    "english": "Give the name of the medicine for scabies in potatoes.",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.46,
+        "anon": 1757,
+        "gpu": 385,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.24,
+        "anon": 773,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.37,
+        "anon": 756,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.52,
+        "anon": 873,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 8.86,
+        "anon": 943,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 12,
+    "category": "covered_crop_disease",
+    "peak_mb": 2162,
+    "peak_anon": 1759,
+    "peak_gpu": 403,
+    "wall_s": 17.91,
+    "wer": 37.5,
+    "outcome": "abstained_ambiguous",
+    "label_ids": [],
+    "heard": "आलू में झोलसा रोग लगा है क्या कर",
+    "english": "What to do if a potato is infected with jolsa?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.69,
+        "anon": 1759,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 773,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.47,
+        "anon": 741,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.38,
+        "anon": 803,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 6.12,
+        "anon": 796,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 13,
+    "category": "nutrient_question",
+    "peak_mb": 2176,
+    "peak_anon": 1771,
+    "peak_gpu": 405,
+    "wall_s": 20.58,
+    "wer": 88.9,
+    "outcome": "grounded",
+    "label_ids": [
+      "CIBRC-CYMO-MANC-POTATO",
+      "CIBRC-MANC-75WP-POTATO"
+    ],
+    "heard": "आलू मुरछ कौन खाद्य दिया जाए",
+    "english": "who should feed a potato peel",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.02,
+        "anon": 1771,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 770,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.4,
+        "anon": 752,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.6,
+        "anon": 873,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 8.31,
+        "anon": 951,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 14,
+    "category": "covered_crop_disease",
+    "peak_mb": 2161,
+    "peak_anon": 1758,
+    "peak_gpu": 403,
+    "wall_s": 17.25,
+    "wer": 33.3,
+    "outcome": "abstained_ambiguous",
+    "label_ids": [],
+    "heard": "आलू के झुलसा रोक के दवा",
+    "english": "Potato peel medicine",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.58,
+        "anon": 1758,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.24,
+        "anon": 770,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.38,
+        "anon": 749,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.34,
+        "anon": 800,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.71,
+        "anon": 803,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 15,
+    "category": "pest_insect",
+    "peak_mb": 2165,
+    "peak_anon": 1762,
+    "peak_gpu": 403,
+    "wall_s": 22.73,
+    "wer": 27.3,
+    "outcome": "abstained_no_treatment_record",
+    "label_ids": [],
+    "heard": "बैगन के पत्ता पर कीड़ा लग रहा है उसका उपाय बता है",
+    "english": "Tell me how to treat a bug on a brinjal leaf.",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.76,
+        "anon": 1762,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.27,
+        "anon": 774,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.41,
+        "anon": 657,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.78,
+        "anon": 922,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 10.51,
+        "anon": 1328,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 16,
+    "category": "out_of_scope",
+    "peak_mb": 2186,
+    "peak_anon": 1781,
+    "peak_gpu": 405,
+    "wall_s": 19.58,
+    "wer": 23.8,
+    "outcome": "healthy_no_disease",
+    "label_ids": [],
+    "heard": "घर में कहां पर रख सकते हैं कि जो कीटाणु न लगे मूली के बीज में किटाणु वाला दवा क्या है",
+    "english": "Where can you keep germs at home?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.15,
+        "anon": 1781,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.34,
+        "anon": 777,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.42,
+        "anon": 653,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.3,
+        "anon": 798,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 7.37,
+        "anon": 730,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 17,
+    "category": "pest_insect",
+    "peak_mb": 2161,
+    "peak_anon": 1758,
+    "peak_gpu": 403,
+    "wall_s": 17.39,
+    "wer": 14.3,
+    "outcome": "abstained_low_confidence",
+    "label_ids": [],
+    "heard": "मकई में कीड़ा क्यों लग जाता है",
+    "english": "Why does corn get pests?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.56,
+        "anon": 1758,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 770,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.68,
+        "anon": 705,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.3,
+        "anon": 800,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.6,
+        "anon": 685,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 18,
+    "category": "open_ended_vague",
+    "peak_mb": 2181,
+    "peak_anon": 1778,
+    "peak_gpu": 403,
+    "wall_s": 18.27,
+    "wer": 100.0,
+    "outcome": "abstained_low_confidence",
+    "label_ids": [],
+    "heard": "भागन बीताना छोटा छोड़",
+    "english": "Let go of the short run",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 6.36,
+        "anon": 1778,
+        "gpu": 403,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.29,
+        "anon": 769,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.43,
+        "anon": 662,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.33,
+        "anon": 798,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.86,
+        "anon": 672,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 19,
+    "category": "pest_insect",
+    "peak_mb": 2162,
+    "peak_anon": 1757,
+    "peak_gpu": 405,
+    "wall_s": 19.04,
+    "wer": 11.1,
+    "outcome": "abstained_ambiguous",
+    "label_ids": [],
+    "heard": "आम के पेड़ में कीड़ा क्यों लग जाता है",
+    "english": "Why does a mango tree get a pest?",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.58,
+        "anon": 1757,
+        "gpu": 405,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.23,
+        "anon": 771,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.51,
+        "anon": 746,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.35,
+        "anon": 802,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 7.37,
+        "anon": 781,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  },
+  {
+    "id": 20,
+    "category": "pest_insect",
+    "peak_mb": 2142,
+    "peak_anon": 1757,
+    "peak_gpu": 385,
+    "wall_s": 17.14,
+    "wer": 55.6,
+    "outcome": "out_of_scope_topic",
+    "label_ids": [],
+    "heard": "बेगन पे कीड़ा लगा कौन सौ दें",
+    "english": "who put the worm on the bacon",
+    "stages": [
+      {
+        "stage": "asr",
+        "secs": 5.61,
+        "anon": 1757,
+        "gpu": 385,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_in",
+        "secs": 2.25,
+        "anon": 771,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "rag",
+        "secs": 1.41,
+        "anon": 765,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "nmt_out",
+        "secs": 2.36,
+        "anon": 789,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      },
+      {
+        "stage": "tts",
+        "secs": 5.51,
+        "anon": 780,
+        "gpu": 15,
+        "ok": true,
+        "err": ""
+      }
+    ],
+    "ok": true
+  }
+]

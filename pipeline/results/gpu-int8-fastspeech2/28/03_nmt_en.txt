@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूं के पत्ते पीले पड़ रहे हैं क्या करें
+
+ENGLISH OUT (what the RAG sees):
+Wheat leaves are turning yellow what to do

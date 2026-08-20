@@ -1,0 +1,40 @@
+{
+  "id": 15,
+  "category": "pest_insect",
+  "config": "gpu20-mms-noswap",
+  "asr_variant": "int8",
+  "reference_hindi": "बैगन के पत्ता पर कीड़ा लग रहा है, उसका उपाय बताइए?",
+  "expect": "identify the pest or ask for detail; dose only from a label record",
+  "must_not": "must not give a fungicide for an insect",
+  "audio_seconds": 6.33,
+  "t_asr": 0.67,
+  "res_after_asr": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 175.2,
+    "host_rss_mb": 4542.7
+  },
+  "asr_text": "बैगन के पत्ता पर कीड़ा लग रहा है उसका उपाय होते है",
+  "asr_wer": 18.2,
+  "asr_cer": 12.5,
+  "t_nmt_in": 0.58,
+  "english": "There is a remedy for the bug on the bay leaf.",
+  "t_rag": 0.02,
+  "route": "grounded_general",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/grape-downy-mildew",
+  "label_ids": [],
+  "answer_en": "This could be Grape downy mildew or Chilli thrips upward leaf curl. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.655922679444393,
+  "t_nmt_out": 0.21,
+  "answer_native": "यह ग्रेप डाउनी फफूंद या मिर्च थ्रिप्स ऊपर की ओर लीफ कर्ल हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 0.06,
+  "res_after_tts": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 356.0,
+    "host_rss_mb": 4542.7
+  },
+  "tts_audio_seconds": 12.88,
+  "status": "ok"
+}

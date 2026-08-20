@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूँ में खैरा रोग किस विटामिन की कमी से है
+
+ENGLISH OUT (what the RAG sees):
+Wheat starch disease is caused by a deficiency of which vitamin?

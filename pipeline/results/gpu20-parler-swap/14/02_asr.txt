@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+आलू के झुलसा रोग के दवा।
+
+ASR HEARD (int8):
+आलू के झुलसा रोग के दवा
+
+WER 0.0%   CER 0.0%   0.71s

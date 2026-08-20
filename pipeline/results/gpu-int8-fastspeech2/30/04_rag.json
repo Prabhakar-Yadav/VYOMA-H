@@ -1,0 +1,14 @@
+{
+  "query_english": "Wheat starch disease is caused by a deficiency of which vitamin?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: wheat",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/deficiencies/wheat-boron-deficiency",
+  "condition": "Wheat boron deficiency",
+  "label_ids": [],
+  "confidence": 0.858243550211191,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Wheat boron deficiency. I do not have a verified treatment for it. Please ask your Krishi Vigyan Kendra before spraying anything."
+}

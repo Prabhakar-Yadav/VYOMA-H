@@ -1,0 +1,14 @@
+{
+  "query_english": "Too much water in wheat causes yellowing, here's how to fix it",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: wheat",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/deficiencies/wheat-iron-manganese-chlorosis",
+  "condition": "Wheat interveinal chlorosis (iron or manganese)",
+  "label_ids": [],
+  "confidence": 0.6197533470191965,
+  "trust_tier": "unverified",
+  "runner_up": "Yellowing from hunger — nitrogen and iron",
+  "treatments": [],
+  "spoken_text": "This could be Wheat interveinal chlorosis (iron or manganese) or Yellowing from hunger — nitrogen and iron. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

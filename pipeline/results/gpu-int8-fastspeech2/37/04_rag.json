@@ -1,0 +1,14 @@
+{
+  "query_english": "How much manure should be given per pot for mustard cultivation?",
+  "route": "crop_diagnosis",
+  "route_reason": "consequential terms: how much",
+  "outcome": "ABSTAINED_LOW_CONF",
+  "condition_id": "/diseases/mustard-aphid",
+  "condition": "Mustard aphid",
+  "label_ids": [],
+  "confidence": 0.39375804420314253,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "I am not sure what this is. Please show this plant to your nearest Krishi Vigyan Kendra. I have saved this photo."
+}

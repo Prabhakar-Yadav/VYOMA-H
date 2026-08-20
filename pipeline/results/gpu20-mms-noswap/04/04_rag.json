@@ -1,0 +1,14 @@
+{
+  "query_english": "The potato field is very dry, which leaf should it be?",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: potato",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/potato-tuber-moth",
+  "condition": "Potato tuber moth",
+  "label_ids": [],
+  "confidence": 0.8370995572209357,
+  "trust_tier": "unverified",
+  "runner_up": "Potato early blight",
+  "treatments": [],
+  "spoken_text": "This could be Potato tuber moth or Potato early blight. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

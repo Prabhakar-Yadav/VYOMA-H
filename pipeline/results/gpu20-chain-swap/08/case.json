@@ -1,0 +1,59 @@
+{
+  "id": 8,
+  "category": "open_ended_vague",
+  "peak_mb": 2234,
+  "peak_anon": 1829,
+  "peak_gpu": 405,
+  "wall_s": 20.09,
+  "wer": 46.7,
+  "outcome": "grounded",
+  "label_ids": [
+    "CIBRC-EMAM-5SG-MAIZE-001",
+    "CIBRC-CHLO-18SC-MAIZE-001"
+  ],
+  "heard": "मक्का की कौनसी वेराइटी मक्का में लगने वाले रोगों का नाम",
+  "english": "Which variety of maize is known to cause diseases in maize?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.8,
+      "anon": 1829,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.24,
+      "anon": 774,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.41,
+      "anon": 695,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.44,
+      "anon": 872,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 7.2,
+      "anon": 845,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

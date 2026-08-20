@@ -1,0 +1,242 @@
+[
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/003/03863.ogg",
+    "reference": "आलू में झुलसा रोग पर कौन सा दवा का प्रयोग करें?",
+    "file": "audio/01.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/004/04669.ogg",
+    "reference": "भिंडी में कौन से रोग लगता?",
+    "file": "audio/02.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/000/00880.ogg",
+    "reference": "आलू में झुलसा रोग का क्या उपाय है?",
+    "file": "audio/03.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/000/00416.ogg",
+    "reference": "आलू की खेती बहुत मुरझाया हुआ है उसका पत्ता, कौन सी बीज चाहिए?",
+    "file": "audio/04.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/005/05007.ogg",
+    "reference": "आलू को झुलसा रोग से कैसे बचाएं?",
+    "file": "audio/05.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/006/06713.ogg",
+    "reference": "गेहूं की खेती में कौन सा गेहूं रोग लगता है?",
+    "file": "audio/06.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/003/03320.ogg",
+    "reference": "धान में खैरा रोग का निदान कैसे करें?",
+    "file": "audio/07.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/009/09163.ogg",
+    "reference": "मक्का की कौन सी वैरायटी हैं ? मक्का में लगने वाले रोगो का नाम ?",
+    "file": "audio/08.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/007/07124.ogg",
+    "reference": "आलू फसल में ऊपर रोग  के लिए कौन सी जगह है?",
+    "file": "audio/09.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/010/10486.ogg",
+    "reference": "धान में झुलसा रोग क्यों लगता हैं ?",
+    "file": "audio/10.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/000/00205.ogg",
+    "reference": "आलू में झुलसा रोग के दवा का नाम बताइए।",
+    "file": "audio/11.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/000/00962.ogg",
+    "reference": "आलू में झुलसा रोग लगा है, क्या करें?",
+    "file": "audio/12.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/003/03926.ogg",
+    "reference": "आलू मुरझा रहा है इसमें कौन-कौन खाद देना चाहिए?",
+    "file": "audio/13.ogg"
+  },
+  {
+    "bucket": "covered_crop_disease",
+    "src": "audio/009/09909.ogg",
+    "reference": "आलू के झुलसा रोग के दवा।",
+    "file": "audio/14.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/008/08445.ogg",
+    "reference": "बैगन के पत्ता पर कीड़ा लग रहा है, उसका उपाय बताइए?",
+    "file": "audio/15.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/006/06988.ogg",
+    "reference": "घर में कहां पर रख सकते हैं कि जो कीटाणु ना लगे। मूली के बीज में कीटाणु वाले दवा क्या है?",
+    "file": "audio/16.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/000/00520.ogg",
+    "reference": "मकई में कीड़ा क्यों लग जाता है?",
+    "file": "audio/17.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/006/06767.ogg",
+    "reference": "बैगन में तनाछेदक पर चरचा।",
+    "file": "audio/18.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/002/02858.ogg",
+    "reference": "आम के पेड़ में कीड़ा क्यों लग जाता है?",
+    "file": "audio/19.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/010/10390.ogg",
+    "reference": "बैगन पे कीड़ा लगा हैं,  कौन सा दवाई दे?",
+    "file": "audio/20.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/000/00887.ogg",
+    "reference": "गेहूं की फसल में कीड़ा लगने की दवाई बताइए ?",
+    "file": "audio/21.ogg"
+  },
+  {
+    "bucket": "pest_insect",
+    "src": "audio/009/09896.ogg",
+    "reference": "टमाटर की फसल में कीटों से बचने के उपाय।",
+    "file": "audio/22.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/007/07723.ogg",
+    "reference": "गेहूं में पीला पड़ रहा है, कौन सी खाद चाहिए?",
+    "file": "audio/23.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/000/00160.ogg",
+    "reference": "गेहूं में पानी ज्यादा रहने के कारण पीलापन रहता है। कैसे ठीक करें?",
+    "file": "audio/24.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/008/08189.ogg",
+    "reference": "गेहूं में जिंक की क्यों आवश्यकता है?",
+    "file": "audio/25.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/007/07998.ogg",
+    "reference": "आलू में जिंक देना चाहिए या नहीं?",
+    "file": "audio/26.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/005/05029.ogg",
+    "reference": "गेहूं पर पीलापन हो रहा है। कौन खाद्य चाहिए ?",
+    "file": "audio/27.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/004/04483.ogg",
+    "reference": "गेहूं के पत्ते पीले पड़ रहे हैं, क्या करें?",
+    "file": "audio/28.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/005/05018.ogg",
+    "reference": "गेहूं में पीलापन होना।",
+    "file": "audio/29.ogg"
+  },
+  {
+    "bucket": "deficiency_like",
+    "src": "audio/010/10204.ogg",
+    "reference": "गेहूं में खैरा रोग किस विटामिन की कमी से होता है ?",
+    "file": "audio/30.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/009/09631.ogg",
+    "reference": "गेंहू का गेंहू का पौधा में कितना बार पानी देना चाहिए।",
+    "file": "audio/31.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/008/08558.ogg",
+    "reference": "चना की खेती बिहार में पटना में होती है और कितना डीएपी यूरिया लगता है?",
+    "file": "audio/32.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/008/08530.ogg",
+    "reference": "मूली का बीज कितना दिन तक रह सकता है घर में बिना दवा का।",
+    "file": "audio/33.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/006/06092.ogg",
+    "reference": "मटर का उत्पादन सोनपुर प्रखंड के दियारा क्षेत्र में कितना हो पाएगा?",
+    "file": "audio/34.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/008/08974.ogg",
+    "reference": "फसल का कुल आय ₹3164 तो शुद्ध लाभ कितना होगा लिखकर बताएं?",
+    "file": "audio/35.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/002/02085.ogg",
+    "reference": "एक एकड़ गेहूं बोने के बोते समय कौन कौन सी खाद कितने मात्रा में देनी चाहिए? बोल देनी।",
+    "file": "audio/36.ogg"
+  },
+  {
+    "bucket": "dose_question",
+    "src": "audio/004/04824.ogg",
+    "reference": "सरसों की खेती के लिए कितना खाद देना चाहिए प्रति कट्ठा?",
+    "file": "audio/37.ogg"
+  },
+  {
+    "bucket": "uncovered_or_refusal",
+    "src": "audio/008/08403.ogg",
+    "reference": "केला को  पौधे कैसे लगाए जाते हैं?",
+    "file": "audio/38.ogg"
+  },
+  {
+    "bucket": "uncovered_or_refusal",
+    "src": "audio/001/01908.ogg",
+    "reference": "पशु को ठंड से कैसे बचाया जाए?",
+    "file": "audio/39.ogg"
+  },
+  {
+    "bucket": "uncovered_or_refusal",
+    "src": "audio/009/09672.ogg",
+    "reference": "चाय के पौधे में कोकरा लग गया। उसका उपाय बतलाइए।",
+    "file": "audio/40.ogg"
+  }
+]

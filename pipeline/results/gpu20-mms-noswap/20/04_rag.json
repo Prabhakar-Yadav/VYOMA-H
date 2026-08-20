@@ -1,0 +1,14 @@
+{
+  "query_english": "who ran a hundred pests on a beacon",
+  "route": "grounded_general",
+  "route_reason": "default: ground it",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/diseases/pomegranate-bacterial-blight",
+  "condition": "Pomegranate bacterial blight",
+  "label_ids": [],
+  "confidence": 0.4838404157210978,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Pomegranate bacterial blight. I do not have a verified medicine to give you for it, so please do not spray anything on guesswork. There are things you can do today. 1. Plant only tissue-culture material in new or non-traditional areas; cuttings and air layers carry latent infection. 2. Prune out and burn all infected twigs and leaves and collect fallen infected material, during the dry period. 3. Avoid working in the orchard when foliage is wet; disinfect secateurs between plants. For a spray, ask your Krishi Vigyan Kendra."
+}

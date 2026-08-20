@@ -1,0 +1,14 @@
+{
+  "query_english": "How to protect potatoes from scabies",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: potato",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/diseases/potato-leafroll-virus",
+  "condition": "Potato leafroll and mosaic viruses",
+  "label_ids": [],
+  "confidence": 0.6689642349630593,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Potato leafroll and mosaic viruses. I do not have a verified medicine to give you for it, so please do not spray anything on guesswork. There are things you can do today. 1. Plant certified virus-free seed. This is the single decisive measure. 2. Follow the seed plot technique: raise the seed crop in the low-aphid winter window and dehaulm before aphid numbers cross the critical threshold. 3. Rogue out symptomatic plants early and repeatedly. For a spray, ask your Krishi Vigyan Kendra."
+}

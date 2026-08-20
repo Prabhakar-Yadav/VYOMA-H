@@ -1,0 +1,5 @@
+ENGLISH:
+The medicine I have on record for this is registered for wheat, and I cannot tell that your crop is wheat. Using it on a crop it is not registered for is unsafe and not allowed. Please tell me which crop this is, or ask your Krishi Vigyan Kendra.
+
+BACK TO HI:
+इसके लिए मेरे पास जो दवा दर्ज है वह गेहूं के लिए पंजीकृत है, और मैं यह नहीं बता सकता कि आपकी फसल गेहूं है। जिस फसल के लिए यह पंजीकृत नहीं है, उस पर इसका उपयोग करना असुरक्षित है और इसकी अनुमति नहीं है। कृपया मुझे बताएं कि यह कौन सी फसल है, या अपने कृषि विज्ञान केंद्र से पूछें।

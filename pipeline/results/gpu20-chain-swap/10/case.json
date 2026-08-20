@@ -1,0 +1,56 @@
+{
+  "id": 10,
+  "category": "open_ended_vague",
+  "peak_mb": 2172,
+  "peak_anon": 1767,
+  "peak_gpu": 405,
+  "wall_s": 17.56,
+  "wer": 25.0,
+  "outcome": "abstained_no_treatment_record",
+  "label_ids": [],
+  "heard": "धान में झुलसा रोग क्यों लगता है",
+  "english": "Why does scabies occur in rice?",
+  "stages": [
+    {
+      "stage": "asr",
+      "secs": 6.04,
+      "anon": 1767,
+      "gpu": 405,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_in",
+      "secs": 2.23,
+      "anon": 771,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "rag",
+      "secs": 1.4,
+      "anon": 685,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "nmt_out",
+      "secs": 2.34,
+      "anon": 800,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    },
+    {
+      "stage": "tts",
+      "secs": 5.55,
+      "anon": 802,
+      "gpu": 15,
+      "ok": true,
+      "err": ""
+    }
+  ],
+  "ok": true
+}

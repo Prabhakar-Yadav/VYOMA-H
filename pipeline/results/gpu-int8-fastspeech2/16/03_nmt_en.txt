@@ -1,0 +1,5 @@
+HINDI IN:
+घर में कहां पर रख सकते हैं कि जो कीटाणु न लगे मूली के बीज में कीटाणु वाला दवा क्या है
+
+ENGLISH OUT (what the RAG sees):
+Where in the house can you keep the germ-free radish seeds that contain the germ drug?

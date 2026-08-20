@@ -1,0 +1,5 @@
+HINDI IN:
+आलू के खेत बहुत मुरछाया हुआ है उसका पत्ता कौन सी भी चाहिए
+
+ENGLISH OUT (what the RAG sees):
+The potato field is very dry, which leaf should it be?

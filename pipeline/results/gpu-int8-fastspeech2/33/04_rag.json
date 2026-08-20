@@ -1,0 +1,14 @@
+{
+  "query_english": "How long can radish seed last at home without medication?",
+  "route": "guideline_lookup",
+  "route_reason": "biology question: how long",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/diseases/wheat-loose-smut",
+  "condition": "Wheat and barley loose smut",
+  "label_ids": [],
+  "confidence": 0.5762370555092682,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "The medicine I have on record for this is registered for wheat, and I cannot tell that your crop is wheat. Using it on a crop it is not registered for is unsafe and not allowed. Please tell me which crop this is, or ask your Krishi Vigyan Kendra."
+}

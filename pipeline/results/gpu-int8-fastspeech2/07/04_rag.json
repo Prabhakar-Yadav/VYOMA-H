@@ -1,0 +1,14 @@
+{
+  "query_english": "How to Make a Diagnosis by Stopping Sugarcane in Rice",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: rice",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/deficiencies/rice-zinc-deficiency",
+  "condition": "Rice zinc deficiency (khaira)",
+  "label_ids": [],
+  "confidence": 0.6620526032380801,
+  "trust_tier": "unverified",
+  "runner_up": "Rice bacterial leaf blight",
+  "treatments": [],
+  "spoken_text": "This could be Rice zinc deficiency (khaira) or Rice bacterial leaf blight. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

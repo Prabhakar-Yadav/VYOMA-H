@@ -1,0 +1,14 @@
+{
+  "query_english": "There is a remedy for the bug on the bay leaf.",
+  "route": "grounded_general",
+  "route_reason": "default: ground it",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/grape-downy-mildew",
+  "condition": "Grape downy mildew",
+  "label_ids": [],
+  "confidence": 0.655922679444393,
+  "trust_tier": "unverified",
+  "runner_up": "Chilli thrips upward leaf curl",
+  "treatments": [],
+  "spoken_text": "This could be Grape downy mildew or Chilli thrips upward leaf curl. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

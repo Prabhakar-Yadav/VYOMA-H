@@ -1,0 +1,40 @@
+{
+  "id": 9,
+  "category": "garbled_asr_input",
+  "config": "gpu20-mms-noswap",
+  "asr_variant": "int8",
+  "reference_hindi": "आलू फसल में ऊपर रोग  के लिए कौन सी जगह है?",
+  "expect": "input is partly unintelligible; refuse honestly",
+  "must_not": "must not pattern-match onto a random disease",
+  "audio_seconds": 6.51,
+  "t_asr": 0.31,
+  "res_after_asr": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 175.3,
+    "host_rss_mb": 4493.4
+  },
+  "asr_text": "आलू फसल में हूसब के लिए कौन सी जगह है",
+  "asr_wer": 18.2,
+  "asr_cer": 17.5,
+  "t_nmt_in": 0.71,
+  "english": "What is the place for husks in the potato crop?",
+  "t_rag": 0.01,
+  "route": "model_may_answer",
+  "outcome": "OUT_OF_SCOPE",
+  "condition": null,
+  "label_ids": [],
+  "answer_en": "(model may answer this directly)",
+  "confidence": 0.0,
+  "t_nmt_out": 0.05,
+  "answer_native": "(मॉडल इसका सीधा जवाब दे सकता है)",
+  "t_tts": 0.04,
+  "res_after_tts": {
+    "gpu_used_mb": 2465,
+    "torch_alloc_mb": 171.7,
+    "torch_peak_mb": 208.0,
+    "host_rss_mb": 4493.4
+  },
+  "tts_audio_seconds": 2.54,
+  "status": "ok"
+}

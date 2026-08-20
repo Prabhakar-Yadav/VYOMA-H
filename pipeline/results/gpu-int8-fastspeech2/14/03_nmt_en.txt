@@ -1,0 +1,5 @@
+HINDI IN:
+आलू के झुलसा रोग के दवा
+
+ENGLISH OUT (what the RAG sees):
+Medicines for potato scabies

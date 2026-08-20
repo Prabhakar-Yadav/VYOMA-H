@@ -1,0 +1,64 @@
+{
+  "query_english": "Whether or not jam should be added to potatoes after fourteen",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: potato",
+  "outcome": "GROUNDED",
+  "condition_id": "/diseases/potato-late-blight",
+  "condition": "Potato late blight",
+  "label_ids": [
+    "CIBRC-CYMO-MANC-POTATO",
+    "CIBRC-MANC-75WP-POTATO"
+  ],
+  "confidence": 0.6569950079429611,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [
+    {
+      "label_id": "CIBRC-CYMO-MANC-POTATO",
+      "title": "Cymoxanil 8% + Mancozeb 64% WP for potato late blight",
+      "molecule": "Cymoxanil + Mancozeb",
+      "formulation": "8% + 64% WP",
+      "trade_names": [
+        "Curzate M8",
+        "Moximate",
+        "Cursor"
+      ],
+      "dose_per_acre": "600 g",
+      "dilution_per_litre": "2 to 3 g",
+      "spray_volume_per_acre": "200 to 300 L",
+      "phi_days": 10,
+      "registered_crop": "potato",
+      "application_method": null,
+      "dose_per_kg_seed": null,
+      "slurry_water_per_kg_seed": null,
+      "reentry_hours": null,
+      "toxicity_triangle": "verify_on_container",
+      "max_applications": null,
+      "trust_tier": "machine-confirmed"
+    },
+    {
+      "label_id": "CIBRC-MANC-75WP-POTATO",
+      "title": "Mancozeb 75% WP for potato blight",
+      "molecule": "Mancozeb",
+      "formulation": "75% WP",
+      "trade_names": [
+        "Dithane M-45",
+        "Indofil M-45",
+        "Uthane M-45"
+      ],
+      "dose_per_acre": "600 to 800 g",
+      "dilution_per_litre": "2.0 to 2.7 g",
+      "spray_volume_per_acre": "300 L",
+      "phi_days": null,
+      "registered_crop": "potato",
+      "application_method": null,
+      "dose_per_kg_seed": null,
+      "slurry_water_per_kg_seed": null,
+      "reentry_hours": null,
+      "toxicity_triangle": "verify_on_container",
+      "max_applications": null,
+      "trust_tier": "machine-confirmed"
+    }
+  ],
+  "spoken_text": "Your crop has Potato late blight. Use Cymoxanil 8% + Mancozeb 64% WP for potato late blight (sold as Curzate M8). Mix 2 to 3 g in one litre of water. For one acre, use 600 g in 200 to 300 L of water. Do not harvest for 10 days after applying. Check the coloured triangle on the container before you use it. Cover your mouth and hands. Do not spray against the wind."
+}

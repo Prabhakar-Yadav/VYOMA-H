@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+धान में झुलसा रोग क्यों लगता हैं ?
+
+ASR HEARD (int8):
+धान में झूलसा रोग क्यों लगता है
+
+WER 28.6%   CER 6.2%   0.19s

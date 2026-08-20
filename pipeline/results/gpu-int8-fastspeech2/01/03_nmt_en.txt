@@ -1,0 +1,5 @@
+HINDI IN:
+आलू में झूसा रोग पर कौन सा दवा का प्रयोग करें
+
+ENGLISH OUT (what the RAG sees):
+Which medicine to use for Zoosa in potatoes?

@@ -1,0 +1,14 @@
+{
+  "query_english": "Why does a mango tree get a pest?",
+  "route": "guideline_lookup",
+  "route_reason": "biology question: why does",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/mango-hopper",
+  "condition": "Mango hopper",
+  "label_ids": [],
+  "confidence": 0.6651920671274588,
+  "trust_tier": "unverified",
+  "runner_up": "Mango anthracnose",
+  "treatments": [],
+  "spoken_text": "This could be Mango hopper or Mango anthracnose. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

@@ -1,0 +1,5 @@
+HINDI IN:
+आलू में झुलसा रोग के दवा का नाम बताइए
+
+ENGLISH OUT (what the RAG sees):
+Give the name of the medicine for scabies in potatoes.

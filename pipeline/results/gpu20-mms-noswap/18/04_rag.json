@@ -1,0 +1,14 @@
+{
+  "query_english": "little bit of running",
+  "route": "grounded_general",
+  "route_reason": "default: ground it",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition_id": "/diseases/sugarcane-early-shoot-borer",
+  "condition": "Sugarcane early shoot borer",
+  "label_ids": [],
+  "confidence": 0.5189800822511476,
+  "trust_tier": "unverified",
+  "runner_up": "Brinjal little leaf",
+  "treatments": [],
+  "spoken_text": "This could be Sugarcane early shoot borer or Brinjal little leaf. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra."
+}

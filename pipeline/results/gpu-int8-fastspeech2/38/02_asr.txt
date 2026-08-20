@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+केला को  पौधे कैसे लगाए जाते हैं?
+
+ASR HEARD (int8):
+केला के पौधे कैसे लगाया जाता है
+
+WER 57.1%   CER 16.1%   0.11s

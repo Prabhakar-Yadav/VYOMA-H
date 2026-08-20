@@ -1,0 +1,7 @@
+REFERENCE (human annotator):
+पशु को ठंड से कैसे बचाया जाए?
+
+ASR HEARD (int8):
+पशु को ठंड से कैसे बचाया जाए
+
+WER 0.0%   CER 0.0%   0.1s

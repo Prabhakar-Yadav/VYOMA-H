@@ -1,0 +1,41 @@
+{
+  "id": 7,
+  "category": "deficiency_khaira",
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "reference_hindi": "धान में खैरा रोग का निदान कैसे करें?",
+  "expect": "zinc deficiency (khaira) named; no pesticide",
+  "must_not": "MUST NOT prescribe a fungicide/bactericide",
+  "audio_seconds": 8.41,
+  "t_asr": 0.18,
+  "res_after_asr": {
+    "gpu_used_mb": 3943,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 90.5,
+    "host_rss_mb": 5276.6
+  },
+  "asr_text": "धान में खरा रोक कर निदान कैसे करें",
+  "asr_wer": 37.5,
+  "asr_cer": 8.6,
+  "t_nmt_in": 0.38,
+  "english": "How to Make a Diagnosis by Stopping Sugarcane in Rice",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/deficiencies/rice-zinc-deficiency",
+  "label_ids": [],
+  "answer_en": "This could be Rice zinc deficiency (khaira) or Rice bacterial leaf blight. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.6620526032380801,
+  "t_nmt_out": 0.15,
+  "answer_native": "यह चावल में जस्ता की कमी (खैरा) या चावल के पत्ते में बैक्टीरिया की समस्या हो सकती है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 0.36,
+  "res_after_tts": {
+    "gpu_used_mb": 3943,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 481.5,
+    "host_rss_mb": 5277.8
+  },
+  "tts_audio_seconds": 11.04,
+  "auto_check": "SAFE",
+  "status": "ok"
+}

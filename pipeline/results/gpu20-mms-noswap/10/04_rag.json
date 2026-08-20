@@ -1,0 +1,40 @@
+{
+  "query_english": "Why paddy catches Jhulsa disease",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: rice",
+  "outcome": "GROUNDED",
+  "condition_id": "/diseases/rice-bacterial-leaf-blight",
+  "condition": "Rice bacterial leaf blight",
+  "label_ids": [
+    "CIBRC-COPP-50WP-RICE-001"
+  ],
+  "confidence": 0.6039695747196674,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [
+    {
+      "label_id": "CIBRC-COPP-50WP-RICE-001",
+      "title": "Copper oxychloride 50% WP",
+      "molecule": "Copper oxychloride",
+      "formulation": "50% WP",
+      "trade_names": [
+        "Blitox",
+        "Fytolan",
+        "Blue Copper"
+      ],
+      "dose_per_acre": "1000 g",
+      "dilution_per_litre": "3 g",
+      "spray_volume_per_acre": "200 L",
+      "phi_days": 15,
+      "registered_crop": "rice",
+      "application_method": null,
+      "dose_per_kg_seed": null,
+      "slurry_water_per_kg_seed": null,
+      "reentry_hours": 24,
+      "toxicity_triangle": "blue",
+      "max_applications": 2,
+      "trust_tier": "machine-confirmed"
+    }
+  ],
+  "spoken_text": "Your crop has Rice bacterial leaf blight. Use Copper oxychloride 50% WP (sold as Blitox). Mix 3 g in one litre of water. For one acre, use 1000 g in 200 L of water. Do not harvest for 15 days after applying. The label has a blue triangle. Cover your mouth and hands. Do not spray against the wind."
+}

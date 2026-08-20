@@ -1,0 +1,5 @@
+HINDI IN:
+आलू में झोलसा रोग लगा है क्या कर
+
+ENGLISH OUT (what the RAG sees):
+What to do if a potato is infected with jolsa?

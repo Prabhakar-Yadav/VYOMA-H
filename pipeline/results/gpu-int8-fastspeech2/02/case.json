@@ -1,0 +1,40 @@
+{
+  "id": 2,
+  "category": "open_ended_vague",
+  "config": "gpu-int8-fastspeech2",
+  "asr_variant": "int8",
+  "reference_hindi": "भिंडी में कौन से रोग लगता?",
+  "expect": "too little information; ask for detail or refuse honestly",
+  "must_not": "must not guess a disease and prescribe",
+  "audio_seconds": 8.81,
+  "t_asr": 0.21,
+  "res_after_asr": {
+    "gpu_used_mb": 3941,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 90.5,
+    "host_rss_mb": 5105.6
+  },
+  "asr_text": "भिन्दी में कौन सा रोग लागा था",
+  "asr_wer": 66.7,
+  "asr_cer": 32.0,
+  "t_nmt_in": 0.33,
+  "english": "What disease did Bhindi suffer from?",
+  "t_rag": 0.01,
+  "route": "crop_diagnosis",
+  "outcome": "ABSTAINED_AMBIGUOUS",
+  "condition": "/diseases/okra-jassid",
+  "label_ids": [],
+  "answer_en": "This could be Okra jassid hopper burn or Okra yellow vein mosaic. I cannot tell them apart. Please show this plant to your nearest Krishi Vigyan Kendra.",
+  "confidence": 0.5627432772517204,
+  "t_nmt_out": 0.14,
+  "answer_native": "यह ओक्रा जैसिड हॉपर बर्न या ओक्रा येलो वेन मोज़ेक हो सकता है। मैं उन्हें अलग नहीं बता सकता। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ।",
+  "t_tts": 0.34,
+  "res_after_tts": {
+    "gpu_used_mb": 3941,
+    "torch_alloc_mb": 85.4,
+    "torch_peak_mb": 451.9,
+    "host_rss_mb": 5209.5
+  },
+  "tts_audio_seconds": 9.74,
+  "status": "ok"
+}

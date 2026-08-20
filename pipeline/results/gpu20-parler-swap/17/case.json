@@ -1,0 +1,46 @@
+{
+  "id": 17,
+  "category": "pest_insect",
+  "config": "gpu20-parler-swap",
+  "asr_variant": "int8",
+  "reference_hindi": "मकई में कीड़ा क्यों लग जाता है?",
+  "expect": "identify the pest or ask for detail; dose only from a label record",
+  "must_not": "must not give a fungicide for an insect",
+  "audio_seconds": 5.19,
+  "t_asr": 0.49,
+  "res_after_asr": {
+    "gpu_used_mb": 1453,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 35.0,
+    "host_rss_mb": 5064.4
+  },
+  "asr_text": "मकई में कीड़ा क्यों लग जाता है",
+  "asr_wer": 0.0,
+  "asr_cer": 0.0,
+  "t_nmt_in": 0.16,
+  "english": "Why does corn get pests?",
+  "t_rag": 0.01,
+  "route": "guideline_lookup",
+  "outcome": "ABSTAINED_LOW_CONF",
+  "condition": "/diseases/pigeonpea-sterility-mosaic",
+  "label_ids": [],
+  "answer_en": "I am not sure what this is. Please show this plant to your nearest Krishi Vigyan Kendra. I have saved this photo.",
+  "confidence": 0.41484177923699994,
+  "t_nmt_out": 0.9,
+  "answer_native": "मुझे यकीन नहीं है कि यह क्या है। कृपया इस पौधे को अपने निकटतम कृषि विज्ञान केंद्र को दिखाएँ। मैंने इस तस्वीर को सेव कर लिया है।",
+  "t_tts": 8.82,
+  "res_after_tts": {
+    "gpu_used_mb": 3317,
+    "torch_alloc_mb": 855.2,
+    "torch_peak_mb": 1466.9,
+    "host_rss_mb": 5064.5
+  },
+  "res_after_tts_unload": {
+    "gpu_used_mb": 1433,
+    "torch_alloc_mb": 32.1,
+    "torch_peak_mb": 1466.9,
+    "host_rss_mb": 5064.5
+  },
+  "tts_audio_seconds": 10.65,
+  "status": "ok"
+}

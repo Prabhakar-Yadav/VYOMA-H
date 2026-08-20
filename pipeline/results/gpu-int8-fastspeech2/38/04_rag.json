@@ -1,0 +1,14 @@
+{
+  "query_english": "How to Plant a Banana Plant",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: banana",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/diseases/banana-panama-wilt",
+  "condition": "Banana Panama wilt",
+  "label_ids": [],
+  "confidence": 0.8910192009806632,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Banana Panama wilt. I do not have a verified medicine to give you for it, so please do not spray anything on guesswork. There are things you can do today. 1. Dig out and burn the whole affected mat including corm and roots; leave that pit empty. 2. Plant only tissue-culture or certified suckers. 3. Wash tools, boots and tyres with soapy water before moving to a clean block. For a spray, ask your Krishi Vigyan Kendra."
+}

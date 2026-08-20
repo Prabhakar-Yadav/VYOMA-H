@@ -1,0 +1,14 @@
+{
+  "query_english": "If the total income of the crop is three thousand one hundred and sixty-four rupees, tell me what the net profit will be.",
+  "route": "grounded_general",
+  "route_reason": "default: ground it",
+  "outcome": "GUIDELINE",
+  "condition_id": "/guidelines/pm-kisan",
+  "condition": "PM-KISAN — Pradhan Mantri Kisan Samman Nidhi",
+  "label_ids": [],
+  "confidence": 0.6599352528691113,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "What the farmer gets Rupees 6,000 every year, paid straight into the bank account. It comes in three instalments of Rupees 2,000 each. The three instalment windows are April to July, August to November, and December to March. The money is a direct benefit transfer. No repayment. No interest."
+}

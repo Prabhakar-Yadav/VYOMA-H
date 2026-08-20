@@ -1,0 +1,390 @@
+{
+  "config": "gpu20-parler-swap",
+  "asr_variant": "int8",
+  "tts": "parler",
+  "disk_mb": {
+    "asr_int8_mb": 919.2,
+    "nmt_mb": 753.7,
+    "tts_fastspeech2_mb": 1537.2,
+    "rag_bundle_mb": 0.6,
+    "rag_index_mb": 2.4,
+    "total_mb": 3213.1
+  },
+  "model_load_seconds": 12.35,
+  "gpu_peak_mb": 5471,
+  "host_peak_rss_mb": 5153.7,
+  "snapshots": {
+    "00_baseline_before_any_model": {
+      "gpu_used_mb": 15,
+      "torch_alloc_mb": null,
+      "torch_peak_mb": null,
+      "host_rss_mb": 20.8
+    },
+    "01_after_asr_and_nmt_loaded": {
+      "gpu_used_mb": 683,
+      "torch_alloc_mb": 0.1,
+      "torch_peak_mb": 0.1,
+      "host_rss_mb": 2026.5
+    },
+    "case01_asr": {
+      "gpu_used_mb": 763,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 32.9,
+      "host_rss_mb": 3073.5
+    },
+    "case01_tts": {
+      "gpu_used_mb": 5107,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2652.7,
+      "host_rss_mb": 4729.2
+    },
+    "case01_tts_unloaded": {
+      "gpu_used_mb": 1329,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2652.7,
+      "host_rss_mb": 4729.2
+    },
+    "case02_asr": {
+      "gpu_used_mb": 1369,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 36.9,
+      "host_rss_mb": 4740.5
+    },
+    "case02_tts": {
+      "gpu_used_mb": 3163,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1389.7,
+      "host_rss_mb": 4952.1
+    },
+    "case02_tts_unloaded": {
+      "gpu_used_mb": 1347,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1389.7,
+      "host_rss_mb": 4952.1
+    },
+    "case03_asr": {
+      "gpu_used_mb": 1367,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 36.1,
+      "host_rss_mb": 4952.1
+    },
+    "case03_tts": {
+      "gpu_used_mb": 2441,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1030.8,
+      "host_rss_mb": 4960.9
+    },
+    "case03_tts_unloaded": {
+      "gpu_used_mb": 1347,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1030.8,
+      "host_rss_mb": 4960.9
+    },
+    "case04_asr": {
+      "gpu_used_mb": 1369,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 36.8,
+      "host_rss_mb": 4960.9
+    },
+    "case04_tts": {
+      "gpu_used_mb": 3049,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1322.0,
+      "host_rss_mb": 4964.5
+    },
+    "case04_tts_unloaded": {
+      "gpu_used_mb": 1349,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1322.0,
+      "host_rss_mb": 4964.5
+    },
+    "case05_asr": {
+      "gpu_used_mb": 1397,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 39.4,
+      "host_rss_mb": 4964.5
+    },
+    "case05_tts": {
+      "gpu_used_mb": 5399,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2835.7,
+      "host_rss_mb": 5019.5
+    },
+    "case05_tts_unloaded": {
+      "gpu_used_mb": 1375,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2835.7,
+      "host_rss_mb": 5019.5
+    },
+    "case06_asr": {
+      "gpu_used_mb": 1397,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 37.2,
+      "host_rss_mb": 5019.5
+    },
+    "case06_tts": {
+      "gpu_used_mb": 3687,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1729.3,
+      "host_rss_mb": 5019.5
+    },
+    "case06_tts_unloaded": {
+      "gpu_used_mb": 1375,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1729.3,
+      "host_rss_mb": 5019.5
+    },
+    "case07_asr": {
+      "gpu_used_mb": 1397,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 36.7,
+      "host_rss_mb": 5019.5
+    },
+    "case07_tts": {
+      "gpu_used_mb": 3783,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1779.4,
+      "host_rss_mb": 5019.5
+    },
+    "case07_tts_unloaded": {
+      "gpu_used_mb": 1375,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1779.4,
+      "host_rss_mb": 5019.5
+    },
+    "case08_asr": {
+      "gpu_used_mb": 1455,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 48.2,
+      "host_rss_mb": 5019.5
+    },
+    "case08_tts": {
+      "gpu_used_mb": 3457,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1584.8,
+      "host_rss_mb": 5023.4
+    },
+    "case08_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1584.8,
+      "host_rss_mb": 5023.4
+    },
+    "case09_asr": {
+      "gpu_used_mb": 1453,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 35.7,
+      "host_rss_mb": 5023.4
+    },
+    "case09_tts": {
+      "gpu_used_mb": 2465,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 985.6,
+      "host_rss_mb": 5025.4
+    },
+    "case09_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 985.6,
+      "host_rss_mb": 5025.4
+    },
+    "case10_asr": {
+      "gpu_used_mb": 1455,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 37.2,
+      "host_rss_mb": 5025.4
+    },
+    "case10_tts": {
+      "gpu_used_mb": 5209,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2647.2,
+      "host_rss_mb": 5042.1
+    },
+    "case10_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2647.2,
+      "host_rss_mb": 5042.1
+    },
+    "case11_asr": {
+      "gpu_used_mb": 1435,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 34.7,
+      "host_rss_mb": 5042.1
+    },
+    "case11_tts": {
+      "gpu_used_mb": 5471,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2845.4,
+      "host_rss_mb": 5051.5
+    },
+    "case11_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2845.4,
+      "host_rss_mb": 5051.5
+    },
+    "case12_asr": {
+      "gpu_used_mb": 1453,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 35.1,
+      "host_rss_mb": 5051.5
+    },
+    "case12_tts": {
+      "gpu_used_mb": 3481,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1596.5,
+      "host_rss_mb": 5053.5
+    },
+    "case12_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1596.5,
+      "host_rss_mb": 5053.5
+    },
+    "case13_asr": {
+      "gpu_used_mb": 1455,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 36.9,
+      "host_rss_mb": 5053.5
+    },
+    "case13_tts": {
+      "gpu_used_mb": 5375,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2772.4,
+      "host_rss_mb": 5055.5
+    },
+    "case13_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2772.4,
+      "host_rss_mb": 5055.5
+    },
+    "case14_asr": {
+      "gpu_used_mb": 1453,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 35.2,
+      "host_rss_mb": 5055.5
+    },
+    "case14_tts": {
+      "gpu_used_mb": 3477,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1572.4,
+      "host_rss_mb": 5057.8
+    },
+    "case14_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1572.4,
+      "host_rss_mb": 5057.8
+    },
+    "case15_asr": {
+      "gpu_used_mb": 1453,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 35.6,
+      "host_rss_mb": 5057.8
+    },
+    "case15_tts": {
+      "gpu_used_mb": 3589,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1643.3,
+      "host_rss_mb": 5059.0
+    },
+    "case15_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1643.3,
+      "host_rss_mb": 5059.0
+    },
+    "case16_asr": {
+      "gpu_used_mb": 1455,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 38.8,
+      "host_rss_mb": 5059.0
+    },
+    "case16_tts": {
+      "gpu_used_mb": 4303,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2091.4,
+      "host_rss_mb": 5064.4
+    },
+    "case16_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2091.4,
+      "host_rss_mb": 5064.4
+    },
+    "case17_asr": {
+      "gpu_used_mb": 1453,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 35.0,
+      "host_rss_mb": 5064.4
+    },
+    "case17_tts": {
+      "gpu_used_mb": 3317,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1466.9,
+      "host_rss_mb": 5064.5
+    },
+    "case17_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1466.9,
+      "host_rss_mb": 5064.5
+    },
+    "case18_asr": {
+      "gpu_used_mb": 1453,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 41.8,
+      "host_rss_mb": 5064.5
+    },
+    "case18_tts": {
+      "gpu_used_mb": 3749,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1731.9,
+      "host_rss_mb": 5064.5
+    },
+    "case18_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1731.9,
+      "host_rss_mb": 5064.5
+    },
+    "case19_asr": {
+      "gpu_used_mb": 1455,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 34.9,
+      "host_rss_mb": 5064.5
+    },
+    "case19_tts": {
+      "gpu_used_mb": 3589,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 1643.8,
+      "host_rss_mb": 5064.5
+    },
+    "case19_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 1643.8,
+      "host_rss_mb": 5064.5
+    },
+    "case20_asr": {
+      "gpu_used_mb": 1435,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 34.7,
+      "host_rss_mb": 5064.5
+    },
+    "case20_tts": {
+      "gpu_used_mb": 5469,
+      "torch_alloc_mb": 855.2,
+      "torch_peak_mb": 2847.9,
+      "host_rss_mb": 5153.7
+    },
+    "case20_tts_unloaded": {
+      "gpu_used_mb": 1433,
+      "torch_alloc_mb": 32.1,
+      "torch_peak_mb": 2847.9,
+      "host_rss_mb": 5153.7
+    }
+  }
+}

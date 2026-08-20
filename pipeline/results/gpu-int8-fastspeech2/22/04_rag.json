@@ -1,0 +1,14 @@
+{
+  "query_english": "Ways to avoid pests in the tomato crop",
+  "route": "crop_diagnosis",
+  "route_reason": "crop named: tomato",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/diseases/tomato-leaf-curl-virus",
+  "condition": "Tomato leaf curl virus",
+  "label_ids": [],
+  "confidence": 0.946502584233836,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Tomato leaf curl virus. I do not have a verified medicine to give you for it, so please do not spray anything on guesswork. There are things you can do today. 1. Raise the nursery under fine insect-proof net. 2. Rogue out symptomatic plants in the first 30 to 40 days. 3. Hang yellow sticky traps through the crop. For a spray, ask your Krishi Vigyan Kendra."
+}

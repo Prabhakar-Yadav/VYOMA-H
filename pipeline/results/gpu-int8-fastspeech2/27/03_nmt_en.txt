@@ -1,0 +1,5 @@
+HINDI IN:
+गेहूँ पर पीलापन हो रहा है कौन खास है ये
+
+ENGLISH OUT (what the RAG sees):
+There is yellowing on the wheat. Who is special?

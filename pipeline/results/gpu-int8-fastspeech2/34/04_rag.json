@@ -1,0 +1,14 @@
+{
+  "query_english": "How much pea will be produced in the Diara area of Sonepur block?",
+  "route": "grounded_general",
+  "route_reason": "consequential terms: how much",
+  "outcome": "ABSTAINED_NO_LABEL",
+  "condition_id": "/diseases/pigeonpea-sterility-mosaic",
+  "condition": "Pigeon pea sterility mosaic",
+  "label_ids": [],
+  "confidence": 0.5025569072696476,
+  "trust_tier": "unverified",
+  "runner_up": null,
+  "treatments": [],
+  "spoken_text": "This looks like Pigeon pea sterility mosaic. I do not have a verified medicine to give you for it, so please do not spray anything on guesswork. There are things you can do today. 1. Rogue out and destroy infected plants within 40 to 45 days of sowing — the single highest-value action. 2. Grow resistant varieties. 3. Remove perennial and volunteer pigeon pea plants and destroy ratooned regrowth, which are the reservoir for both mite and virus. For a spray, ask your Krishi Vigyan Kendra."
+}

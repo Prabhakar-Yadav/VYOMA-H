@@ -1,0 +1,5 @@
+HINDI IN:
+केला के पौधे कैसे लगाया जाता है
+
+ENGLISH OUT (what the RAG sees):
+How to Plant a Banana Plant
