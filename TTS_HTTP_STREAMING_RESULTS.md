@@ -126,3 +126,40 @@ proven, always-available path. `/tts/infer_stream` is additive. Neither
 part of this work by itself — wiring the pipeline's own playback over to the new streaming
 path (so a real turn actually benefits from this) is a separate, deliberate follow-up step,
 not a side effect of adding the endpoint.
+
+## Cross-chunk voice drift, measured and fixed (2026-08-23)
+
+Streaming's ~12s chunks mean more independent VITS forward passes per answer than the
+blocking path's 30s chunks — and each pass is an **independent unseeded draw**. VITS has
+no speaker embedding to anchor "the voice" (these checkpoints are mono-speaker,
+`speaker_embedding_size: 0`), no seed, and fresh latent/duration noise every call. A real
+streamed Hindi answer (`orchestrated_hi_ux-1.wav`, 4 chunks) made this audible and then
+measurable: median F0 per chunk via autocorrelation was **155 / 122 / 141 / 195 Hz** —
+chunk 3 is +32% off the first three's running median and genuinely sounds like a different
+person started talking. This is the same underlying property the 2026-08-09 chunk-size
+revert documented as "no prosody continuity across the cut", heard at full strength.
+
+Two levers, both config-tunable (`config.py` → `WORKERS["tts"]["engines"]["mms_tts"]`),
+both implemented in `tts_worker.py` + `models/mms_tts/inference.py`:
+
+1. **Lower sampling noise** — `noise_scale` 0.667→0.333, `noise_scale_s` 1.0→0.667,
+   applied to the loaded VitsModel around its forward pass. Deploy-day lesson (2026-08-23):
+   they can NOT be passed as `VitsModel.forward()` kwargs — this transformers build rejects
+   them outright and both TTS paths died at once (the stream path surfaces it as a final
+   NDJSON `{"error": ...}` line that reads client-side as `KeyError('audio_base64')`; the
+   blocking path as a bare HTTP 500). They are model attributes — `model.noise_scale`,
+   `model.noise_scale_duration` (= config's `noise_scale_s`), `model.speaking_rate` — set
+   before forward() and restored in a `finally:` by `inference.py::synthesize()`.
+   Clusters draws around the model's mean voice;
+   costs some prosody liveliness. Initial values by reasoning, not by ear.
+2. **F0 voice-matched redraw** — `_synthesize_voice_matched()`: each chunk's median F0
+   (cheap numpy autocorrelation, `_chunk_f0_median`, central 8s window, bounded cost)
+   must land within `voice_match_tolerance` (±15%) of the running median of prior chunks,
+   else it redraws up to `voice_match_max_retries` (2), keeping the closest draw. Chunk 0
+   is always accepted as-is — it IS the reference. At RTF ~0.1 a fully-retried chunk still
+   finishes far inside its own playback time, so retries cannot stall the stream.
+
+Telemetry: stream chunks now carry `f0_median` + `voice_tries` (surfaced in the app's
+`[tts-stream]` end-of-turn block); blocking `/infer` responses carry `chunk_f0_medians` +
+`voice_match_tries`. `seed` (null by default) makes all chunks share one random sequence
+when set; `voice_match_tolerance=0` disables matching entirely.

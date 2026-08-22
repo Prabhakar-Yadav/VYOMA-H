@@ -106,6 +106,14 @@ class MemoryOrchestrator:
         # component name ("agent"/"embedder"), populated by _load(), consumed by snapshot().
         self._ollama_mem_delta = {}
 
+        # 2026-08-16: handle to _reload_asr_then_nmt()'s own fire-and-forget daemon thread, so
+        # teardown() can wait for it -- see that method's own docstring and teardown()'s own
+        # comment for the real race this closes (confirmed live: a real 5-turn Jetson run
+        # printed "after teardown: ... nmt=loading ..." followed by "nmt ready in 10.05s"
+        # AFTER teardown() had already returned, because this thread's own is_loaded() check
+        # hadn't caught up yet when teardown()'s unload loop ran its one-time check).
+        self._background_reload_thread = None
+
         # Real session-transcript logging (2026-08-14, api_server/session_store.py) -- see
         # that module's own docstring for the full design/history (a same-day earlier attempt
         # built this at the wrong layer, inside pocketinfer; this supersedes it). Persisted on
@@ -173,10 +181,27 @@ class MemoryOrchestrator:
         `timestamp` are added automatically -- don't pass those. Purely additive/observational,
         same spirit as `_record_event()` above -- never affects any Rule's own behavior, and a
         caller that never calls this just ends up persisting a zero-turn (skipped, see
-        `_persist_current_session()`) or shorter session, nothing breaks."""
+        `_persist_current_session()`) or shorter session, nothing breaks.
+
+        2026-08-21: also persists immediately, after every turn -- not just at
+        teardown()/start_new_session() like before. Real, confirmed gap this closes: a crash or
+        power loss mid-session (a real risk on field hardware -- unclean kill, no chance to
+        reach teardown()'s own persist call) used to lose the WHOLE session's transcript, even
+        if several turns had already completed successfully; a 7-day sweep of the real session
+        DB on Jetson (2026-08-21) turned up zero evidence of an actual problem field session,
+        consistent with it never having been persisted at all. Safe to do unconditionally:
+        `session_store.save()` is `INSERT OR REPLACE` keyed by session_id (see its own
+        docstring), so re-saving the same session after each new turn just overwrites the row
+        with the latest turns-so-far, not a duplicate. Done SYNCHRONOUSLY here on purpose, not
+        on a background thread -- a background write could itself still be lost if the crash
+        lands in the small window before that thread runs; a single small sqlite INSERT is
+        already documented as fast enough to run synchronously (session_store.py's own
+        docstring), and is negligible next to a turn's own real ASR/NMT/Agent/TTS wall-clock
+        time (tens of seconds) -- there's no real latency reason to make this async instead."""
         fields["turn_index"] = len(self._current_session["turns"])
         fields["timestamp"] = now_iso()
         self._current_session["turns"].append(fields)
+        self._persist_current_session()
 
     def _persist_current_session(self):
         """Writes `self._current_session` to the sessions DB if it has any turns -- shared by
@@ -554,6 +579,21 @@ class MemoryOrchestrator:
             deadline = time.time() + 15
             while time.time() < deadline and self._is_loaded(name):
                 time.sleep(0.1)
+            # 2026-08-16 real fix: clear this component's tracked load-time delta now that it's
+            # actually confirmed gone. `_component_bytes()` prefers `system_mem_delta_bytes`
+            # over `rss_bytes` whenever it's not None (see that method's own docstring), and
+            # `_load()` above is the ONLY place that ever SETS `self._ollama_mem_delta[name]` --
+            # nothing cleared it on unload before this fix, so a component that had been loaded
+            # even once kept "costing" its peak load-time delta in every snapshot()'s
+            # total_bytes/available_bytes/utilization_pct for the rest of this orchestrator
+            # process's life, even after a real, confirmed unload -- while rss_bytes correctly
+            # fell back to 0. Confirmed directly against a real teardown log: `total=4.26GB`
+            # printed with `agent=unloaded embedder=unloaded` (i.e. everything genuinely gone)
+            # -- that 4.26GB was exactly agent+embedder's stale deltas from when they were last
+            # loaded, still being summed. Real `real_used_bytes`/`real_available_bytes`
+            # (psutil.virtual_memory(), ground truth) were never affected by this -- only the
+            # synthetic tracked total was wrong.
+            self._ollama_mem_delta.pop(name, None)
         duration = time.perf_counter() - t0
         self._log(f"        {name} freed in {duration:.2f}s")
         self._record_event(name, "unload", duration)
@@ -763,8 +803,49 @@ class MemoryOrchestrator:
         else:
             self._load_async("asr", reason=reason, language=session_language)
 
-    def run_asr(self, language, infer_fn):
+    def run_asr(self, language, infer_fn, evict_nmt_first=True):
+        """`evict_nmt_first=` (2026-08-16, default True -- REAL confirmed production crash
+        fix, found and fixed live on real Jetson hardware). `_find_eviction_candidate()`'s
+        pool deliberately excludes NMT (sticky-resident policy, see its own docstring) and
+        always excludes Agent -- so when only Agent+NMT are resident (the normal mid-session
+        state) and ASR needs real room, `_make_room_for("asr")` has NOTHING it can evict.
+        Confirmed via a real Jetson production log: "WARNING: no safe eviction candidate
+        found -- proceeding anyway", immediately followed by a genuine CUDA/NvMap allocation
+        failure inside ASR's onnxruntime session creation (`cudaErrorMemoryAllocation: out of
+        memory`) -- not a fluke, a structurally guaranteed outcome any time real headroom is
+        tight in exactly this common resident state (also confirmed separately: real
+        `tegrastats`/`/proc/meminfo` measurement shows a genuine ~1.5GB fixed OS/kernel floor
+        on this device that MODEL_BUDGET_BYTES's own "8GB-1GB" assumption doesn't fully
+        capture -- Agent(~4.2-4.3GB)+NMT(~0.6-0.9GB)+that floor alone leaves well under 1GB of
+        real slack for ASR's own loading transient).
+
+        Conditional, not unconditional (unlike run_tts()'s own evict_nmt_first, which always
+        evicts NMT if it's loaded): only evicts here if the SAME real-headroom check
+        _make_room_for() itself already uses says this specific load is genuinely tight --
+        most turns have comfortable real headroom and pay zero extra cost; only the turns that
+        would otherwise hit the crash pay a real, controlled ~9-11s NMT reload instead.
+
+        Reloaded SYNCHRONOUSLY right after ASR's own load+infer complete, before this call
+        returns -- deliberately NOT the fire-and-forget async pattern run_tts()'s
+        `_reload_asr_then_nmt` uses. That pattern is safe there because a farmer has to
+        trigger a whole new turn before NMT is needed again, a real multi-second-plus gap.
+        Here, `run_nmt()` gets called moments after this returns (ASR's own real infer is
+        ~1s) -- nowhere near enough of a gap to hide an async reload safely, and `run_nmt()`
+        itself only checks `_is_loaded()` (no wait-for-in-flight-load handling), so an async
+        version here would risk `run_nmt()` racing a still-loading NMT -- a new bug in place
+        of the crash this fixes. Pass evict_nmt_first=False for the old sticky-through-ASR
+        behavior, e.g. an A/B comparison."""
         self._log(f"--- stage: ASR ({language}) " + "-" * 40)
+        _evicted_nmt_for_asr = False
+        if evict_nmt_first and self._is_loaded("nmt"):
+            predicted = config.PREDICTED_LOAD_COST_BYTES.get("asr", 0)
+            real_headroom_ok = predicted <= self.snapshot()["real_available_bytes"]
+            if not real_headroom_ok:
+                self._log("        evict_nmt_first: real headroom too tight for ASR's own "
+                           "load -- freeing NMT first (real crash fix, see run_asr()'s own "
+                           "docstring)")
+                self._unload("nmt", reason="evict_nmt_first: freeing real headroom before ASR load")
+                _evicted_nmt_for_asr = True
         self._enforce_complementary("asr")
         self._make_room_for("asr")
         asr_state = self._worker_status("asr").get("state")
@@ -815,6 +896,33 @@ class MemoryOrchestrator:
         # enough to just stay resident -- see ASR_QUANTIZED_TIMING.md. Rule 1 (complementary
         # with TTS) still evicts it when TTS actually needs to load, and Rule 10 still
         # preloads it back afterward -- only the *per-transcription* eviction is gone.
+        if _evicted_nmt_for_asr:
+            # Synchronous, on purpose -- see evict_nmt_first's own docstring above for why an
+            # async reload here would be unsafe (run_nmt() gets called moments after this
+            # returns, with no wait-for-in-flight-load handling of its own).
+            #
+            # 2026-08-16 real fix -- headroom check added before this reload, after a REAL
+            # crash: a genuine HTTP 500 from the gateway's /nmt/load (an out-of-memory-class
+            # failure, same family as the original crash evict_nmt_first exists to fix) hit
+            # when this fired unconditionally with real_avail down to 0.45GB right after ASR's
+            # own load, on a real Jetson run. `_reload_asr_then_nmt()`'s own async NMT-reload
+            # step already has this exact guard (see its own code) -- this call site never got
+            # it because it's the SYNCHRONOUS sibling, not the async one. If headroom is too
+            # tight, skip the eager reload here (same graceful-degrade philosophy already
+            # documented at that async call site) -- run_nmt() runs moments after this returns
+            # and already safely handles "NMT not loaded" via its own _make_room_for() (real
+            # eviction + real-memory check), so nothing breaks; this turn's NMT stage just pays
+            # a real (small) synchronous load cost there instead of finding it pre-warmed.
+            snap = self.snapshot()
+            predicted = config.PREDICTED_LOAD_COST_BYTES.get("nmt", 0)
+            headroom = min(snap["available_bytes"], snap["real_available_bytes"])
+            if headroom < predicted:
+                self._log(f"        skipping eager nmt reload -- only {headroom / 1e9:.2f}GB "
+                           f"available (tracked={snap['available_bytes']/1e9:.2f}GB, "
+                           f"real={snap['real_available_bytes']/1e9:.2f}GB) -- run_nmt() will "
+                           f"load it safely when actually needed")
+            else:
+                self._load("nmt", reason="evict_nmt_first: reloading NMT after ASR load (synchronous)")
         return result
 
     def run_nmt(self, direction_label, infer_fn):
@@ -1079,7 +1187,10 @@ class MemoryOrchestrator:
             f"~{peak_delta_bytes[0] / 1e9:.2f}GB (predicted ~{predicted_growth / 1e9:.2f}GB for tts alone at batch={batch_size})"
         )
         self._record_event("tts", "infer", elapsed)
-        self._unload("tts", reason="turn complete, freeing TTS")
+        if getattr(config, "TTS_STAY_RESIDENT", False):
+            self._log("        [policy] TTS stays resident between turns")
+        else:
+            self._unload("tts", reason="turn complete, freeing TTS")
         if evict_nmt_first and session_language != "en" and not self._is_loaded("nmt"):
             # 2026-08-14: SEQUENCED (ASR then NMT), not concurrent -- see
             # _reload_asr_then_nmt()'s own docstring for the real production crash this fixes.
@@ -1139,7 +1250,9 @@ class MemoryOrchestrator:
             except Exception as exc:
                 self._log(f"        *** background ASR-then-NMT sequence failed ({exc!r}) -- "
                            f"non-fatal, next real use just loads synchronously instead ***")
-        threading.Thread(target=_sequence, daemon=True).start()
+        t = threading.Thread(target=_sequence, daemon=True)
+        self._background_reload_thread = t  # so teardown() can wait for it -- see its own comment
+        t.start()
 
     def teardown(self):
         """Unload everything still resident -- call at the very end of a session to
@@ -1152,10 +1265,49 @@ class MemoryOrchestrator:
         through `start_new_session()`. `start_new_session()` relies on THIS persist rather
         than doing its own separate one -- one persist call per real teardown, not two."""
         self._persist_current_session()
+
+        # 2026-08-16 real fix -- wait for any in-flight _reload_asr_then_nmt() background
+        # thread BEFORE the unload loop below runs its one-time is_loaded() checks. Confirmed
+        # live on a real 5-turn Jetson run: that thread was still mid-flight (hadn't loaded NMT
+        # yet) at the exact instant teardown() was called, so the loop below's own is_loaded()
+        # check missed it (read not-loaded-yet) -- the thread then went on to actually LOAD NMT
+        # after teardown()'s own "after teardown" line had already printed and returned,
+        # leaving it genuinely resident with nothing left to unload it. Bounded wait (not
+        # indefinite): the sequence's own real worst case is ASR (~6-9s warm) + NMT (~10s), so
+        # 20s covers it with real margin -- if it's somehow still running past that, the loop
+        # below still runs as before and simply won't catch a load that finishes even later.
+        t = self._background_reload_thread
+        if t is not None and t.is_alive():
+            self._log("        waiting for in-flight background ASR/NMT reload before teardown...")
+            t.join(timeout=20.0)
+
         self._log("--- teardown: releasing everything still resident " + "-" * 20)
         for name in ALL_COMPONENTS:
             if self._is_loaded(name):
                 self._unload(name, reason="session teardown")
+
+        # 2026-08-16 real fix -- settle before the final snapshot. A real caller's OWN process
+        # (an interactive test script, gramsahayak_app.py itself) is very often dying from the
+        # SAME signal that triggered this teardown (Ctrl+C/SIGTERM hits the whole process
+        # group, including the gateway subprocess if the caller hasn't detached it) -- if that
+        # sibling process's own CUDA/torch state is still mid-exit at the instant the unload
+        # loop above finishes, `psutil.virtual_memory()` can briefly report real_used still
+        # elevated even though everything THIS orchestrator tracks already reads unloaded/
+        # unreachable. Confirmed directly: a real teardown log showed real_used=7.34GB/
+        # real_avail=0.57GB printed immediately after "everything unloaded", but the SAME
+        # machine measured genuinely idle (~1.5GB, matching the independently-established OS
+        # floor, zero llama-server/gateway processes) well after -- a transient race in when
+        # the snapshot got taken, not a standing leak. Briefly poll for real_available_bytes to
+        # stop climbing (cheap -- shutdown isn't latency-sensitive) so the number actually
+        # printed reflects settled state instead of a mid-death instant that reads like a leak.
+        settle_deadline = time.time() + 3.0
+        prev_avail = None
+        while time.time() < settle_deadline:
+            avail = psutil.virtual_memory().available
+            if prev_avail is not None and avail <= prev_avail:
+                break  # stopped climbing -- whatever was going to free up already has
+            prev_avail = avail
+            time.sleep(0.5)
         self._snapshot_line("after teardown")
 
     def print_events_table(self):

@@ -50,6 +50,7 @@ import base64
 import io
 import os
 import sys
+import time
 
 _AGENTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if _AGENTS_DIR not in sys.path:
@@ -175,6 +176,72 @@ def _mms_chunk_max_chars(code):
     return by_lang.get(code, _ENGINE_CFG.get("chunk_max_chars_default", 180))
 
 
+def _split_to_cap(piece, cap, min_piece):
+    """Split one over-long text piece into pieces each <= `cap` chars. Cut order: deepest
+    secondary punctuation inside the window (`,`, `;`, `:` -- sentence-final marks can't
+    occur here, chunk_text() already split on those), then a word boundary, then a hard cut
+    as a last resort. Never emits a piece below `min_piece`: a too-short tail is merged
+    back into the previous piece instead of sounding clipped (VITS needs some utterance
+    length for natural prosody). Used only by the /infer_stream path -- see
+    `_stream_chunk_plan()`."""
+    piece = piece.strip()
+    if cap <= 0 or len(piece) <= cap:
+        return [piece] if piece else []
+    pieces = []
+    rest = piece
+    while len(rest) > cap:
+        window = rest[:cap]
+        cut = max(window.rfind(sep) for sep in (",", ";", ":"))
+        if cut < min_piece:
+            cut = window.rfind(" ")
+        if cut < min_piece:
+            cut = cap - 1
+        head, rest = rest[:cut + 1].strip(), rest[cut + 1:].strip()
+        if head:
+            pieces.append(head)
+    if rest:
+        if pieces and len(rest) < min_piece:
+            pieces[-1] += " " + rest
+        else:
+            pieces.append(rest)
+    return pieces
+
+
+def _stream_chunk_plan(text, code, payload):
+    """Chunk plan for `/infer_stream` on an MMS-supported language -- NOT used by blocking
+    /infer, which keeps its 30s chunks (fewer VITS passes = better cross-sentence prosody;
+    see config's stream_* comment for why streaming deliberately trades that away).
+
+    Layers, in order:
+      1. chunk_text() -- existing sentence-boundary packer at `max_chunk_chars`
+         (payload override, else config's stream_target_chunk_chars ~= 12s of speech).
+      2. Oversize guard (`_split_to_cap` at stream_hard_max_chars): one NMT run-on
+         sentence longer than this would reintroduce exactly the whole-answer latency
+         streaming exists to fix.
+      3. Fast start: chunk 0 re-split to stream_first_chunk_chars (~6-7s of Hindi speech)
+         -- time-to-first-audio is proportional to chunk 0's generation time alone.
+
+    `payload` may carry `max_chunk_chars` / `first_chunk_chars` to tune a call from the
+    client side; absent keys fall back to config. Returns the final list of chunk strings."""
+    target = int(payload.get("max_chunk_chars")
+                 or _ENGINE_CFG.get("stream_target_chunk_chars", 140))
+    first = int(payload.get("first_chunk_chars")
+                or _ENGINE_CFG.get("stream_first_chunk_chars", 80))
+    hard_max = int(_ENGINE_CFG.get("stream_hard_max_chars", 280))
+    min_piece = int(_ENGINE_CFG.get("stream_min_piece_chars", 45))
+
+    from models.tts_exports.streaming import chunk_text
+    packed = chunk_text(text, sentence_lang=code, max_chunk_chars=target) or [text]
+    guarded = []
+    for piece in packed:
+        guarded.extend(_split_to_cap(piece, hard_max, min_piece))
+    if not guarded:
+        return [text]
+    # Cap chunk 0 even when it came back under `target` but over `first` -- a short answer
+    # still deserves a fast first sound; _split_to_cap leaves short pieces untouched.
+    return _split_to_cap(guarded[0], first, min_piece) + guarded[1:]
+
+
 def _resolve_mms_language(language):
     """Returns (short_code_or_None, is_mms_supported: bool).
 
@@ -210,6 +277,125 @@ def _engine_factory():
     _holder["engine"] = engine
     _holder["streaming"] = None  # built lazily in _infer_parler, once engine.load() has run
     return engine
+
+
+def _mms_voice_cfg(payload=None):
+    """Voice-consistency settings for the mms_tts paths -- noise_scale/noise_scale_s/
+    speaking_rate/seed go straight to VitsModel.forward(), the voice_match_* pair drives
+    `_synthesize_voice_matched()`. Defaults live in config.py's mms_tts engine block
+    (added 2026-08-23 for the measured cross-chunk voice-drift incident: a real streamed
+    Hindi answer came back 122-155 Hz median F0 on chunks 0-2 and 195 Hz on chunk 3 --
+    audibly a different speaker -- because each chunk is an independent unseeded VITS draw).
+    Payload keys of the same name override config per call, same pattern as
+    max_chunk_chars/first_chunk_chars in `_stream_chunk_plan()`."""
+    cfg = {
+        "noise_scale": _ENGINE_CFG.get("noise_scale"),
+        "noise_scale_s": _ENGINE_CFG.get("noise_scale_s"),
+        "speaking_rate": _ENGINE_CFG.get("speaking_rate"),
+        "seed": _ENGINE_CFG.get("seed"),
+        "voice_match_tolerance": _ENGINE_CFG.get("voice_match_tolerance", 0.15),
+        "voice_match_max_retries": _ENGINE_CFG.get("voice_match_max_retries", 2),
+    }
+    if payload:
+        for key in ("noise_scale", "noise_scale_s", "speaking_rate", "seed"):
+            if payload.get(key) is not None:
+                cfg[key] = payload[key]
+    return cfg
+
+
+def _chunk_f0_median(audio, sample_rate, fmin=60.0, fmax=400.0):
+    """Median F0 over voiced frames of one synthesized chunk, plain numpy autocorrelation --
+    no extra dependency (the worker venv has numpy; librosa/crepe are not installed here).
+
+    Analyzes at most a central 8s window regardless of chunk length so the cost is bounded
+    (~1500 frames worst case, well under the 0.4-0.6s a retry would spend re-synthesizing);
+    within a single VITS pass the voice doesn't wander mid-chunk the way it does BETWEEN
+    passes, so a central window is representative. Returns None when there isn't enough
+    voiced material to trust (silence, <5 voiced frames) -- callers must treat that as
+    "no opinion", never as a match failure."""
+    x = np.asarray(audio, dtype=np.float64).flatten()
+    if x.size < sample_rate // 2:
+        return None
+    window = 8 * sample_rate
+    if x.size > window:
+        start = (x.size - window) // 2
+        x = x[start:start + window]
+    peak = np.max(np.abs(x))
+    if peak < 1e-6:
+        return None
+    x = x / peak
+
+    frame = int(0.04 * sample_rate)
+    hop = int(0.02 * sample_rate)
+    lo = int(sample_rate / fmax)
+    hi = min(int(sample_rate / fmin), frame - 1)
+    f0s = []
+    for i in range(0, x.size - frame, hop):
+        fr = x[i:i + frame]
+        if np.sqrt(np.mean(fr * fr)) < 0.02:
+            continue
+        fr = fr - fr.mean()
+        ac = np.correlate(fr, fr, "full")[frame - 1:]
+        ac = ac / (ac[0] + 1e-12)
+        seg = ac[lo:hi]
+        k = int(np.argmax(seg))
+        if seg[k] < 0.35:
+            continue
+        f0s.append(sample_rate / (lo + k))
+    if len(f0s) < 5:
+        return None
+    return float(np.median(f0s))
+
+
+def _synthesize_voice_matched(tts, chunk, ref_f0, voice_cfg):
+    """Synthesize one mms_tts chunk, re-drawing it up to `voice_match_max_retries` times
+    when its median F0 drifts beyond `voice_match_tolerance` (relative) from `ref_f0`,
+    keeping whichever attempt landed closest.
+
+    This bounds exactly the 2026-08-23 incident (chunks 0-2 at 122-155 Hz, chunk 3 at
+    195 Hz): with default sampling each chunk is an independent draw, so any per-answer
+    guarantee needs a check-and-redraw loop, not just luck. `ref_f0=None` (chunk 0 of an
+    answer, or every prior chunk unvoiced) means there is nothing to match against yet --
+    exactly one synthesis, no retries; chunk 0 IS the reference the rest of the answer
+    matches. Each attempt goes through `_release_chunk_memory()` like the plain loops did,
+    since retries add differently-shaped allocations to the CUDA caching allocator (the
+    real growth mechanism documented on `_infer_mms_tts`).
+
+    Returns (audio, sample_rate, f0_median_or_None, tries)."""
+    synth_kwargs = {
+        "noise_scale": voice_cfg.get("noise_scale"),
+        "noise_scale_s": voice_cfg.get("noise_scale_s"),
+        "speaking_rate": voice_cfg.get("speaking_rate"),
+        "seed": voice_cfg.get("seed"),
+    }
+    tolerance = voice_cfg.get("voice_match_tolerance", 0.15)
+    attempts = 1 + (int(voice_cfg.get("voice_match_max_retries", 2)) if ref_f0 is not None else 0)
+
+    first_audio = first_sr = None
+    best_audio = best_sr = None
+    best_f0 = None
+    best_dev = float("inf")
+    tries = 0
+    for attempt in range(attempts):
+        tries = attempt + 1
+        audio, sr = tts.synthesize(chunk, **synth_kwargs)
+        _release_chunk_memory()
+        if first_audio is None:
+            first_audio, first_sr = audio, sr
+        f0 = _chunk_f0_median(audio, sr)
+        dev = abs(f0 - ref_f0) / ref_f0 if (ref_f0 and f0 is not None) else float("inf")
+        # `best_audio is None or` matters: with no reference yet (chunk 0) dev is inf and
+        # would never beat itself -- without that guard the first draw's measured F0 got
+        # thrown away, leaving chunk 0 unreported AND the rest of the answer matching
+        # against chunk 1's voice instead of the one the farmer heard first.
+        if best_audio is None or dev < best_dev:
+            best_audio, best_sr, best_f0, best_dev = audio, sr, f0, dev
+        if dev <= tolerance:
+            break
+
+    if best_audio is None:  # every read came back unvoiced -- keep the first draw
+        best_audio, best_sr, best_f0, best_dev = first_audio, first_sr, None, float("inf")
+    return best_audio, best_sr, best_f0, tries
 
 
 def _infer_mms_tts(engine, payload: dict) -> dict:
@@ -249,12 +435,18 @@ def _infer_mms_tts(engine, payload: dict) -> dict:
         lang_engine = engine.mms.get(code)
         tts = MmsTtsInferencer(lang_engine)
         chunks = chunk_text(text, sentence_lang=code, max_chunk_chars=_mms_chunk_max_chars(code)) or [text]
+        voice_cfg = _mms_voice_cfg(payload)
+        accepted_f0s = []  # running reference: each chunk matches the median of the ones before it
         audio_parts = []
         sample_rate = None
+        voice_tries_total = 0
         for chunk in chunks:
-            chunk_audio, sample_rate = tts.synthesize(chunk)
+            ref_f0 = float(np.median(accepted_f0s)) if accepted_f0s else None
+            chunk_audio, sample_rate, f0, tries = _synthesize_voice_matched(tts, chunk, ref_f0, voice_cfg)
+            voice_tries_total += tries
+            if f0 is not None:
+                accepted_f0s.append(f0)
             audio_parts.append(chunk_audio)
-            _release_chunk_memory()
         audio = audio_parts[0] if len(audio_parts) == 1 else np.concatenate(audio_parts)
         engine_used = "mms_tts"
         num_chunks_used = len(chunks)
@@ -270,13 +462,21 @@ def _infer_mms_tts(engine, payload: dict) -> dict:
     buf = io.BytesIO()
     sf.write(buf, audio, sample_rate, format="WAV")
     audio_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-    return {
+    result = {
         "audio_base64": audio_b64,
         "sample_rate": sample_rate,
         "language": language,
         "engine": engine_used,
         "num_chunks": num_chunks_used,
     }
+    if engine_used == "mms_tts":
+        # Voice-consistency telemetry (2026-08-23): median F0 of every accepted chunk and
+        # how many synthesis attempts the matcher spent -- lets a caller (or a log reader)
+        # see drift and retries without decoding the audio. Additive keys; parler_fallback
+        # has no VITS draws to report on.
+        result["chunk_f0_medians"] = [round(f, 1) for f in accepted_f0s]
+        result["voice_match_tries"] = voice_tries_total
+    return result
 
 
 def _infer_parler(engine, payload: dict) -> dict:
@@ -389,19 +589,29 @@ def _stream_parler(engine, payload, engine_label="parler"):
 
 
 def _stream_mms_tts(engine, payload):
-    """Generator version of _infer_mms_tts -- used by `/infer_stream`. Now genuinely
-    incremental for a supported language (previously always exactly one chunk -- see this
-    module's own docstring for why that changed): chunks the input text the same way
-    `_infer_mms_tts` does and yields one item per chunk as it's synthesized, instead of one
-    call over the whole answer. Generation is much faster than playback (RTF ~0.025 measured
-    on an 883-char case), so a real caller (streaming.py's play_http_stream()) can be playing
-    chunk N while chunk N+1 is still generating. The fallback-to-Parler path for the 8
-    unsupported languages already had multiple real chunks to stream, so it still delegates
-    to `_stream_parler` rather than duplicating that logic. Same per-chunk
-    `_release_chunk_memory()` as `_infer_mms_tts` (2026-08-08) -- see that function's
-    docstring and `_release_chunk_memory()`'s own for the real measured cause and fix."""
+    """Generator version of _infer_mms_tts -- used by `/infer_stream`. Genuinely
+    incremental: yields one item per synthesized chunk as it finishes, so a caller can play
+    chunk N while chunk N+1 generates.
+
+    Chunks come from `_stream_chunk_plan()` -- NOT the same sizes blocking /infer uses:
+    a small chunk 0 minimizes time-to-first-audio, later chunks stay moderate (~12s of
+    speech), oversize-guarded against run-on sentences. Blocking /infer deliberately keeps
+    its larger, prosody-friendlier chunks; see both functions' config comments for the
+    tradeoff.
+
+    Per-chunk `synth_s` (2026-08-22): server-side wall clock of that chunk's synthesize()
+    call, so a client can separate generation time from its own queue/playback waits when
+    accounting for stalls. Same per-chunk `_release_chunk_memory()` as `_infer_mms_tts`
+    (2026-08-08) -- see that function's docstring and `_release_chunk_memory()`'s own for
+    the real measured cause and fix.
+
+    Per-chunk F0 voice-matching (2026-08-23): streaming's ~12s chunks mean MORE independent
+    VITS draws per answer than blocking /infer's 30s chunks, which is exactly where the
+    measured voice-drift incident came from (chunks 0-2 at 122-155 Hz median F0, chunk 3 at
+    195 Hz). Each chunk now redraws until it matches the running median of its predecessors --
+    `_synthesize_voice_matched()`; a retrying chunk's `synth_s` includes those extra draws,
+    which is fine: at RTF ~0.1 even 3 attempts stay well inside one chunk's playback time."""
     from models.mms_tts import MmsTtsInferencer
-    from models.tts_exports.streaming import chunk_text
 
     text = payload.get("text")
     language = payload.get("language")
@@ -413,15 +623,27 @@ def _stream_mms_tts(engine, payload):
     if supported:
         lang_engine = engine.mms.get(code)
         tts = MmsTtsInferencer(lang_engine)
-        chunks = chunk_text(text, sentence_lang=code, max_chunk_chars=_mms_chunk_max_chars(code)) or [text]
+        chunks = _stream_chunk_plan(text, code, payload)
+        voice_cfg = _mms_voice_cfg(payload)
+        accepted_f0s = []  # running reference: each chunk matches the median of the ones before it
         total = len(chunks)
         total_chars = sum(len(c) for c in chunks) or 1
         for idx, chunk in enumerate(chunks):
-            audio, sample_rate = tts.synthesize(chunk)
-            _release_chunk_memory()
+            ref_f0 = float(np.median(accepted_f0s)) if accepted_f0s else None
+            synth_t0 = time.monotonic()
+            audio, sample_rate, f0, tries = _synthesize_voice_matched(tts, chunk, ref_f0, voice_cfg)
+            synth_s = time.monotonic() - synth_t0
+            if f0 is not None:
+                accepted_f0s.append(f0)
             yield {
                 "chunk_index": idx, "total_chunks": total, "total_chars": total_chars,
                 "chunk_chars": len(chunk), "sample_rate": sample_rate,
+                "synth_s": round(synth_s, 3),
+                # Voice-consistency telemetry (2026-08-23): this chunk's median F0 and how
+                # many draws the matcher spent on it -- the client's end-of-stream report
+                # surfaces both so drift/retries are visible per turn without decoding audio.
+                "f0_median": round(f0, 1) if f0 is not None else None,
+                "voice_tries": tries,
                 "audio_base64": _b64_wav(audio, sample_rate),
                 "language": language, "engine": "mms_tts",
             }

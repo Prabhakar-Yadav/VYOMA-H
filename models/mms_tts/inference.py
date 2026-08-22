@@ -25,8 +25,37 @@ class MmsTtsInferencer:
     def __init__(self, engine):
         self.engine = engine
 
-    def synthesize(self, text):
-        """Returns (audio: np.ndarray[float32], sample_rate: int)."""
+    def synthesize(self, text, noise_scale=None, noise_scale_s=None, speaking_rate=None,
+                   seed=None):
+        """Returns (audio: np.ndarray[float32], sample_rate: int).
+
+        The optional kwargs tune VITS's own sampling knobs (None = the checkpoint/HF
+        default, i.e. exactly the old behavior). MECHANISM, learned the hard way 2026-08-23:
+        this transformers build's `VitsModel.forward()` REJECTS these as kwargs -- passing
+        them crashed every /tts/infer and /tts/infer_stream call at once. They are model
+        ATTRIBUTES consumed inside forward(): `model.noise_scale`, `model.noise_scale_duration`
+        (this kwarg maps to it -- note the different name), `model.speaking_rate`. synthesize()
+        therefore saves the loaded checkpoint's attribute values, sets the requested ones,
+        and restores the originals in a `finally:` so callers that pass nothing (play(),
+        synthesize_to_file()) keep pure checkpoint-default behavior.
+
+        The knobs exist because of the 2026-08-23 voice-drift incident: VITS samples
+        a fresh latent z ~ N(0, noise_scale^2) plus duration noise on EVERY forward pass
+        with no seed and no speaker embedding to anchor "the voice" (these checkpoints are
+        mono-speaker, speaker_embedding_size: 0), so separately-synthesized chunks of one
+        answer are independent draws -- a real streamed Hindi answer measured 122-155 Hz
+        median F0 on its first three chunks and 195 Hz on the fourth (audibly a different
+        person; tts_worker.py now F0-matches chunks against each other). Lowering
+        noise_scale/noise_scale_s clusters the draws around the model's mean voice so
+        chunks agree more, at some cost to prosody liveliness -- values come from
+        config.py's mms_tts engine block, not hardcoded here.
+
+        `seed`, when set, is applied via torch.manual_seed() before the forward pass --
+        the SAME seed on every call makes all chunks draw from the same random sequence
+        (shared latent prefix), the strongest consistency lever here, at the cost of
+        identical output for identical input (fine for TTS, wrong for anything wanting
+        sample diversity).
+        """
         if not self.engine.is_loaded:
             raise RuntimeError("Model not loaded -- call engine.load() first")
 
@@ -36,9 +65,45 @@ class MmsTtsInferencer:
         inputs = self.engine.tokenizer(text, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        with torch.no_grad():
-            output = model(**inputs)
+        if seed is not None:
+            torch.manual_seed(seed)
 
+        # VitsModel.forward() does not accept these as kwargs.
+        # They are model attributes consumed internally by forward().
+        old_noise_scale = model.noise_scale
+        old_noise_scale_duration = model.noise_scale_duration
+        old_speaking_rate = model.speaking_rate
+        
+        try:
+            if noise_scale is not None:
+                model.noise_scale = noise_scale
+        
+            if noise_scale_s is not None:
+                model.noise_scale_duration = noise_scale_s
+        
+            if speaking_rate is not None:
+                model.speaking_rate = speaking_rate
+        
+            with torch.no_grad():
+                output = model(**inputs)
+        
+        finally:
+            # Don't permanently modify the loaded checkpoint configuration.
+            model.noise_scale = old_noise_scale
+            model.noise_scale_duration = old_noise_scale_duration
+            model.speaking_rate = old_speaking_rate
+        
+#        fwd_kwargs = {}
+#        if noise_scale is not None:
+#            fwd_kwargs["noise_scale"] = noise_scale
+#        if noise_scale_s is not None:
+#            fwd_kwargs["noise_scale_s"] = noise_scale_s
+#        if speaking_rate is not None:
+#            fwd_kwargs["speaking_rate"] = speaking_rate
+#
+#        with torch.no_grad():
+#            output = model(**inputs, **fwd_kwargs)
+#
         audio = output.waveform.to(torch.float32).cpu().numpy().squeeze()
         if audio.ndim == 0:
             audio = np.zeros(1, dtype=np.float32)

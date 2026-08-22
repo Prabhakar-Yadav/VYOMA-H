@@ -48,7 +48,9 @@ changes.
 """
 import json
 import os
+import random
 import sys
+import threading
 import time
 
 # This file lives one level deeper than it used to (gramsahayak/agent/agent.py, not
@@ -65,7 +67,7 @@ for _p in (_ROOT_DIR, _AGENT_DIR):
 import ollama
 
 from api_server import config
-from prompts import SYSTEM_PROMPT
+from prompts import SYSTEM_PROMPT, SYSTEM_PROMPTS
 from status_messages import STATUS_MESSAGES
 from tools.photo_analysis import analyze_photo_unified as _analyze_photo_impl
 from tools.pesticide_lookup import find_pesticide
@@ -113,6 +115,15 @@ CONTEXT_COMPACTION_THRESHOLD_TOKENS = 28000
 # much lighter turns than this agent's (image analysis + multi-tool RAG lookups + long
 # answers), which would blow the budget again almost immediately at that size.
 CONTEXT_COMPACTION_KEEP_LAST_N_TURNS = 3
+
+# 2026-08-16: real per-turn latency investigation follow-up -- "if the final answer is taking
+# way too long... can we add some content there too". Real per-iteration gen= times observed
+# in actual Jetson multiturn testing ranged 0.6-28s+ (THINKING_MODE_RESULTS.md), so a single
+# fixed pre-call status can sit stale through a genuinely slow outlier call. 8s sits
+# comfortably past the real median (most calls land well under this) but before the real slow
+# tail, so run_turn()'s `_chat_with_followup()` watchdog only fires on the calls actually
+# worth narrating further, not on every normal one.
+_LONG_CALL_THRESHOLD_SEC = 8.0
 # Marker prefix identifying the synthetic summary-turn (index 1-2 of `messages`, right after
 # the system prompt) so a LATER compaction pass can find and extend it instead of creating a
 # second, duplicate one -- see _compact_context_if_needed().
@@ -128,18 +139,96 @@ _CONTEXT_SUMMARY_MARKER = "[EARLIER CONVERSATION SO FAR]"
 # whatever `get_status_message()` returns. Messages themselves are PRESET, not translated live
 # per call (see status_messages.py's own docstring for why) -- generated once via this
 # project's own real NMT engine by `build_status_messages.py`, not hand-translated/guessed.
-def get_status_message(stage: str, tool_name: str | None = None, language: str = "en") -> str:
+def get_status_message(stage: str, tool_name: str | None = None, language: str = "en",
+                        variant_index: int = 0) -> str:
     """Looks up the preset status string for one real stage/tool, in one language. `stage` is
-    one of "asr"/"nmt_in"/"agent_thinking"/"nmt_out"/"tts", OR "tool" (with `tool_name` set to
-    the real tool being called, e.g. "analyze_photo") for a per-tool-call message. Graceful
-    fallback chain, never raises over a missing key: unknown tool -> the generic "fallback"
-    entry; unknown/missing language for a real entry -> that entry's own English text (still
-    something meaningful to show, not a blank screen or a crash) -- a language this device
-    doesn't support yet, or a tool added to TOOLS without a matching preset yet, should never
-    take the whole status display down with it."""
+    one of "asr"/"nmt_in"/"agent_thinking"/"agent_reviewing"/"agent_finalizing"/"nmt_out"/"tts",
+    OR "tool" (with `tool_name` set to the real tool being called, e.g. "analyze_photo") for a
+    per-tool-call message. Graceful fallback chain, never raises over a missing key: unknown
+    tool -> the generic "fallback" entry; unknown/missing language for a real entry -> that
+    entry's own English variants (still something meaningful to show, not a blank screen or a
+    crash) -- a language this device doesn't support yet, or a tool added to TOOLS without a
+    matching preset yet, should never take the whole status display down with it.
+
+    `variant_index` (2026-08-16): each key now holds a LIST of phrasings, not one fixed string
+    -- real feedback was that repeating the identical clip for a tool called twice in one turn
+    (a real, valid case -- different real arguments, same tool name) felt robotic. Cycles via
+    modulo, so any index is safe to pass regardless of how many variants actually exist."""
     key = f"tool:{tool_name}" if stage == "tool" and tool_name else stage
     entry = STATUS_MESSAGES.get(key) or STATUS_MESSAGES["fallback"]
-    return entry.get(language, entry["en"])
+    variants = entry.get(language) or entry["en"]
+    return variants[variant_index % len(variants)]
+
+
+# 2026-08-15: real per-turn latency investigation (device shows ~15s/tool, well above
+# Bhashini's 6s target) -- one of the concrete mitigations tried: play a PRE-RECORDED status
+# clip (see agent/build_status_audio.py) alongside get_status_message()'s text, instead of
+# leaving the wait silent. Same design as the text presets: baked in ONCE, offline, via the
+# real production TTS engine (no live synthesis per display -- that would add latency to the
+# exact moment this exists to mask). Mirrors get_status_message()'s own graceful-fallback
+# contract exactly -- a stage/tool with no key, or a language with no clip yet, degrades to the
+# fallback/English clip rather than a missing/crashing playback, same reasoning as the text
+# version: a tool added to TOOLS without a matching audio build yet, or a language this device
+# doesn't support in audio form yet, should never take the whole status display down with it.
+_STATUS_AUDIO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "status_audio")
+
+
+def get_status_audio_path(stage: str, tool_name: str | None = None, language: str = "en",
+                           variant_index: int = 0) -> str | None:
+    """Same key derivation as get_status_message() ("tool:<name>" or the bare stage). Returns
+    a real filesystem path to a WAV clip, or None if nothing exists for it (caller's cue to
+    skip audio for this update rather than crash/block -- see build_status_audio.py's own
+    docstring for why these are pre-baked files, not a live call). Fallback chain: this
+    stage/tool's own clip in `language` -> the same key's English clip -> the generic
+    "fallback" key's clip in `language` -> that key's English clip -> None.
+
+    `variant_index` (2026-08-16): same real reason as get_status_message()'s own -- a repeated
+    tool call in one turn should get a different clip, not the identical one again. The actual
+    file index is resolved fresh at each fallback step (`% that step's own real variant count`,
+    read from STATUS_MESSAGES, the same source build_status_audio.py used to name the files) --
+    not assumed to match the ORIGINAL key/language's variant count, since a language with fewer
+    built clips than English is a real, supported degradation, not an error."""
+    key = f"tool:{tool_name}" if stage == "tool" and tool_name else stage
+    for lookup_key, lookup_lang in ((key, language), (key, "en"),
+                                     ("fallback", language), ("fallback", "en")):
+        entry = STATUS_MESSAGES.get(lookup_key) or STATUS_MESSAGES["fallback"]
+        variants = entry.get(lookup_lang)
+        if not variants:
+            continue
+        actual_index = variant_index % len(variants)
+        candidate = os.path.join(_STATUS_AUDIO_DIR, lookup_lang,
+                                  f"{lookup_key.replace(':', '_')}_v{actual_index}.wav")
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def pick_status_variant(key: str, last_used: dict | None = None) -> int:
+    """2026-08-16, real feedback: "we can always do a random sample so that it will feel
+    genuinely different" -- picks a RANDOM variant index for this key (not sequential
+    cycling), while never immediately repeating the exact one just used for this same key, if
+    `last_used` (a caller-owned dict) already has an entry for it. Scope of `last_used` is the
+    caller's choice -- run_turn() uses a fresh, per-turn dict (a tool called twice in the SAME
+    turn won't repeat), gramsahayak_app.py uses one instance-level dict that lives for the
+    whole session (so "asr"/"nmt_in"/etc., which only fire once per turn, still vary turn to
+    turn instead of saying the exact same thing every single time).
+
+    Variant COUNT is read from STATUS_MESSAGES' own English list for `key` -- real, not
+    guessed, and language-independent (every language gets the same number of variants per
+    key, built together by build_status_messages.py) so this doesn't need a language passed
+    in just to know how many options exist. Falls back to index 0 (the only real option) if
+    there's 0 or 1 variant for this key."""
+    entry = STATUS_MESSAGES.get(key) or STATUS_MESSAGES["fallback"]
+    num_variants = len(entry.get("en") or [""])
+    if num_variants <= 1:
+        return 0
+    choices = list(range(num_variants))
+    if last_used is not None and last_used.get(key) in choices:
+        choices.remove(last_used[key])
+    idx = random.choice(choices)
+    if last_used is not None:
+        last_used[key] = idx
+    return idx
 
 
 # ---------------------------------------------------------------------------
@@ -627,7 +716,8 @@ class GramSahayakAgent:
     """
 
     def __init__(self, model=None, vision_model=DEFAULT_VISION_MODEL, num_ctx=None,
-                 keep_alive=-1, temperature=0.2, think=None, max_tool_iterations=5):
+                 keep_alive=-1, temperature=0.2, think=None, max_tool_iterations=5,
+                 system_prompt=None):
         self.model = model or config.OLLAMA_MODELS[0]
         # Defaults to the same model as .model (not a separate resident model) -- see
         # DEFAULT_VISION_MODEL's comment above for why that's a memory decision, not just
@@ -636,10 +726,38 @@ class GramSahayakAgent:
         self.num_ctx = num_ctx if num_ctx is not None else config.OLLAMA_NUM_CTX
         self.keep_alive = keep_alive
         self.temperature = temperature
-        # None (not passed) -> config.AGENT_THINK; explicit False is a real, distinct value
-        # (fastest, no thinking at all) so it must not be treated the same as "unset".
-        self.think = think if think is not None else config.AGENT_THINK
+        # 2026-08-17 real fix: resolved PER AGENT MODEL now, same as system_prompt below --
+        # this used to always fall back to config.AGENT_THINK (a single global value tied to
+        # config.AGENT_MODEL_CHOICE) regardless of what `model=` was actually passed here. Real
+        # bug that produced: passing --agent-model X without ALSO manually passing a matching
+        # --agent-think meant X silently got whatever think level the STATIC default model
+        # happened to be tuned for, not X's own -- e.g. LFM2.5-VL-1.6B (registry think=None)
+        # would have gotten qwen3.5:2b's "medium" if qwen3.5:2b was still AGENT_MODEL_CHOICE at
+        # the time. `.get("think", config.AGENT_THINK)` only falls back to the global default
+        # when `self.model` has NO registry entry at all -- a model that IS registered with an
+        # explicit think=None (like LFM2.5-VL-1.6B) correctly gets None, not the fallback,
+        # since dict.get() only uses its default for a MISSING key, not a present key whose
+        # value happens to be None. Explicit `think=` (not None) still always wins, same as
+        # before -- this only changes what "unset" resolves to.
+        if think is not None:
+            self.think = think
+        else:
+            self.think = config.AVAILABLE_AGENT_MODELS.get(self.model, {}).get("think", config.AGENT_THINK)
         self.max_tool_iterations = max_tool_iterations
+        # 2026-08-17: resolved PER AGENT MODEL, not a single hardcoded constant anymore -- see
+        # prompts.py's own module docstring for the real reason (a real Jetson bench found
+        # LFM2.5-VL-1.6B needs a stronger reminder about calling analyze_photo first than
+        # qwen3.5:2b does). Explicit `system_prompt=` always wins (e.g. a test harness trying
+        # something ad hoc); otherwise look up this model's own entry in
+        # config.AVAILABLE_AGENT_MODELS, default to "default" (=SYSTEM_PROMPT, unchanged) if
+        # the model has no entry or no "system_prompt" key -- so an unrecognized --agent-model
+        # override never silently gets no system prompt at all, it just gets the same one
+        # every model used before this change.
+        if system_prompt is not None:
+            self.system_prompt = system_prompt
+        else:
+            prompt_key = config.AVAILABLE_AGENT_MODELS.get(self.model, {}).get("system_prompt", "default")
+            self.system_prompt = SYSTEM_PROMPTS.get(prompt_key, SYSTEM_PROMPT)
         self.last_tool_calls = []  # populated fresh by each run_turn() call -- see its own docstring
         # Real, evidence-based trigger (2026-08-14) -- a real chained 10-turn test hit
         # prompt_eval_count=32621 of this model's 32768-token num_ctx by turn 8, causing the
@@ -832,29 +950,67 @@ class GramSahayakAgent:
         (test_image_pipeline.py) without adding a synthetic wrapper around dispatch from
         outside this class.
 
-        `status_cb` (2026-08-14, optional): `status_cb(stage, tool_name=None)`, called in REAL
-        TIME right before each real stage of this turn -- "agent_thinking" before every
-        ollama.chat() call, "tool" (with `tool_name` set) right before each real tool actually
-        runs. Lets a caller (gramsahayak_app.py) show a live, farmer-facing status message
-        (get_status_message()) on the device screen DURING a turn's real 60-150s+ processing
-        time, not just a static "working..." the whole time. A caller that never passes this
-        pays nothing extra -- `status_cb is None` is checked before every call. Any exception
-        `status_cb` itself raises is swallowed, not re-raised -- a broken display callback must
-        never take down a real turn."""
+        `status_cb` (2026-08-14, optional): `status_cb(stage, tool_name=None, variant_index=0)`,
+        called in REAL TIME right before each real stage of this turn -- "agent_thinking"
+        before the turn's first ollama.chat() call, "agent_reviewing" before a mid-loop one,
+        "agent_finalizing" before the one forced-final call (see the `else` branch below --
+        the ONE point in this loop where we know FOR CERTAIN the next call produces the final
+        answer, not another tool decision), "tool" (with `tool_name` set) right before each
+        real tool actually runs. Lets a caller (gramsahayak_app.py) show a live, farmer-facing
+        status message (get_status_message()) on the device screen DURING a turn's real
+        60-150s+ processing time, not just a static "working..." the whole time. A caller that
+        never passes this pays nothing extra -- `status_cb is None` is checked before every
+        call. Any exception `status_cb` itself raises is swallowed, not re-raised -- a broken
+        display callback must never take down a real turn.
+
+        `variant_index` (2026-08-16): a RANDOM pick (pick_status_variant()) among this key's
+        real phrasings, never immediately repeating the one just used for the same key THIS
+        turn (a fresh, per-turn tracking dict -- a tool called twice in the same turn with
+        different real arguments gets two different clips, not the identical one repeated).
+
+        Also fires two NEW real-time-only stages via a background watchdog, not a fixed
+        pre-turn schedule: "agent_working_followup" / "agent_finalizing_followup", if any
+        single ollama.chat() call (mid-loop or the forced-final one, respectively) runs past
+        `_LONG_CALL_THRESHOLD_SEC` -- a live "still on it" cue for the genuine long-tail case
+        instead of a stale status sitting through an outlier-slow call."""
         self.last_tool_calls = []
         dispatch = self._build_dispatch(image_path, user_text)
+        _status_last_variant = {}  # key ("agent_thinking"/"tool:<name>"/...) -> last variant_index used this turn
 
         def _status(stage, tool_name=None):
             if status_cb is None:
                 return
+            key = f"tool:{tool_name}" if stage == "tool" and tool_name else stage
+            variant_index = pick_status_variant(key, _status_last_variant)
             try:
-                status_cb(stage, tool_name)
+                status_cb(stage, tool_name, variant_index)
             except Exception as exc:
                 if verbose:
                     print(f"    [status_cb] failed ({exc!r}) -- ignoring, turn continues")
 
+        def _chat_with_followup(followup_stage, **chat_kwargs):
+            """Wraps a real ollama.chat() call with a background watchdog that fires ONE
+            extra `_status(followup_stage)` if the call is still running after
+            `_LONG_CALL_THRESHOLD_SEC` -- real per-iteration gen times ranged 0.6-28s+ in
+            actual Jetson testing (THINKING_MODE_RESULTS.md), so a fixed pre-call status alone
+            can sit stale through a genuinely slow outlier. Doesn't change the call itself --
+            still fully blocking/synchronous (no streaming) -- just narrates a long wait
+            better if one happens. The watchdog thread is always cancelled (via `done.set()`)
+            before this returns, whether or not it fired."""
+            done = threading.Event()
+
+            def _watchdog():
+                if not done.wait(timeout=_LONG_CALL_THRESHOLD_SEC):
+                    _status(followup_stage)
+
+            threading.Thread(target=_watchdog, daemon=True).start()
+            try:
+                return ollama.chat(**chat_kwargs)
+            finally:
+                done.set()
+
         if messages is None:
-            messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+            messages = [{"role": "system", "content": self.system_prompt}]
         else:
             # Real threshold check, based on the PREVIOUS turn's actual token count -- see
             # _compact_context_if_needed()'s own docstring. Only meaningful for an ongoing
@@ -875,7 +1031,8 @@ class GramSahayakAgent:
             # build_status_messages.py's own comment on "agent_reviewing" for why this split
             # exists -- real test found "agent_thinking" alone fired 6x in one turn).
             _status("agent_thinking" if iteration == 1 else "agent_reviewing")
-            response = ollama.chat(
+            response = _chat_with_followup(
+                "agent_working_followup",
                 model=self.model, messages=messages, tools=TOOLS,
                 keep_alive=self.keep_alive, options=self._chat_options(),
                 stream=False, think=self.think,
@@ -914,17 +1071,67 @@ class GramSahayakAgent:
                 "role": "user",
                 "content": "You are out of tool calls for this turn — answer now with what you already know.",
             })
-            # Always "reviewing", never "thinking" -- this branch only runs after the loop
-            # exhausted every iteration, i.e. real tool results already exist in `messages`.
-            _status("agent_reviewing")
-            response = ollama.chat(
-                model=self.model, messages=messages, tools=TOOLS,
+            # 2026-08-16: was "agent_reviewing" -- this branch only runs after the loop
+            # exhausted every iteration, i.e. real tool results already exist in `messages`
+            # AND no more tool calls are allowed, so this call is DEFINITELY producing the
+            # final answer, not another tool decision. The one place in this whole loop where
+            # that's actually knowable in advance -- see status_cb's own docstring above and
+            # "agent_finalizing"'s entry in build_status_messages.py for why this couldn't be
+            # extended to the (much more common) mid-loop case too.
+            _status("agent_finalizing")
+            # 2026-08-23: tools=None here, was TOOLS. Real failure on qwen3.5:0.8b
+            # (empty-answer incident): after two rewarded tool-call rounds, the model --
+            # still offered all 15 tools on this "answer now" call -- emitted a THIRD
+            # pesticide_lookup instead of prose. Nothing executes tool_calls after the
+            # loop and the pipeline reads turn_messages[-1].content verbatim, so that
+            # response silently became an empty answer. Removing the tools removes the
+            # temptation: this call's only possible job is producing text. Also makes
+            # the prompt slightly cheaper (no tool schemas). The normal path -- the
+            # model answering before iterations run out -- never touches this branch.
+            response = _chat_with_followup(
+                "agent_finalizing_followup",
+                model=self.model, messages=messages, tools=None,
                 keep_alive=self.keep_alive, options=self._chat_options(),
                 stream=False, think=self.think,
             )
             messages.append(response.message)
             self._print_timing("final", response, verbose)
             self._last_context_tokens = (response.prompt_eval_count or 0) + (response.eval_count or 0)
+
+        # ---- final-answer guard (2026-08-23) --------------------------------------
+        # The pipeline reads turn_messages[-1].content verbatim, so an empty .content
+        # here IS the app's "NO ANSWER PRODUCED" path. Two confirmed/possible causes:
+        # the model emitted a tool call nobody executes after the loop, or everything
+        # went into the thinking channel and generation ended with no content at all.
+        # Either way this used to fail SILENTLY -- log exactly what came back, then
+        # retry once with tools removed and a plain-text-only instruction appended
+        # (a changed context suffix breaks a repeat of the same generation).
+        _final_msg = messages[-1]
+        if not str(self._content_of(_final_msg) or "").strip():
+            _tc = getattr(_final_msg, "tool_calls", None) or []
+            _names = [getattr(getattr(c, "function", None), "name", "?") for c in _tc]
+            _th = getattr(_final_msg, "thinking", None)
+            print(f"    [agent] FINAL MESSAGE EMPTY: tool_calls={_names} "
+                  f"thinking_chars={len(_th) if _th else 0} "
+                  f"-- retrying once without tools", flush=True)
+            messages.append({"role": "user", "content":
+                             "Respond now in plain text only — no more tool calls. "
+                             "Answer the farmer's question directly with what you "
+                             "already know."})
+            _status("agent_finalizing")
+            response = _chat_with_followup(
+                "agent_finalizing_retry",
+                model=self.model, messages=messages, tools=None,
+                keep_alive=self.keep_alive, options=self._chat_options(),
+                stream=False, think=self.think,
+            )
+            messages.append(response.message)
+            self._print_timing("final-retry", response, verbose)
+            if not str(self._content_of(response.message) or "").strip():
+                print("    [agent] final-retry ALSO came back empty -- giving up; "
+                      "the turn will surface as NO ANSWER PRODUCED", flush=True)
+            self._last_context_tokens = ((response.prompt_eval_count or 0)
+                                         + (response.eval_count or 0))
 
         if verbose:
             print(f"    agent turn wall-clock: {time.perf_counter() - turn_start:.2f}s")

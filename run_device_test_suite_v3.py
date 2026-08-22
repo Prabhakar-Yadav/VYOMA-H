@@ -71,7 +71,75 @@ def snapshot_components(orch):
     return out
 
 
-MIN_SAFE_AVAIL_GB = 1.0  # below this, v2's whole run died on turn 1 -- don't even attempt a case here
+# Calibrated against real observed behaviour, NOT guessed (2026-08-14):
+#   - v1 completed 31 real turns with pre-turn real_avail sitting around 0.6-1.0GB.
+#   - v2 died on turn 1 starting from 0.34GB.
+#   - Steady state on THIS device with the agent resident is ~0.86GB available.
+# A 1.0GB floor was tried first and was actively harmful: it sat ABOVE normal
+# steady state, so 248 consecutive cases were skipped with "below safe floor" and
+# only 1 turn ever ran. 0.5GB keeps the guard against the genuinely fatal range
+# (<=0.35GB, where v2 died) without blocking the device's ordinary working state.
+MIN_SAFE_AVAIL_GB = 0.5
+
+# Real speaker name on this device (aplay -l: "card 1: UACDemoV10 [UACDemoV1.0]").
+# pocketinfer's own boards/jetson.py selects the same hardware by this same name
+# (ALSA_PLAYBACK_NAME = 'UACDemo') rather than trusting a system default.
+PLAYBACK_DEVICE_NAME = "UACDemo"
+PLAYBACK_CARD = 1  # resolved by name at startup via resolve_playback_card()
+
+
+def play_through_real_speaker(wav_path):
+    """Play a turn's TTS answer out loud on the device's actual USB speaker.
+
+    Why not run_full_pipeline(play=True)? That path uses sounddevice, and on this
+    device sounddevice cannot reach the real speaker (both confirmed directly,
+    2026-08-14):
+      - sd.default.device was 30 ("default", the PipeWire/ALSA default sink), NOT
+        1 ("UACDemoV1.0"). Turns logged "playing audio (84.4s)..." with no error
+        and nobody in the room heard anything -- it was playing somewhere else.
+      - Pointing sounddevice straight at the speaker instead fails outright:
+        PortAudioError "Invalid sample rate [-9997]". MMS-TTS writes 16kHz mono
+        (soxi-confirmed); this USB speaker only accepts 48kHz stereo.
+
+    `aplay -D plughw:1,0` is the fix: ALSA's "plug" plugin resamples 16kHz mono ->
+    48kHz stereo transparently. Verified working on real hardware (exit 0) with a
+    real TTS .wav. pocketinfer-service avoids the same trap by piping through
+    ffplay, which likewise handles the conversion.
+
+    The .wav is still written by run_full_pipeline exactly as before -- this only
+    adds playback, it does not replace saving.
+    """
+    if not wav_path:
+        return
+    try:
+        proc = subprocess.run(
+            ["aplay", "-D", f"plughw:{PLAYBACK_CARD},0", str(wav_path)],
+            capture_output=True, text=True, timeout=300,
+        )
+        if proc.returncode != 0:
+            print(f"[RUNNER] *** playback failed (rc={proc.returncode}): {proc.stderr.strip()[:200]} ***")
+        else:
+            print(f"[RUNNER] played answer through speaker: {wav_path}")
+    except Exception as exc:
+        # Never let a speaker problem take down the test run itself.
+        print(f"[RUNNER] *** playback error ({exc}) -- continuing, .wav is still saved ***")
+
+
+def resolve_playback_card():
+    """Find the ALSA card number for the real speaker by NAME, not a hardcoded
+    index -- USB card numbers move when devices are re-enumerated/replugged."""
+    global PLAYBACK_CARD
+    try:
+        out = subprocess.run(["aplay", "-l"], capture_output=True, text=True, timeout=15).stdout
+        for line in out.splitlines():
+            if line.startswith("card ") and PLAYBACK_DEVICE_NAME in line:
+                PLAYBACK_CARD = int(line.split()[1].rstrip(":"))
+                print(f"[RUNNER] real speaker resolved to ALSA card {PLAYBACK_CARD}: {line.strip()}")
+                return
+        print(f"[RUNNER] *** WARNING: no ALSA card matching '{PLAYBACK_DEVICE_NAME}' -- "
+              f"falling back to card {PLAYBACK_CARD}, audio may be inaudible ***")
+    except Exception as exc:
+        print(f"[RUNNER] *** could not resolve speaker card ({exc}) -- using card {PLAYBACK_CARD} ***")
 
 
 def wait_for_safe_memory(orch, max_wait_s=90, poll_s=5):
@@ -134,11 +202,22 @@ def ensure_gateway_alive(orch, agent):
 def run_one_case(case, orch, agent):
     audio_path = AUDIO_DIR / case["audio"]
     t0 = time.time()
+    # play=True (2026-08-14, per direct instruction): the TTS answer is now played
+    # out loud through the device's real speaker AND still saved to
+    # sample_audio/pipeline_outputs/ as before -- run_full_pipeline() always writes
+    # the .wav regardless of `play`, so this adds playback without losing the file.
+    # Real cost: playback is blocking (sd.wait()), so each turn now also spends its
+    # answer's full audio duration playing it -- fewer cases fit in the same hour.
     result = run_full_pipeline(
         case["lang"], orch, agent, play=False,
         audio_path_override=str(audio_path),
         turn_label=f"batch2v3-{case['id']:02d}",
     )
+    # play=False above on purpose: run_full_pipeline's own sounddevice playback
+    # cannot reach this device's speaker (see play_through_real_speaker's
+    # docstring for the two confirmed failure modes). It still WRITES the .wav,
+    # which we then play ourselves through aplay's converting plug device.
+    play_through_real_speaker(result.get("audio_path"))
     snap = snapshot_components(orch)
     return {
         "event": "turn_complete", "phase": "single_batch2_v3", "case_id": case["id"],
@@ -169,6 +248,8 @@ def main():
     if not wait_for_gateway():
         print("gateway did not become healthy in time", file=sys.stderr)
         return 1
+
+    resolve_playback_card()  # must run before any turn plays audio
 
     orch = MemoryOrchestrator()
     agent = GramSahayakAgent()

@@ -93,7 +93,18 @@ class SessionStore:
         builds: session_id/started_at/pincode/state/district/turns[]. `INSERT OR REPLACE` (not
         plain INSERT) so a caller can safely save the same session_id twice (e.g. a retry)
         without a primary-key error -- session_id is a fresh uuid4 per session, so this is
-        never an accidental overwrite of a DIFFERENT session's row."""
+        never an accidental overwrite of a DIFFERENT session's row.
+
+        2026-08-21: orchestrator.py's `record_turn()` now calls this after EVERY turn (real
+        crash-resilience fix, see that method's own docstring), not just once at session end --
+        worth knowing for whoever builds the cloud-sync job the `uploaded` column above is
+        for: every call here, including these new incremental ones, hardcodes `uploaded=0` (see
+        the VALUES clause below). So if a sync job ever picks up and uploads a session WHILE
+        it's still in progress (turn 2 of an eventual 5, say), the FOLLOWING turn's own
+        `record_turn()` call will silently reset `uploaded` back to 0 on that same row -- not
+        a bug, just means a sync job needs to be fine with re-uploading a session it already
+        saw (idempotent on session_id on the receiving end), not assume `uploaded=1` is
+        permanent the moment it's set."""
         turns = session.get("turns", [])
         con = sqlite3.connect(self.db_path)
         try:

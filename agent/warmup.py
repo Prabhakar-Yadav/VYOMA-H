@@ -40,7 +40,7 @@ import ollama
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from prompts import SYSTEM_PROMPT  # noqa: E402
+from prompts import SYSTEM_PROMPT, SYSTEM_PROMPTS  # noqa: E402
 from agent.agent import TOOLS  # noqa: E402 -- package-qualified: this file lives inside the
 # `agent` package itself (imported as `agent.warmup`), so a bare `from agent import TOOLS`
 # resolves to the already-loaded package (`agent/__init__.py`, which only exports
@@ -49,23 +49,42 @@ from agent.agent import TOOLS  # noqa: E402 -- package-qualified: this file live
 from api_server import config  # noqa: E402
 
 
-def warmup_agent(model=None, num_ctx=None, think=None, verbose=True):
+def warmup_agent(model=None, num_ctx=None, think=None, verbose=True, system_prompt=None):
     """Real, blocking warmup call -- same system_prompt+tools shape agent.run_turn()'s own
     first `ollama.chat()` call uses, just with a throwaway placeholder user message. Returns
     the real elapsed time and prefill stats so a caller (or a device-boot script) can log/
-    verify it actually happened, not just assume it did."""
+    verify it actually happened, not just assume it did.
+
+    2026-08-17 real fix: `system_prompt=` resolution now mirrors `GramSahayakAgent.__init__`'s
+    own logic EXACTLY (same registry lookup, same "default" fallback) -- this used to always
+    warm `SYSTEM_PROMPT` regardless of `model=`, a real bug once a second per-model prompt
+    existed: warming the WRONG prefix means the real first turn's actual prefix (built from
+    THIS model's own resolved system_prompt) doesn't strict-prefix-match what got cached, so
+    the whole point of warmup -- a fast first prefill -- would have silently stopped working
+    for any model whose real prompt differs from the default, with no visible error, just a
+    slow turn 1 for the wrong reason. Passing `system_prompt=` explicitly still wins (matches
+    the agent's own override precedent) for a caller warming something ad hoc."""
     model = model or config.OLLAMA_MODELS[0]
     num_ctx = num_ctx or config.OLLAMA_NUM_CTX
-    think = think if think is not None else config.AGENT_THINK
+    # 2026-08-17 real fix: same per-model resolution as GramSahayakAgent.__init__'s own think=
+    # fix, same real reason -- this used to always fall back to config.AGENT_THINK (tied to the
+    # STATIC config.AGENT_MODEL_CHOICE) regardless of what `model=` was actually passed here,
+    # so warming e.g. LFM2.5-VL-1.6B without an explicit think= override warmed it at whatever
+    # think level the DEFAULT model happened to be tuned for, not this model's own.
+    if think is None:
+        think = config.AVAILABLE_AGENT_MODELS.get(model, {}).get("think", config.AGENT_THINK)
+    if system_prompt is None:
+        prompt_key = config.AVAILABLE_AGENT_MODELS.get(model, {}).get("system_prompt", "default")
+        system_prompt = SYSTEM_PROMPTS.get(prompt_key, SYSTEM_PROMPT)
 
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": "hello"},
     ]
 
     if verbose:
         print(f"[warmup] warming {model} (num_ctx={num_ctx}) with the real system_prompt+tools "
-              f"prefix ({len(SYSTEM_PROMPT)} chars, {len(TOOLS)} tools)...", flush=True)
+              f"prefix ({len(system_prompt)} chars, {len(TOOLS)} tools)...", flush=True)
 
     t0 = time.perf_counter()
     resp = ollama.chat(

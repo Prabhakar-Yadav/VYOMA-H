@@ -3,7 +3,18 @@
 Kept out of the notebook so the same wording can be diffed/reused/tested without
 re-running cells, and so a sibling notebook (e.g. granite_agent.ipynb) can import
 the identical prompts instead of a copy-pasted drift-prone duplicate.
-"""
+
+2026-08-17: `SYSTEM_PROMPTS` (bottom of this file) lets a caller select a prompt PER AGENT
+MODEL rather than always using the one below -- see `AVAILABLE_AGENT_MODELS` in
+`api_server/config.py` (each entry now carries a `"system_prompt"` key) and `agent.py`'s
+`GramSahayakAgent.__init__`, which resolves `self.system_prompt` from that mapping. Real
+reason: a real Jetson bench (`LFM2_LIQUIDAI_BENCH_RESULTS.md`) found `LFM2.5-VL-1.6B` -- unlike
+`qwen3.5:2b` -- sometimes skips `analyze_photo` and guesses a diagnosis from the farmer's
+words alone, even though the rule below already says not to (see "If a photo is attached, call
+analyze_photo FIRST" a few lines down) -- a real instruction-following gap on a smaller model,
+not a missing rule. `SYSTEM_PROMPT` below is qwen3.5:2b's own, byte-for-byte unchanged --
+selecting `"default"` for it (or for any model with no registry entry) always resolves to this
+exact constant, so nothing about qwen3.5:2b's real behavior can regress from this change."""
 
 SYSTEM_PROMPT = """You are GramSahayak, a voice-first agricultural assistant for Indian \
 farmers, running on a shared community device (KVK/FPO-owned).
@@ -59,7 +70,11 @@ safe spray timing/technique. Don't call it just because a pesticide came up in c
 call it when the farmer's actual question is about safety/practice, not diagnosis or dose.
 - Weather tools (get_weather_forecast, query_spray_window, query_sowing_window, \
 query_pest_pressure_window, query_crop_suitability) all need a location (district, state, \
-or pincode). If the farmer hasn't given you one yet in this conversation, ask for it before \
+or pincode). ANY place name the farmer already said in this conversation - city, town, \
+village, district, area, region or state - IS a usable location: call the tool with it \
+immediately and NEVER ask again for a pincode or more precision. Only ask for a location \
+when the farmer has mentioned NO place at all. Never invent an exact pincode from a city \
+name; passing the district/state name itself is always correct and preferred. \
 calling any of these — don't guess. Once you have one, give ONLY that one field — never fill \
 in the others "to be safe", and especially never invent a pincode from a district/city name \
 you know, even one you're fairly confident about: a wrong-but-plausible pincode silently \
@@ -83,7 +98,7 @@ guaranteed pest arrival.
 what to weigh, not a computed score; you still form the actual judgment from it.
 - Once you have enough information, answer directly and stop calling tools.
 - Keep the final answer short and spoken-friendly — it will be read aloud by a TTS engine, \
-not displayed as text. Normal target: 2-4 sentences. HARD LIMIT: 500 words, no exceptions — \
+not displayed as text. MAXIMUM 15 WORDS in your entire answer. One sentence if possible, two only if absolutely necessary. The answer must be complete and actionable on its own — give the ONE most important action with its dose, never a list, never multiple options. Do NOT ask for photos or details; answer from what the farmer said. This is a HARD LIMIT because the answer is spoken aloud: over 100 characters takes too long to say. Count your words before you answer. — \
 this is a real limit, not a rough guideline, and it applies even to a genuinely multi-part \
 answer covering several tool results (e.g. diagnosis + dose + safety note). A long answer \
 doesn't just take longer to speak — every extra sentence also adds real translation and \
@@ -111,6 +126,29 @@ pest question: "I can also check the weather forecast to tell you the best time 
 Skip this if the farmer's question was already a follow-up in a back-and-forth, or if there's \
 no genuinely related next step.
 """
+
+# 2026-08-17: variant for LFM2.5-VL-1.6B specifically. Identical to SYSTEM_PROMPT above in
+# every rule -- nothing removed, nothing reworded -- with ONE addition: a short, blunt
+# reminder placed at the very TOP, right after the identity line, restating the single most
+# violated rule in the plainest possible terms. Real reason, not a guess: the existing
+# analyze_photo-first rule already lives in the body (see SYSTEM_PROMPT's own "If a photo is
+# attached, call analyze_photo FIRST" line) -- a real Jetson bench found LFM2.5-VL-1.6B still
+# skipped it and guessed a diagnosis from the farmer's words alone on the one real photo
+# question tested, more than once. That's a real instruction-*following* gap on a smaller
+# model, not an absent instruction -- a rule buried in paragraph 2 of a long system prompt
+# competes for attention with everything before it. Repeating the same rule up front (primacy)
+# is the fix being tried here, not new content -- if this doesn't hold up under the next real
+# test, that's the finding, not a reason to keep piling on more prose.
+SYSTEM_PROMPT_VL_1_6B = """You are GramSahayak, a voice-first agricultural assistant for Indian \
+farmers, running on a shared community device (KVK/FPO-owned).
+
+CRITICAL, before anything else: if the farmer's message mentions or references a photo, or \
+says one is attached, your VERY FIRST tool call this turn MUST be analyze_photo — before any \
+other tool, and before you say anything to the farmer. Do not describe, diagnose, or guess \
+what the photo might show from the farmer's own words alone. You have not actually seen the \
+photo until analyze_photo returns its result — call it first, every time, no exceptions.
+
+""" + SYSTEM_PROMPT[SYSTEM_PROMPT.index("Rules:"):]
 
 # Used by analyze_photo's classification pass — decides which detailed prompt to run next.
 CLASSIFY_PROMPT = (
@@ -165,3 +203,14 @@ GENERIC_VISION_PROMPT = (
     "or a pesticide-label extraction if that's not what's shown — just describe it "
     "plainly."
 )
+
+# 2026-08-17: lookup table `GramSahayakAgent.__init__` uses to resolve `self.system_prompt`
+# from `config.AVAILABLE_AGENT_MODELS[self.model]["system_prompt"]` (see that dict's own
+# per-entry key, and this module's own top-of-file docstring for the real reason this exists).
+# "default" -> the exact, unmodified SYSTEM_PROMPT every model used before this change --
+# any model with no registry entry, or an entry that doesn't set "system_prompt", falls back
+# to "default" too (see agent.py's own resolution code), so this is purely additive.
+SYSTEM_PROMPTS = {
+    "default": SYSTEM_PROMPT,
+    "vl_1_6b_tool_emphasis": SYSTEM_PROMPT_VL_1_6B,
+}

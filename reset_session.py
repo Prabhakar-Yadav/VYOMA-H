@@ -39,8 +39,28 @@ def _free_mb():
 
 
 def unload_ollama():
-    print("--- unloading Ollama-served components (agent + embedder) ---")
-    for model in config.OLLAMA_MODELS:
+    """2026-08-16: was `for model in config.OLLAMA_MODELS` -- a real, confirmed bug once
+    AVAILABLE_AGENT_MODELS/AGENT_MODEL_CHOICE made it easy to have something OTHER than
+    config.OLLAMA_MODELS[0] resident (e.g. a candidate loaded directly via an isolated test
+    script, or a --agent-model test run): this only ever knew how to unload whatever config
+    CURRENTLY names, not whatever's ACTUALLY loaded, so a real off-roster model (confirmed:
+    4skl/gemma4-e2b-mtp:latest, loaded by a real isolated test, left resident at 5.18GB real
+    RSS after config.py was edited to point AGENT_MODEL_CHOICE back at qwen3.5:2b) silently
+    survived every "clean slate" call this script made, misreporting a dirty baseline as
+    clean. Read the REAL resident set from /api/ps directly and unload everything found
+    there, not a config-driven guess -- config.OLLAMA_MODELS is no longer consulted here at
+    all."""
+    print("--- unloading Ollama-served components (whatever's REALLY resident, not a config guess) ---")
+    try:
+        r = requests.get("http://127.0.0.1:11434/api/ps", timeout=5)
+        resident = [m["name"] for m in r.json().get("models", [])]
+    except requests.RequestException as exc:
+        print(f"  Ollama unreachable ({exc}) -- nothing to unload or Ollama itself is down")
+        return
+    if not resident:
+        print("  nothing resident")
+        return
+    for model in resident:
         try:
             r = requests.post(
                 "http://127.0.0.1:11434/api/generate",
@@ -48,20 +68,17 @@ def unload_ollama():
             )
             print(f"  {model}: unload requested (status {r.status_code})")
         except requests.RequestException as exc:
-            print(f"  {model}: Ollama unreachable ({exc}) -- nothing to unload or Ollama itself is down")
-            return
+            print(f"  {model}: unload request failed ({exc})")
     # Ollama's own unload call returns before the model is actually gone (same real gotcha
     # orchestrator.py's own _unload() already works around) -- poll /api/ps until it's
-    # actually empty of anything from our own model list, not just trust the response.
+    # actually empty, not just trust the response.
     deadline = time.time() + 15
     while time.time() < deadline:
         try:
             r = requests.get("http://127.0.0.1:11434/api/ps", timeout=5)
-            still_loaded = [m["name"] for m in r.json().get("models", [])
-                             if config.normalize_ollama_tag(m["name"]) in
-                             {config.normalize_ollama_tag(m2) for m2 in config.OLLAMA_MODELS}]
+            still_loaded = [m["name"] for m in r.json().get("models", [])]
             if not still_loaded:
-                print("  confirmed: no OLLAMA_MODELS entries resident anymore")
+                print("  confirmed: nothing resident anymore")
                 return
         except requests.RequestException:
             return

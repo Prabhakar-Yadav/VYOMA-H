@@ -82,7 +82,127 @@ OLLAMA_HOST = "http://localhost:11434"
 # process's real /proc/<pid>/status (VmLck: 0 kB) and its actual llama-server command line (no
 # --mlock flag present at all), it's a genuine no-op on this version, not just a soft warning.
 # Deleted the resulting model tag rather than keep a variant that provides nothing.
-OLLAMA_MODELS = ["qwen3.5:2b", "granite-embedding:30m"]
+#
+# 2026-08-15/16: promoted from two separate globals (OLLAMA_MODELS[0] + AGENT_THINK, picked
+# independently) to a registry + one selector below. Real reason: `think` is NOT a model-
+# independent setting -- qwen3.5:2b needs "medium" (think=False real-crashed with an EMPTY
+# final answer on turn 1 of a real 5-turn Jetson run, see THINKING_MODE_RESULTS.md), while
+# gemma4-e2b-mtp needs think=False (its own real bench win depends on it -- think="medium"
+# reintroduces the thinking-token overhead that's the whole reason it's faster, and is also
+# what produced the earlier, now-superseded "ruled out" verdict on a related gemma4 tag, see
+# GEMMA4_E2B_ROBUSTNESS_RESULTS.md). Picking a model without its paired `think` value is a
+# real, easy-to-hit footgun (a mismatched pairing either silently gives up gemma4's whole real
+# advantage or reproduces qwen2b's real empty-answer failure) -- this registry makes the two
+# travel together so that can't happen by accident.
+AVAILABLE_AGENT_MODELS = {
+    "qwen3.5:2b": {
+        "model": "qwen3.5:2b",
+        "think": "medium",
+        "system_prompt": "default",
+        "notes": (
+            "Current production default (since 2026-08-12, MAXN power mode closed 0.8b's "
+            "speed advantage). Real 5-turn Jetson bench (THINKING_MODE_RESULTS.md, "
+            "2026-08-15/16): think=\"medium\" 0/5 empty-content failures; think=\"low\" also "
+            "0/5 failures but no clear total-generation-time win over medium in that "
+            "comparison (turn-to-turn tool-iteration-count variance dominated); think=False "
+            "produced a real EMPTY final answer on turn 1 of a full run -- confirmed unsafe "
+            "for this model, do not use."
+        ),
+    },
+    "qwen3.5:0.8b": {
+        "model": "qwen3.5:0.8b",
+        "think": "medium",  # think="low" confirmed to sometimes return empty .content on this model specifically (the original incident this whole per-model registry is built
+        "system_prompt": "default",
+        "notes": (
+            "Lower-memory backup: 1.33GB vs 2b's 2.66GB real VRAM. Real, observed accuracy "
+            "gap vs 2b on image-based photo diagnosis (one data point, not exhaustively "
+            "tested: 0.8b said \"Potato Black Scurf\" on a sample where 2b's plain-text "
+            "diagnosis of the same symptoms correctly said \"Potato late blight\")."
+        ),
+    },
+    "4skl/gemma4-e2b-mtp:latest": {
+        "model": "4skl/gemma4-e2b-mtp:latest",
+        "think": False,
+        "system_prompt": "default",
+        "notes": (
+            "NOT SAFE TO SELECT (2026-08-16) -- real, root-caused memory problem, not just "
+            "an orchestrator-contention issue. This tag's OWN command line (confirmed via "
+            "real Jetson `ps aux`) shows it loads THREE things simultaneously: the base "
+            "gemma4-e2b model, a SEPARATE draft model for speculative decoding (`--spec-type "
+            "draft-mtp --spec-draft-model ...` -- \"mtp\" in the tag name -- almost certainly "
+            "the real reason it benched fast, genuine speculative decoding, not just "
+            "think=False), and a vision projector (`--mmproj ...`). Real measured RSS for "
+            "that combination, confirmed via `ps aux --sort=-rss` with NOTHING else loaded "
+            "(no ASR/NMT/TTS/embedder -- isolates this from orchestrator contention "
+            "entirely): 5.18GB -- while Ollama's own `/api/ps` reports only `size_vram` "
+            "~304MB for the same load, a real, large accounting gap. 5.18GB resident before "
+            "a single image is processed, out of Jetson's real ~7.4GB physical, leaves "
+            "essentially no margin for the vision call's own compute buffers regardless of "
+            "what else is or isn't loaded -- confirmed directly: the SAME real CUDA OOM on "
+            "analyze_photo reproduces even in this fully-isolated, nothing-else-loaded case, "
+            "not just in the full orchestrated 5-turn/10-turn runs (3/3 turn-1 photo calls, "
+            "2/2 attempts in the 10-turn run before it crashed outright at turn 4 -- "
+            "journalctl: 'runtime OOM detected; expiring loaded models to clear memory' / "
+            "'CUDA error: out of memory'). A farmer photographing a diseased plant -- the "
+            "single most common real use case -- is exactly the case this breaks. Zero "
+            "empty-content (non-vision) failures across all 15 successful orchestrated turns "
+            "(a real positive, unlike qwen3.5:2b's think=False). Also "
+            "unresolved: the one real photo-diagnosis case tested (ground truth = late blight) "
+            "-- this model said a viral disease, qwen3.5:2b said a different wrong blight type; "
+            "neither got it right. No parallel tool-calling observed. Before this candidate can "
+            "be selected here for real, someone would need a variant WITHOUT the draft-model+"
+            "vision bundle eating ~5GB at rest (e.g. the plain, non-MTP gemma4:e2b-it-qat tag, "
+            "not yet re-benched at think=False -- see this project's own earlier notebook "
+            "finding that think=False was gemma4's biggest lever, tested there on a DIFFERENT, "
+            "non-MTP tag) -- this specific bundle's resting footprint is the real blocker, not "
+            "something the orchestrator's eviction logic could route around. Full data: "
+            "GEMMA4_E2B_ROBUSTNESS_RESULTS.md. NOTE: this is a working community tag of the "
+            "Gemma-4 E2B family, NOT the exact originally-requested "
+            "hf.co/unsloth/gemma-4-E2B-it-qat-mobile-GGUF:UD-Q2_K_XL file -- that specific "
+            "GGUF fails to load on Ollama 0.32.1 (\"tensor 'token_embd.weight' size "
+            "overflow\", confirmed via both `ollama show` and a real chat call)."
+        ),
+    },
+    "hf.co/LiquidAI/LFM2.5-VL-1.6B-GGUF": {
+        "model": "hf.co/LiquidAI/LFM2.5-VL-1.6B-GGUF",
+        "think": None,  # not a qwen3.5-style thinking model -- None means "don't pass think="
+                         # at all (see agent.py's own None-vs-False distinction), same as every
+                         # non-qwen candidate tested in LFM2_LIQUIDAI_BENCH_RESULTS.md.
+        "system_prompt": "vl_1_6b_tool_emphasis",  # see prompts.py's own docstring for why
+                         # this model gets a distinct prompt, not qwen3.5:2b's "default" one.
+        "notes": (
+            "Real candidate, added 2026-08-17 after a real 15-question Jetson bench "
+            "(LFM2_LIQUIDAI_BENCH_RESULTS.md) comparing it against qwen3.5:2b directly on the "
+            "actual target device: 11/15 tool accuracy (vs qwen's 10/15), 3221MB real peak "
+            "memory (vs qwen's 5772MB, 44% less), 105s total wall-clock for all 15 questions "
+            "(vs qwen's 644s, ~6x faster). This is the ONLY one of three LiquidAI LFM2.5 "
+            "configs tested that beat qwen3.5:2b on every measured axis (the other two traded "
+            "real accuracy for a smaller memory/speed win). Real caveats, not fully resolved: "
+            "(1) skipped analyze_photo on the one real photo question tested, inferring a "
+            "diagnosis from the farmer's words alone instead -- prompted the "
+            "vl_1_6b_tool_emphasis system prompt variant above as a real, direct attempt at a "
+            "fix, itself not yet re-verified; (2) one wrong-tool call (pesticide_lookup "
+            "instead of get_treatment_details on a real Mancozeb dosage question) produced a "
+            "factually WRONG answer ('may not be registered' for a real, registered "
+            "treatment) -- a wrong tool call here isn't just a scoring miss, it can mislead a "
+            "farmer. Vision genuinely works (confirmed via real photo input, real specific "
+            "descriptions, not generic non-answers) and tool-calling works via Ollama's "
+            "DEFAULT Modelfile template on Ollama 0.32.1/0.32.9 -- no custom Modelfile needed, "
+            "contrary to an older, stale secondhand report found during research. Uses this "
+            "same model for BOTH agent reasoning and analyze_photo's own vision call (no "
+            "separate vision_model= needed) -- same single-resident-model shape as qwen3.5:2b "
+            "today, just a smaller model in that one slot."
+        ),
+    },
+}
+
+# Change this ONE line to switch the agent's model -- pulls in its correctly-paired `think`
+# value automatically (see AVAILABLE_AGENT_MODELS' own comment for why the two must travel
+# together). test_orchestrated_pipeline.py's --agent-model/--agent-think flags remain the way
+# to try something ad hoc for a single test run without touching this file at all.
+AGENT_MODEL_CHOICE = "qwen3.5:2b"
+
+OLLAMA_MODELS = [AVAILABLE_AGENT_MODELS[AGENT_MODEL_CHOICE]["model"], "granite-embedding:30m"]
 # Larger comparison point, not part of the pipeline -- used in test_timing.py to see how
 # load/unload time scales with model size (kept from before the agent model was reverted).
 OLLAMA_COMPARISON_MODEL = "qwen3.5:2b"
@@ -108,30 +228,14 @@ OLLAMA_COMPARISON_MODEL = "qwen3.5:2b"
 # directly (same method as PREDICTED_LOAD_COST_BYTES below) at 2.5619GB real size_vram for
 # qwen3.5:2b at 32768, only ~124MB more than 16384's 2.4383GB -- KV cache scales far more gently
 # than the num_ctx=262144-default case above (that one wasn't quantized/GQA-tuned the same way).
-OLLAMA_NUM_CTX = 8192 * 4
+OLLAMA_NUM_CTX = 8192   # 2026-08-22: 32768 KV-cache did not fit with all models resident (OOM/reboot at real_avail=0.10GB during turn-4 ASR load); 8192 keeps the full multi-turn conversation within budget so nothing evicts
 
-# Agent's `think` level for ollama.chat() -- live, adjustable, same as the vars above. Options
-# and what was actually measured with them (5-6 repeated identical calls each, real Jetson +
-# this dev machine, qwen3.5:0.8b, see agent/agent.py's class docstring for the incident this
-# came from):
-#   False   -- fastest (~7s/turn observed), but confirmed to sometimes return a completely
-#              EMPTY final `.content` on this small a model -- it generates real tokens with
-#              think="low" but not False; False itself hasn't reproduced empty content in
-#              testing, but see the "medium" note below for why it's not the pick anyway.
-#   "low"   -- confirmed on real Jetson hardware to sometimes return an EMPTY `.content` while
-#              putting everything into `.thinking` instead (the model never closes its
-#              reasoning phase) -- this is the bug that silently broke NMT downstream
-#              (translating an empty string). Do not use.
-#   "medium" -- 0/6 empty-content failures across repeated tests, real substantive answers,
-#              ~10-20s/turn observed. Best reliability-for-latency tradeoff found so far --
-#              current default.
-#   "high"  -- also 0/6 empty-content failures, marginally more thorough answers, but ~14-29s/
-#              turn observed (up to ~4x slower than False) -- not worth it over "medium" unless
-#              answer quality becomes a real problem.
-# Re-tune this per model if OLLAMA_MODELS[0] ever changes -- these numbers are qwen3.5:0.8b-
-# specific, not a general Ollama/qwen3.5 property (qwen3.5:2b's think="low" was previously
-# validated as reliable, see run_pipeline_live_demo.py).
-AGENT_THINK = "medium"
+# Agent's `think` level for ollama.chat() -- derived from AGENT_MODEL_CHOICE above, NOT an
+# independent setting anymore (see AVAILABLE_AGENT_MODELS' own comment for why: think is a
+# real, model-specific tuning, not a global preference). Re-tune by editing that model's own
+# "think" entry above, not this line -- kept as its own name (not inlined at every call site)
+# since a lot of code still reads `config.AGENT_THINK` directly.
+AGENT_THINK = AVAILABLE_AGENT_MODELS[AGENT_MODEL_CHOICE]["think"]
 
 # Which TTS engine the pipeline actually uses -- live, adjustable, exactly like
 # OLLAMA_NUM_CTX above (not a one-time build choice). "mms_tts" (default) or "parler".
@@ -147,7 +251,18 @@ AGENT_THINK = "medium"
 # but re-check before any commercial deployment; that's the one reason this default might
 # need to flip back to "parler" later, not a technical one.
 TTS_ENGINE = "mms_tts"
-##Other options: "parler" (the other engine this pipeline can use, but slower and bigger than mms_tts)
+##Other options: "parler" (the other engine this pipeline can use, but slower and bigger than
+# mms_tts), "fastspeech2_hs" (Bhashini/IIT Madras FastSpeech2+HiFi-GAN -- added 2026-08-14,
+# real GX10 evaluation in fastspeech2_bhashini_eval/COMPARISON.md on the dev machine. Real,
+# live comparison: MMS-TTS is currently faster and smaller on every measured axis -- this
+# option exists as a config-selectable fallback specifically for MMS-TTS's CC-BY-NC-4.0
+# license (non-commercial only, see this file's own comment above), since fastspeech2_hs is
+# CC BY 4.0 (commercial-friendly with attribution). NOT a drop-in yet: needs `espnet`+
+# `espnet2` importable in whatever interpreter runs the "tts" worker -- real, unresolved
+# dependency conflict (espnet's install downgraded torch 2.13.0->2.12.1 in GX10 testing, not
+# yet attempted against this project's own shared venv) -- see models/fastspeech2_hs/
+# model_loader.py's own docstring point 5. Only "hindi"/"male" has a real checkpoint vendored
+# so far (models/checkpoints/fastspeech2-hs/).
 
 # Per-engine settings, keyed by the same names TTS_ENGINE selects between. tts_worker.py
 # reads WORKERS["tts"]["engine"] to decide which one to actually instantiate; everything
@@ -307,6 +422,131 @@ _TTS_ENGINE_CONFIGS = {
         # in the table above (e.g. if preload_languages grows past hi/ta/ml/en) -- close to
         # the three real measurements rather than reverting to chunk_text()'s untuned 180
         # (coincidentally almost identical to Hindi's own 15s-target value).
+
+        # ---- STREAMING (/tts/infer_stream) chunk sizes -- separate from the 30s values
+        # above ON PURPOSE. The blocking /infer path keeps 30s chunks: fewer VITS forward
+        # passes = better cross-sentence prosody (the real "flow lost, struggling" finding
+        # from the 2026-08-09 revert documented above). The streaming path deliberately pays
+        # that same prosody tradeoff in exchange for latency: time-to-first-audio is
+        # proportional to chunk 0's size alone, so a small first chunk (~80 chars ~= 6-7s of
+        # Hindi speech at the measured 12.01 chars/sec) turns ~26s of silence into sound
+        # within ~7s. Later chunks use stream_target_chunk_chars (~140 chars ~= 12s audio):
+        # big enough that per-chunk overhead and prosody loss stay bounded, small enough
+        # that generation keeps reasonably ahead of playback. These are starting values to
+        # be TUNED FROM THE [tts-stream] LOG BLOCK's real stall stats, not from theory --
+        # see GRAMSAHAYAK_UX.md's streaming section for the TTFA-vs-stall trade each knob
+        # controls.
+        "stream_first_chunk_chars": 80,
+        "stream_target_chunk_chars": 140,
+        # Oversize guard: one NMT run-on sentence longer than this gets force-split at
+        # secondary punctuation (then word boundaries), because an unbounded sentence would
+        # reintroduce exactly the whole-answer-latency problem streaming exists to fix.
+        "stream_hard_max_chars": 280,
+        # Floor for forced splits: below this a fragment sounds clipped (VITS needs some
+        # utterance length for natural prosody).
+        "stream_min_piece_chars": 45,
+
+        # ---- Voice consistency across chunks (added 2026-08-23) ----
+        # Real incident this block exists for: a streamed Hindi answer measured 122-155 Hz
+        # median F0 on chunks 0-2 and 195 Hz on chunk 3 -- audibly a different person.
+        # Root cause is architectural, not a bug: VITS samples a fresh latent z and fresh
+        # duration noise on EVERY forward pass, unseeded, with no speaker embedding to
+        # anchor "the voice" (these checkpoints are mono-speaker, speaker_embedding_size: 0),
+        # so every chunk of an answer is an independent draw. Streaming's ~12s chunks make
+        # MORE draws per answer than blocking /infer's 30s chunks -- the tradeoff the
+        # stream_*_chars block above already documents as "no prosody continuity across the
+        # cut", heard here at full strength. Two levers, both in tts_worker.py:
+        #
+        # 1. noise_scale / noise_scale_s -- applied to the loaded VitsModel around its
+        #    forward pass. NOT forward() kwargs: this transformers build's VitsModel.forward()
+        #    rejects them outright (real 500s on every TTS call, 2026-08-23) -- they are model
+        #    ATTRIBUTES (model.noise_scale / model.noise_scale_duration / model.speaking_rate)
+        #    that inference.py's synthesize() sets before forward() and restores after.
+        #    Note the attribute for noise_scale_s is named noise_scale_duration on the model --
+        #    the config key keeps the HF-forward-style name on purpose. Defaults are
+        #    0.667 / 1.0; the values below HALVE both, clustering draws around the model's
+        #    mean voice so consecutive chunks agree more. Cost: somewhat flatter prosody.
+        #    Initial values chosen by reasoning, not by ear -- tune from real device A/B
+        #    before treating them as settled (set either to null to restore the HF default).
+        # 2. voice_match_* -- the hard guarantee: each chunk's median F0 (cheap numpy
+        #    autocorrelation, tts_worker.py::_chunk_f0_median) must land within tolerance of
+        #    the running median of the chunks before it, or it is redrawn up to
+        #    voice_match_max_retries times, keeping the closest draw. Chunk 0 is always
+        #    accepted as-is -- it IS the reference. At RTF ~0.1 even a fully-retried chunk
+        #    (~0.5s/draw) stays far inside its own playback time, so retries don't stall
+        #    the stream. voice_match_tolerance=0 disables the matcher entirely.
+        "noise_scale": 0.333,
+        "noise_scale_s": 0.667,
+        "speaking_rate": 1.0,
+        # Deterministic seed, applied via torch.manual_seed() before EVERY chunk's forward
+        # pass -- the same seed on every chunk makes all chunks share one random sequence
+        # (strongest consistency lever), at the cost of identical text -> identical audio.
+        # null = unseeded (current behavior, diversity across turns). Never set this while
+        # also expecting the voice matcher to have anything to do: same-seed chunks of the
+        # same length are near-identical by construction.
+        "seed": None,
+        "voice_match_tolerance": 0.15,
+        "voice_match_max_retries": 2,
+    },
+    "fastspeech2_hs": {
+        # 2026-08-14: added via a real, hands-on GX10 evaluation -- see models/fastspeech2_hs/
+        # model_loader.py's own module docstring for the full derivation and every caveat
+        # (female voices vendored for 12 languages, Hindi/male as an extra, Maithili has no
+        # real checkpoint at all, espnet dependency conflict unresolved, Dravidian vocoder
+        # routing untested beyond confirming it loads). Real numbers below are all from
+        # that evaluation's live, same-methodology comparison against mms_tts
+        # (fastspeech2_bhashini_eval/COMPARISON.md on the dev machine) -- NOT re-measured on
+        # Jetson.
+        "checkpoint_dir": os.path.join(AGENTS_DIR, "models", "checkpoints", "fastspeech2-hs"),
+        # Real, current path on GX10 (the dev machine) -- see gateway.py's _spawn() for what
+        # reads this. NOT valid on Jetson or any other machine; this whole engine hasn't been
+        # deployed there yet (see model_loader.py's own module docstring). Update this path
+        # (or give that machine its own dedicated espnet venv at a different path) before
+        # selecting "fastspeech2_hs" anywhere other than GX10.
+        "python_executable": "/home/davidacad10/Documents/github/blue-parrot/fastspeech2_bhashini_eval/venv/bin/python3",
+        "default_gender": "female",  # 2026-08-14: real bug fix, see models/fastspeech2_hs/
+        # model_loader.py's own DEFAULT_GENDER comment -- female is the primary vendored
+        # voice across languages of interest now, Hindi/male is the only extra.
+        # Real measured RSS after a real /load?language=hindi call through the actual
+        # gateway spawn mechanism (fresh process): 1352MB. This is a SINGLE language+gender
+        # resident (this engine loads voices lazily per-(language,gender), not eagerly like
+        # mms_tts's old all-4 design) -- there's no "all languages eager" figure to report
+        # since that was never this engine's design in the first place.
+        "predicted_load_cost_steady_bytes": 1_400_000_000,
+        # Real bug found and fixed testing this block for the first time (2026-08-14):
+        # PREDICTED_LOAD_COST_BYTES["tts_single_language"] unconditionally reads this exact
+        # key regardless of which engine is active, so config.py failed to IMPORT AT ALL
+        # (KeyError) the moment TTS_ENGINE was switched to "fastspeech2_hs" without it. This
+        # engine only ever loads one voice lazily to begin with (no eager-all-languages
+        # design the way mms_tts originally had), so there's no smaller "just one more
+        # language on top of an already-warm worker" number to report the way mms_tts's own
+        # 250MB figure represents -- reusing the steady figure here is the conservative,
+        # safe-direction choice (may make preload_tts() skip a preload it could have
+        # safely done; better than the reverse).
+        "predicted_load_cost_single_language_bytes": 1_400_000_000,
+        # Real measured peak RSS after a long (~1300-char/270-word, ~90s audio) real answer,
+        # CHUNKED at the real 360-char Hindi budget below (chunking is a hard requirement for
+        # this engine, not optional -- see model_loader.py's own docstring point 3: the SAME
+        # answer unchunked peaked at 1985MB VRAM alone, ~2.3GB+ combined, a real, measured
+        # ~32x-worse number this key deliberately does NOT reflect, since production always
+        # chunks). 2.35GB keeps real margin over the measured ~2.3-2.33GB.
+        "predicted_load_cost_peak_batch3_bytes": 2_350_000_000,
+        "default_batch_size": 1,
+        "min_batch_size": 1,
+        "needs_batching": False,  # non-autoregressive (FastSpeech2 duration predictor +
+        # HiFi-GAN parallel vocoder) -- confirmed directly, same as mms_tts's own VITS.
+        # Real measured cold /load (through the actual gateway spawn mechanism, WITH a real
+        # language= param -- this engine's load() is lazy-no-op without one, same as
+        # mms_tts's): 4.41s. Real measured process-kill unload: 0.72s.
+        "predicted_load_time_sec": 4.41,
+        "predicted_unload_time_sec": 0.72,
+        # Chunking is NOT optional for this engine (unlike mms_tts, where it's more of a
+        # memory-bounding hygiene measure) -- see model_loader.py's own docstring point 3.
+        # Only Hindi is real-measured/tuned so far; other languages fall back to the same
+        # conservative default until individually calibrated the way mms_tts's three were.
+        "chunk_max_chars_by_language": {"hi": 360},
+        "chunk_target_duration_sec": 30,
+        "chunk_max_chars_default": 300,
     },
 }
 
@@ -457,5 +697,11 @@ def normalize_ollama_tag(name: str) -> str:
 # also-unified GPU/CPU memory pool (GB10, ~130GB) and won't hit this ceiling, but the gateway
 # uses the same constant either way so /system/memory's utilization_pct means the same thing
 # on both machines. Override at deploy time for the real device if it ever differs from 8GB-1GB.
+
+# TTS stay-resident policy (2026-08-21): keep the TTS worker loaded between turns
+# instead of unloading at every 'turn complete'. Unloading cost a real ~15s reload per
+# turn on Jetson. With agent+ASR+NMT all resident there is still real headroom for TTS.
+TTS_STAY_RESIDENT = True
+
 MODEL_BUDGET_BYTES = 7_000_000_000
 COMPLEMENTARY_PAIRS = [("asr", "tts")]
