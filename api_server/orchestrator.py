@@ -943,12 +943,21 @@ class MemoryOrchestrator:
             # distinction matters when reading device logs to attribute latency wins.
             self._log("        ASR already fully loaded "
                       "(record/golden-window preload paid off, zero wait)")
-            # Real load already happened, just before this call ran (Rule 10's own preload,
-            # possibly during an earlier turn) -- record it now from the worker's own
-            # self-reported load_time_sec so the per-turn table doesn't silently miss it.
+            # 2026-08-23 logging-fix: this branch used to re-record the worker's
+            # self-reported load_time_sec here ("so the per-turn table doesn't silently
+            # miss it"). Real device log showed why that's a misrepresentation: after
+            # session warm start, turn 1's summary printed "asr load 7.7s" -- the
+            # BOOT-time load -- under a section literally labeled "loads/unloads since
+            # turn start". The worker's load_time_sec describes its LAST load whenever
+            # that happened; re-recording it misattributes old work to this turn AND
+            # double-counts when the load genuinely was in-window (sync _load() and
+            # _await_async_load() already record their own events -- run_nmt()'s
+            # identical re-record produced the bogus second "nmt load" entry the same
+            # day). Log-only now; the per-turn table stays literal.
             lt = self._worker_status("asr").get("load_time_sec")
             if lt is not None:
-                self._record_event("asr", "load", lt)
+                self._log(f"        (asr's underlying load was {lt:.2f}s -- paid outside "
+                          f"this turn's window: warm start or earlier downtime)")
         self._snapshot_line("ready")
         t0 = time.perf_counter()
         result = infer_fn()
@@ -1002,12 +1011,21 @@ class MemoryOrchestrator:
             self._load("nmt", reason=f"translating ({direction_label})")
         else:
             self._log("        nmt already resident")
-            # Same real gap already fixed for ASR's own "already loaded" branch -- if NMT is
-            # resident here because evict_nmt_first's async reload already finished (hidden in
-            # the Agent/TTS downtime), that real load never otherwise gets an event recorded.
+            # 2026-08-23 logging-fix: used to re-record the worker's load_time_sec here
+            # ("same real gap already fixed for ASR") -- the reasoning was stale on two
+            # counts. (1) Both evict_nmt_first reload paths are SYNCHRONOUS _load() calls
+            # today and record their own events; no async NMT load path exists anymore
+            # (the old _reload_asr_then_nmt _load_async("nmt") is gone too). (2) When NMT
+            # is resident for any other reason -- session warm start, a previous turn's
+            # downtime, app restart against the live gateway -- the re-record pulled a
+            # minutes-old duration into THIS turn's window. Real device log: one turn
+            # showed BOTH "nmt load 10.3s" (the genuine in-window sync load) AND
+            # "nmt load 2.4s" (this re-record of the same physical load, worker-side
+            # measure) in one summary. Log-only now, mirroring run_asr()'s fix above.
             lt = self._worker_status("nmt").get("load_time_sec")
             if lt is not None:
-                self._record_event("nmt", "load", lt)
+                self._log(f"        (nmt's underlying load was {lt:.2f}s -- paid outside "
+                          f"this turn's window)")
         self._snapshot_line("ready")
         t0 = time.perf_counter()
         result = infer_fn()
@@ -1042,6 +1060,32 @@ class MemoryOrchestrator:
             self._log("        embedder already resident")
             return
         self._load("embedder", reason="session start -- loaded once, stays resident all session")
+
+    def ensure_nmt_loaded_for_session(self):
+        """Warm-starts NMT at session start IF real headroom allows (2026-08-23 turn-latency
+        pass 2, user-requested): saves the first turn's ~9s inline NMT reload at the NMT
+        stage. Conditional, unlike its two ensure_* siblings above -- this device is
+        memory-bottomed (agent+embedder+ASR alone leave well under 1GB real free on a bad
+        day, and OLLAMA_NUM_CTX went 8192 -> 16384 on 2026-08-23, ~137MB more KV cache), so
+        when the same min(tracked, real) check every other preload uses says NMT's predicted
+        load doesn't fit, skip and leave NMT to run_nmt()'s own proven during-run load path
+        (its _make_room_for + evict ladder) instead of forcing an OOM here. Also no-ops when
+        NMT is already resident (app restart against a still-running gateway). Call order
+        from the app: agent -> ASR -> this -- NMT last so it's the one that yields."""
+        if self._is_loaded("nmt"):
+            self._log("        nmt already resident")
+            return
+        snap = self.snapshot()
+        predicted = config.PREDICTED_LOAD_COST_BYTES.get("nmt", 0)
+        headroom = min(snap["available_bytes"], snap["real_available_bytes"])
+        if headroom < predicted:
+            self._log(f"        skipping nmt warm start -- only {headroom / 1e9:.2f}GB available "
+                       f"(tracked={snap['available_bytes']/1e9:.2f}GB, "
+                       f"real={snap['real_available_bytes']/1e9:.2f}GB, "
+                       f"need ~{predicted / 1e9:.2f}GB) -- it will load during the first turn "
+                       f"as before")
+            return
+        self._load("nmt", reason="session warm start -- headroom allows")
 
     def run_agent(self, infer_fn, preload_tts=False, tts_language=None):
         """`preload_tts=` default flipped to False (2026-08-12) -- Rule 5 used to preload TTS
@@ -1098,7 +1142,8 @@ class MemoryOrchestrator:
         self._log(f"        agent turn: {time.perf_counter() - t0:.2f}s")
         return result
 
-    def preload_tts(self, language=None, reason="Rule 5: golden-window preload during NMT-out downtime"):
+    def preload_tts(self, language=None, reason="Rule 5: golden-window preload during NMT-out downtime",
+                    blocking=False):
         """The real fix (2026-08-12) for Rule 5's GPU-contention problem -- see run_agent()'s
         own docstring for the full story and the real concurrent-load numbers behind this.
         Call this right after run_agent() returns (whether or not an NMT-out stage follows) --
@@ -1109,6 +1154,16 @@ class MemoryOrchestrator:
         win either way); for English (no NMT-out stage at all) it's still safe to call here, it
         just won't have anything to hide behind, no worse than loading synchronously at the TTS
         stage itself. No-op if TTS is already loaded or loading.
+
+        `blocking=` (2026-08-23, default False): False (unchanged) fires the load via
+        `_load_async` and returns immediately -- the golden-window caller wants exactly that.
+        True runs the same checks but loads SYNCHRONOUSLY via `_load`, mirroring
+        preload_asr()'s own blocking mode -- used by GramSahayakUX's session warm start
+        (after its NMT attempt), so turn 1 finds TTS resident instead of paying the
+        ~7s wait-for-preload inside the TTS stage that a real device log showed (TTFA 8.2s
+        vs chunk-0 synth 2.6s: turn 1 finds TTS cold because keep-TTS-resident only helps
+        turns 2+, and short answers give the golden window only ~1s of NMT-out to hide in).
+        Same single-language headroom guard either way.
 
         2026-08-14: found (via a direct user question) that this method was never actually
         being called by the real production app (gramsahayak_app.py) at all -- only
@@ -1141,7 +1196,10 @@ class MemoryOrchestrator:
             self._log(f"        skipping tts preload -- only {headroom / 1e9:.2f}GB available "
                        f"(tracked={snap['available_bytes']/1e9:.2f}GB, real={snap['real_available_bytes']/1e9:.2f}GB)")
             return
-        self._load_async("tts", reason=reason, language=language)
+        if blocking:
+            self._load("tts", reason=reason, language=language)
+        else:
+            self._load_async("tts", reason=reason, language=language)
 
     def run_tts(self, language, infer_fn, batch_size=None, text_char_count=None,
                 evict_nmt_first=True, session_language=None):
