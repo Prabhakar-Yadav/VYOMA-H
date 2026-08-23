@@ -107,7 +107,18 @@ MAX_MAJOR_USES = 5  # pesticide_lookup's major_uses truncation, same constant as
 # docstring for the real incident and full mechanism. ~85% of config.OLLAMA_NUM_CTX (32768),
 # leaving real headroom (~4.7K tokens) for the compacted history block plus a new turn's own
 # consumption, not a number picked to sit right at the ceiling.
-CONTEXT_COMPACTION_THRESHOLD_TOKENS = 28000
+#
+# 2026-08-23: 28000 -> 14500, re-tuned alongside config.OLLAMA_NUM_CTX's own 8192 -> 16384 move
+# (see that constant's own comment for the real memory numbers behind the ctx change). This
+# constant had been silently orphaned in between: OLLAMA_NUM_CTX dropped 32768 -> 8192 on
+# 2026-08-22 (real OOM/reboot) without this threshold being touched, leaving it at a stale value
+# HIGHER than the entire context window it was meant to guard -- compaction could never have
+# fired before Ollama's own truncation did. 14500 (~88.5% of 16384, requested directly) leaves
+# ~1884 tokens of headroom for the compacted block + new turn -- real image-heavy turns averaged
+# ~4078 tok/turn in the original incident (see comment below), noticeably MORE than that
+# headroom, so a single post-compaction turn could still push past 16384 on its own. Left as
+# requested, not silently widened -- flagging the arithmetic here rather than second-guessing it.
+CONTEXT_COMPACTION_THRESHOLD_TOKENS = 14500
 # Real image-heavy tool-calling turns averaged ~4078 tok/turn in the actual incident (32621
 # tok / 8 turns) -- keeping the last 3 verbatim is ~12K tokens, comfortably inside the
 # threshold's headroom alongside the compacted block and the upcoming new turn. NOT the

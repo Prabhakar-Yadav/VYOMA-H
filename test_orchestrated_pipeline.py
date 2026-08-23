@@ -497,6 +497,29 @@ def run_full_pipeline(language, orch, agent, play=True, with_image=False, stream
         # fix for the underlying empty-content bug itself -- that's a real, separate issue.
         print(f"[PIPE] *** WARNING: agent returned EMPTY content this turn -- skipping NMT/TTS, "
               f"conversation continues (this turn contributes no assistant reply to `messages`) ***")
+
+        # 2026-08-23: one automatic retry with thinking disabled. Empty content happens
+        # when thinking tokens consume the entire num_predict budget; think=False is
+        # the proven-good configuration (0 empties in 40+ turns). Guarantees any caller
+        # (GramSahayakUX included) never announces silence to a farmer.
+        try:
+            print("[PIPE] [retry] empty answer -- retrying once with think=False ...", flush=True)
+            agent.think = False
+            _retry = agent.run_turn(english_query, image_path=image_path,
+                                    messages=None, verbose=True)
+            _retry_text = (_retry[-1].content or "").strip() if _retry else ""
+            if _retry_text:
+                english_answer = _retry_text
+                _new_messages.clear()
+                _new_messages.extend(_retry)
+                print(f"[PIPE] [retry] recovered answer ({len(english_answer)} chars)", flush=True)
+            else:
+                print("[PIPE] [retry] still empty -- continuing without audio", flush=True)
+            agent.think = True
+        except Exception as _re_exc:
+            print(f"[PIPE] [retry] failed: {_re_exc!r} -- continuing", flush=True)
+            agent.think = True
+
         stage_times["total_s"] = time.perf_counter() - turn_t0
         return {
             "english_query": english_query,

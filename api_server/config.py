@@ -228,7 +228,20 @@ OLLAMA_COMPARISON_MODEL = "qwen3.5:2b"
 # directly (same method as PREDICTED_LOAD_COST_BYTES below) at 2.5619GB real size_vram for
 # qwen3.5:2b at 32768, only ~124MB more than 16384's 2.4383GB -- KV cache scales far more gently
 # than the num_ctx=262144-default case above (that one wasn't quantized/GQA-tuned the same way).
-OLLAMA_NUM_CTX = 8192   # 2026-08-22: 32768 KV-cache did not fit with all models resident (OOM/reboot at real_avail=0.10GB during turn-4 ASR load); 8192 keeps the full multi-turn conversation within budget so nothing evicts
+OLLAMA_NUM_CTX = 16384   # 2026-08-23: 8192 -> 16384, deliberate middle ground after a real,
+# on-device remeasurement (today's config: OLLAMA_FLASH_ATTENTION=1 + OLLAMA_KV_CACHE_TYPE=q8_0,
+# both already active since 2026-08-14) -- agent-alone real memory available after load: 8192 ->
+# 2685MB, 16384 -> 2549MB, 32768 -> 2279MB (isolated `ollama ps`/`free -m` test, nothing else
+# loaded). Against TTS's own documented ~2.0-2.2GB peak (ASR_QUANTIZED_TIMING.md) -- the real
+# binding constraint, since Rule 1 already guarantees ASR and TTS are never resident at the same
+# time -- that leaves ~349MB headroom at 16384 vs ~79MB at 32768 (which is what actually OOM'd on
+# 2026-08-22, see git history on this line) and ~485MB at 8192. 16384 is a real, informed
+# tradeoff (thinner margin than 8192, accepted for the extra tool-calling headroom -- system_
+# prompt+tools alone is ~5800-5900 tokens, ~35% of a 16384 budget before any conversation
+# content), NOT a return to the 32768 config that already crashed the device. See agent.py's own
+# CONTEXT_COMPACTION_THRESHOLD_TOKENS, re-tuned the same day to match this new ceiling (was
+# already orphaned at a stale 28000, tuned for the old 32768 default, so it could never have
+# fired before Ollama's own truncation did).
 
 # Agent's `think` level for ollama.chat() -- derived from AGENT_MODEL_CHOICE above, NOT an
 # independent setting anymore (see AVAILABLE_AGENT_MODELS' own comment for why: think is a
