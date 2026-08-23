@@ -114,6 +114,14 @@ class MemoryOrchestrator:
         # hadn't caught up yet when teardown()'s unload loop ran its one-time check).
         self._background_reload_thread = None
 
+        # 2026-08-23: transient permission flag for the record-window ASR preload's
+        # eviction ladder (see preload_asr()'s evict_nmt_first). The pocketinfer app pins
+        # TTS resident between turns by wrapping this class's _unload (keep_resident=true,
+        # gramsahayak_ux.py); the wrapper consults THIS flag so a sanctioned record-window
+        # TTS eviction passes through while every ordinary one stays swallowed. False the
+        # rest of the time -- set True only inside the ladder's try/finally window.
+        self._allow_tts_eviction = False
+
         # Real session-transcript logging (2026-08-14, api_server/session_store.py) -- see
         # that module's own docstring for the full design/history (a same-day earlier attempt
         # built this at the wrong layer, inside pocketinfer; this supersedes it). Persisted on
@@ -735,7 +743,7 @@ class MemoryOrchestrator:
     # ------------------------------------------------------------------
 
     def preload_asr(self, reason="Rule 10: golden-window preload after TTS eviction",
-                     session_language=None, blocking=False):
+                     session_language=None, blocking=False, evict_nmt_first=False):
         """Fires ASR's load in a background thread the moment TTS is freed at the end of a
         turn, instead of waiting cold for the next turn's run_asr() call -- overlaps ASR's
         real ~35-55s load time (dominated by CUDA/onnxruntime graph compilation on Jetson,
@@ -779,6 +787,24 @@ class MemoryOrchestrator:
         `_reload_asr_then_nmt()` below so NMT's own reload only starts once ASR's is genuinely
         done, not racing it for GPU memory at the same instant. See that method's docstring
         for the real production crash this sequencing fixes.
+
+        `evict_nmt_first=` (2026-08-23, default False -- record-window pass): when headroom
+        is too tight for ASR's predicted load, unload to MAKE room instead of skipping, in a
+        fixed ladder -- NMT first (idle mid-recording anyway; it pays a reload at that same
+        turn's NMT stage either way under today's memory ceiling, so this only moves WHEN the
+        cost happens), then TTS only if still tight after NMT (~0.11GB, but the sanctioned
+        sacrifice per the user's explicit instruction; it re-warms via Rule 5's golden-window
+        preload at the next answer stage). Used by pocketinfer's GramSahayakUX, which fires
+        this from the record-button handler (`_start_recorder`) so ASR's ~12s inline load
+        hides inside the farmer speaking instead of sitting in the critical path. Peak
+        residency set is unchanged -- this moves today's sanctioned NMT->ASR swap earlier
+        into the GPU-idle recording window, it doesn't hold more models resident than before.
+        Two coordination notes: (1) TTS eviction only passes through while
+        `self._allow_tts_eviction` is set -- the app wraps _unload to keep TTS resident and
+        consults that flag; (2) mid-recording nothing GPU-heavy runs (mic capture is
+        `arecord`), so unlike an NMT/answer-stage overlap this load has the GPU to itself --
+        no Ollama contention window (run_agent()'s measured finding). Default False keeps the
+        existing callers (`_reload_asr_then_nmt`, golden-window Rule 10) byte-identical.
         """
         if session_language is not None and session_language not in config.WORKERS["asr"]["languages"]:
             self._log(f"        skipping asr preload -- session_language={session_language!r} has no ASR checkpoint")
@@ -791,9 +817,15 @@ class MemoryOrchestrator:
         snap = self.snapshot()
         predicted = config.PREDICTED_LOAD_COST_BYTES["asr"]
         # min() of the synthetic tracked figure and the real OS reading -- either one being
-        # tight is a real reason to skip (see snapshot()'s own docstring for why the synthetic
-        # number alone isn't trustworthy).
+        # tight is a real reason to act/skip (see snapshot()'s own docstring for why the
+        # synthetic number alone isn't trustworthy).
         headroom = min(snap["available_bytes"], snap["real_available_bytes"])
+        if headroom < predicted and evict_nmt_first:
+            # Record-window ladder: free sanctioned components until ASR fits or nothing
+            # sanctioned remains -- then fall through to the plain skip below, exactly as
+            # every pre-ladder caller did when truly out of room.
+            headroom = self._evict_for_record_window_preload(predicted)
+            snap = self.snapshot()  # re-read so a post-ladder skip log reports post-eviction truth
         if headroom < predicted:
             self._log(f"        skipping asr preload -- only {headroom / 1e9:.2f}GB available "
                        f"(tracked={snap['available_bytes']/1e9:.2f}GB, real={snap['real_available_bytes']/1e9:.2f}GB)")
@@ -802,6 +834,35 @@ class MemoryOrchestrator:
             self._load("asr", reason=reason, language=session_language)
         else:
             self._load_async("asr", reason=reason, language=session_language)
+
+    def _evict_for_record_window_preload(self, predicted):
+        """The record-window eviction ladder behind preload_asr(evict_nmt_first=True):
+        unload NMT, then (only if still short) TTS, re-checking headroom after each.
+        Returns the post-eviction min(tracked, real) headroom (always a real number, even
+        when nothing was loaded to free) so the caller can still skip honestly if even the
+        emptied ladder isn't enough. TTS's unload runs inside the `_allow_tts_eviction`
+        window because the app's keep-TTS-resident _unload wrapper otherwise swallows it;
+        try/finally so a failed unload can't leave the flag stuck open. Agent is
+        deliberately NOT in this ladder -- always-resident policy."""
+        snap = self.snapshot()
+        headroom = min(snap["available_bytes"], snap["real_available_bytes"])
+        for name in ("nmt", "tts"):
+            if headroom >= predicted:
+                break  # already enough room without touching the next component
+            if not self._is_loaded(name):
+                continue
+            if name == "tts":
+                self._allow_tts_eviction = True
+            try:
+                self._log(f"        record-window preload: freeing {name} first -- "
+                           f"real headroom too tight for ASR's ~{predicted / 1e9:.2f}GB load")
+                self._unload(name, reason="record-window preload: freeing room for ASR")
+            finally:
+                if name == "tts":
+                    self._allow_tts_eviction = False
+            snap = self.snapshot()
+            headroom = min(snap["available_bytes"], snap["real_available_bytes"])
+        return headroom
 
     def run_asr(self, language, infer_fn, evict_nmt_first=True):
         """`evict_nmt_first=` (2026-08-16, default True -- REAL confirmed production crash
@@ -876,7 +937,12 @@ class MemoryOrchestrator:
         elif asr_state != "loaded":
             self._load("asr", reason=f"transcribing {language} input", language=language)
         else:
-            self._log("        ASR already fully loaded (golden-window preload paid off, zero wait)")
+            # 2026-08-23: "record-window" added to this line -- since the GramSahayakUX
+            # record-button preload (preload_asr(evict_nmt_first=True)) this state is
+            # usually reached via THAT window, not the end-of-turn golden window; the
+            # distinction matters when reading device logs to attribute latency wins.
+            self._log("        ASR already fully loaded "
+                      "(record/golden-window preload paid off, zero wait)")
             # Real load already happened, just before this call ran (Rule 10's own preload,
             # possibly during an earlier turn) -- record it now from the worker's own
             # self-reported load_time_sec so the per-turn table doesn't silently miss it.

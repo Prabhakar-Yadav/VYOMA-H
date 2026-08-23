@@ -975,6 +975,21 @@ class GramSahayakAgent:
         instead of a stale status sitting through an outlier-slow call."""
         self.last_tool_calls = []
         dispatch = self._build_dispatch(image_path, user_text)
+        # 2026-08-23: voice-only turns (no new photo this turn) withhold analyze_photo --
+        # real device logs showed the model calling analyze_photo({}) on such turns anyway
+        # (~3s/turn: an ollama vision round-trip that can't do anything useful), and its
+        # ~380-token schema description inflated every prefill for nothing. Removed from
+        # BOTH the schema list the model sees and the dispatch dict (code view == model
+        # view; its own "No image was attached" guard stays for direct API callers/tests).
+        # Multi-turn note: prior turns' photo analyses live in history text, so a
+        # no-new-photo follow-up loses nothing.
+        if image_path:
+            turn_tools = TOOLS
+        else:
+            turn_tools = [t for t in TOOLS if t["function"]["name"] != "analyze_photo"]
+            dispatch.pop("analyze_photo", None)
+            print(f"    [agent] voice-only turn -- analyze_photo withheld "
+                  f"({len(TOOLS)} -> {len(turn_tools)} tools)", flush=True)
         _status_last_variant = {}  # key ("agent_thinking"/"tool:<name>"/...) -> last variant_index used this turn
 
         def _status(stage, tool_name=None):
@@ -1033,7 +1048,7 @@ class GramSahayakAgent:
             _status("agent_thinking" if iteration == 1 else "agent_reviewing")
             response = _chat_with_followup(
                 "agent_working_followup",
-                model=self.model, messages=messages, tools=TOOLS,
+                model=self.model, messages=messages, tools=turn_tools,
                 keep_alive=self.keep_alive, options=self._chat_options(),
                 stream=False, think=self.think,
             )
