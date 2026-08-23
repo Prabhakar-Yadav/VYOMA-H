@@ -1142,8 +1142,7 @@ class MemoryOrchestrator:
         self._log(f"        agent turn: {time.perf_counter() - t0:.2f}s")
         return result
 
-    def preload_tts(self, language=None, reason="Rule 5: golden-window preload during NMT-out downtime",
-                    blocking=False):
+    def preload_tts(self, language=None, reason="Rule 5: golden-window preload during NMT-out downtime"):
         """The real fix (2026-08-12) for Rule 5's GPU-contention problem -- see run_agent()'s
         own docstring for the full story and the real concurrent-load numbers behind this.
         Call this right after run_agent() returns (whether or not an NMT-out stage follows) --
@@ -1155,15 +1154,10 @@ class MemoryOrchestrator:
         just won't have anything to hide behind, no worse than loading synchronously at the TTS
         stage itself. No-op if TTS is already loaded or loading.
 
-        `blocking=` (2026-08-23, default False): False (unchanged) fires the load via
-        `_load_async` and returns immediately -- the golden-window caller wants exactly that.
-        True runs the same checks but loads SYNCHRONOUSLY via `_load`, mirroring
-        preload_asr()'s own blocking mode -- used by GramSahayakUX's session warm start
-        (after its NMT attempt), so turn 1 finds TTS resident instead of paying the
-        ~7s wait-for-preload inside the TTS stage that a real device log showed (TTFA 8.2s
-        vs chunk-0 synth 2.6s: turn 1 finds TTS cold because keep-TTS-resident only helps
-        turns 2+, and short answers give the golden window only ~1s of NMT-out to hide in).
-        Same single-language headroom guard either way.
+        2026-08-23 note: warm-starting TTS at session start was evaluated and DECLINED --
+        it would trade turn 1's ~7s wait-for-preload for the same ~5-7s paid on every
+        service start, and the boot budget is already +~21s from ASR/NMT. Turn 1 keeps
+        the golden-window wait.
 
         2026-08-14: found (via a direct user question) that this method was never actually
         being called by the real production app (gramsahayak_app.py) at all -- only
@@ -1196,10 +1190,7 @@ class MemoryOrchestrator:
             self._log(f"        skipping tts preload -- only {headroom / 1e9:.2f}GB available "
                        f"(tracked={snap['available_bytes']/1e9:.2f}GB, real={snap['real_available_bytes']/1e9:.2f}GB)")
             return
-        if blocking:
-            self._load("tts", reason=reason, language=language)
-        else:
-            self._load_async("tts", reason=reason, language=language)
+        self._load_async("tts", reason=reason, language=language)
 
     def run_tts(self, language, infer_fn, batch_size=None, text_char_count=None,
                 evict_nmt_first=True, session_language=None):
