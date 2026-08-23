@@ -106,26 +106,61 @@ def _default_device():
 
 
 class NMTEngine:
-    """Owns the three loaded IndicTrans2 ct2 models.
+    """Owns the loaded IndicTrans2 ct2 model(s) -- either both required directions, or just
+    one (see load()'s own docstring, 2026-08-23).
 
     Usage:
         engine = NMTEngine()
-        engine.load()
+        engine.load()  # both directions
         engine.infer("Hello", "EN", "hi")["translated_text"]
         engine.unload()
+
+        engine2 = NMTEngine()
+        engine2.load(direction="en-indic")  # only this one, real memory/speed win
+        engine2.infer("Hello", "EN", "hi")["translated_text"]
+        engine2.unload()
     """
 
     def __init__(self, checkpoint_root=DEFAULT_CHECKPOINT_ROOT, device=None):
         self.checkpoint_root = checkpoint_root
         self.device = device if device is not None else _default_device()
         self.models = None
+        # direction (2026-08-23): tracks what load() actually loaded -- None means "both
+        # REQUIRED_MODELS" (the original, pre-split behavior), "indic-en"/"en-indic" means
+        # only that one. Read by _route_model() to give a real error (not a raw KeyError) if a
+        # call requests the direction that ISN'T loaded -- see load()'s own docstring for why
+        # this exists at all.
+        self.direction = None
 
     @property
     def is_loaded(self):
         return self.models is not None
 
-    def load(self):
-        """No-op if already loaded."""
+    def load(self, direction=None):
+        """No-op if already loaded (same as before -- caller must unload() first to actually
+        change what's loaded, see the direction-mismatch note below).
+
+        `direction` (2026-08-23, real ask -- see orchestrator.py's own run_nmt() docstring for
+        the full pipeline-level reasoning): this project's real pipeline only ever needs ONE
+        of the two required directions at a time -- indic-en right after ASR, en-indic right
+        after the agent, never both in the same instant. `direction=None` (default) keeps the
+        original behavior: load BOTH indic-en and en-indic together, for any caller that
+        genuinely wants a single long-lived engine handling both (a notebook, a build script).
+        `direction="indic-en"` or `"en-indic"` loads ONLY that one ~214MB model instead of
+        ~428MB for both -- real, measured win on this device: 4.52s/both -> 3.53s/one model
+        even with the (now-removed) unused indic-indic still in the mix, isolated test,
+        2026-08-23.
+
+        Direction-MISMATCH is the caller's responsibility, not this method's: since
+        `is_loaded` only asks "is *anything* loaded", a second load() call with a *different*
+        direction than what's already resident is a no-op here too, same as calling load()
+        twice with the same direction -- silently keeps the OLD direction's model(s), not a
+        real reload. The real fix has to unload() first, then load(direction=new_direction) --
+        this mirrors the exact same gotcha worker_base.py's own `/load` endpoint already has
+        for "already LOADED, in ANY state, is a no-op regardless of args" (see that file's own
+        `/load` handler) -- orchestrator.py's run_nmt() is what actually tracks and enforces
+        this at the pipeline level; this method only refuses to do a genuinely wrong thing
+        (raises on an unrecognized direction string) rather than silently guessing."""
         if self.is_loaded:
             return
 
@@ -134,8 +169,15 @@ class NMTEngine:
         if not os.path.exists(self.checkpoint_root):
             raise RuntimeError(f"NMT checkpoint root not found: {self.checkpoint_root}")
 
+        if direction is not None and direction not in REQUIRED_MODELS:
+            raise ValueError(
+                f"direction must be one of {sorted(REQUIRED_MODELS)} or None (both), "
+                f"got {direction!r}"
+            )
+        required_to_load = {direction} if direction is not None else REQUIRED_MODELS
+
         models = {}
-        for folder in REQUIRED_MODELS:
+        for folder in required_to_load:
             model_path = os.path.join(self.checkpoint_root, folder, "ct2_int8_model")
             if not os.path.exists(model_path):
                 raise RuntimeError(f"Missing NMT model path: {model_path}")
@@ -145,21 +187,33 @@ class NMTEngine:
                 input_lang_code_format="iso",
                 model_type="ctranslate2",
             )
-        for folder in OPTIONAL_MODELS:
-            model_path = os.path.join(self.checkpoint_root, folder, "ct2_int8_model")
-            if os.path.exists(model_path):
-                models[folder] = Model(
-                    model_path,
-                    device=self.device,
-                    input_lang_code_format="iso",
-                    model_type="ctranslate2",
-                )
+        # OPTIONAL_MODELS (indic-indic) skipped entirely when `direction` is set -- a
+        # single-direction load is by definition for the real pipeline's own EN-pivot use, and
+        # indic-indic is never reachable from either single direction anyway (see
+        # _route_model()'s own indic<->indic branch, unchanged). Also loaded 2026-08-23:
+        # indic-indic itself was moved out of the checkpoint root entirely (real, confirmed
+        # dead weight -- 326MB on disk, never called by any real pipeline path, see this
+        # module's own REQUIRED_MODELS/OPTIONAL_MODELS comment above) -- this loop is now a
+        # no-op for `direction=None` callers too, not just single-direction ones, unless
+        # someone deliberately restores that directory.
+        if direction is None:
+            for folder in OPTIONAL_MODELS:
+                model_path = os.path.join(self.checkpoint_root, folder, "ct2_int8_model")
+                if os.path.exists(model_path):
+                    models[folder] = Model(
+                        model_path,
+                        device=self.device,
+                        input_lang_code_format="iso",
+                        model_type="ctranslate2",
+                    )
         self.models = models
+        self.direction = direction
 
     def unload(self):
         if not self.is_loaded:
             return
         self.models = None
+        self.direction = None
         gc.collect()
 
     def _route_model(self, src: str, tgt: str):
@@ -179,8 +233,22 @@ class NMTEngine:
                 )
             return self.models["indic-indic"], src, tgt
         elif src in INDIC_LANGUAGES and tgt == "EN":
+            if "indic-en" not in self.models:
+                raise RuntimeError(
+                    f"indic-en translation ({src} -> EN) requested, but this engine was "
+                    f"load()ed with direction={self.direction!r} -- only en-indic is resident. "
+                    "Call unload() then load(direction='indic-en') (or load() with no "
+                    "direction, for both) before this call."
+                )
             return self.models["indic-en"], src, "en"
         elif src == "EN" and tgt in INDIC_LANGUAGES:
+            if "en-indic" not in self.models:
+                raise RuntimeError(
+                    f"en-indic translation (EN -> {tgt}) requested, but this engine was "
+                    f"load()ed with direction={self.direction!r} -- only indic-en is resident. "
+                    "Call unload() then load(direction='en-indic') (or load() with no "
+                    "direction, for both) before this call."
+                )
             return self.models["en-indic"], "en", tgt
         else:
             raise ValueError(f"Unsupported translation direction {src} -> {tgt}")

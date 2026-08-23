@@ -631,21 +631,32 @@ WORKERS = {
         "port": 11412,
         "module": "workers.nmt_worker",
         "checkpoint_root": os.path.join(AGENTS_DIR, "models", "checkpoints", "indic-trans2-nmt"),
-        # 900MB / 2.0s (2026-08-13, was 1.616GB / 0.7s) -- NMTEngine now auto-detects real
-        # CUDA support (model_loader.py's _default_device()) instead of hardcoding "cpu", so
-        # these need to reflect the CUDA footprint, not the old CPU one. Real, isolated
-        # measurement (both en-indic + indic-en loaded, one real inference call to force any
-        # lazy CUDA workspace allocation, on the actual Jetson checkpoint): 858MB delta --
-        # 900MB keeps a small real margin. CUDA is not just faster than the old CPU-mode
-        # figure, it's genuinely SMALLER too (old 1.616GB was real CPU-mode RSS for both
-        # directions) -- not a speed/memory tradeoff, a real win on both axes for this
-        # component specifically. Load time: measured 0.58s-4.12s across several real cold
-        # loads (cache-state dependent) -- 2.0s is a conservative real estimate, not the old
-        # 0.7s CPU-load figure (kept from before this fix, since this hadn't been
-        # re-measured for CUDA yet -- unload time below is likewise still the old CPU-mode
-        # figure and needs the same re-verification once CUDA unload is observed live).
-        "predicted_load_cost_bytes": 900_000_000,
-        "predicted_load_time_sec": 2.0,
+        # 320MB / 8.0s (2026-08-23, was 900MB / 2.0s) -- stale since the direction-split
+        # (model_loader.py's own NMTEngine.load(direction=...), same day): the 900MB/2.0s
+        # figures were real when every load meant BOTH en-indic + indic-en together (858MB
+        # delta measured then) -- every real load site now only ever loads ONE direction.
+        # Real, isolated re-measurement today (single direction, worker already spawned):
+        # system_mem_delta_bytes=292,343,808 (~279MB) -- 320MB keeps a similar small real
+        # margin to the original 900MB's own >5% cushion over its own 858MB measurement.
+        # This constant gates real headroom checks in THREE places (run_asr()'s eager
+        # reload, _reload_asr_then_nmt()'s post-TTS async reload, and the new
+        # ensure_nmt_loaded_for_session() below) -- the stale 900MB was making all three
+        # needlessly conservative, skipping a real, now-affordable preload/reload more
+        # often than it needed to.
+        #
+        # Load time: 8.0s reflects the REAL end-to-end cost a caller actually waits on --
+        # process spawn (fresh Python + torch/ctranslate2/onnxruntime imports + a new
+        # uvicorn server, unavoidable on a genuinely cold worker) dominates this, not the
+        # model load itself (confirmed directly: 7.11s-8.55s real cold loads in a real
+        # 5-turn pipeline run, vs only ~0.25-1.05s once a worker process is already up --
+        # see model_loader.py's own load() docstring and orchestrator.py's run_nmt() for
+        # the in-process swap path that gets that much smaller number in practice). Neither
+        # field is currently read by any real decision in this codebase (grep-confirmed,
+        # 2026-08-23) -- both are here for accuracy/documentation, not because a live check
+        # depends on the exact number. Unload time (2.7s) is unverified CPU-mode-era
+        # leftover, not yet re-measured for CUDA -- flagged, not fixed here.
+        "predicted_load_cost_bytes": 320_000_000,
+        "predicted_load_time_sec": 8.0,
         "predicted_unload_time_sec": 2.7,
     },
     "tts": {

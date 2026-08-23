@@ -122,6 +122,21 @@ class MemoryOrchestrator:
         # rest of the time -- set True only inside the ladder's try/finally window.
         self._allow_tts_eviction = False
 
+        # 2026-08-23: NMT direction split (real ask -- see run_nmt()'s own docstring for the
+        # full pipeline reasoning). NMT is still ONE worker component/process (name "nmt" --
+        # every existing Rule/eviction/budget check below keeps working unmodified), but that
+        # one process now only ever loads ONE of the two required models at a time
+        # (model_loader.py's own NMTEngine.load(direction=...)) instead of both together.
+        # Since `/load` is a no-op once ANYTHING is loaded (worker_base.py's own real gotcha,
+        # see its `/load` handler's comment), the WORKER itself can't tell "wrong direction
+        # loaded, please swap" from "already loaded, nothing to do" -- this orchestrator has
+        # to track which direction is actually resident and force a real unload+reload on a
+        # mismatch. None means nothing (or nothing NMT-specific) is currently loaded; set by
+        # _load()/_unload() whenever `name == "nmt"`, not by run_nmt() directly, so every real
+        # load/unload call site (run_nmt(), _reload_asr_then_nmt(), run_asr()'s own eager
+        # reload) stays correct automatically instead of each needing its own bookkeeping.
+        self._nmt_loaded_direction = None
+
         # Real session-transcript logging (2026-08-14, api_server/session_store.py) -- see
         # that module's own docstring for the full design/history (a same-day earlier attempt
         # built this at the wrong layer, inside pocketinfer; this supersedes it). Persisted on
@@ -495,13 +510,26 @@ class MemoryOrchestrator:
     # Load / unload primitives (with logging + timing)
     # ------------------------------------------------------------------
 
-    def _load(self, name, reason, language=None):
+    def _load(self, name, reason, language=None, direction=None, swap=False):
         t0 = time.perf_counter()
-        self._log(f"LOAD    {name:9s} <- {reason}")
+        self._log(f"LOAD    {name:9s} <- {reason}" + (" (in-process swap, no respawn)" if swap else ""))
         if name in WORKER_COMPONENTS:
-            params = {"language": language} if language else None
-            r = requests.post(f"{GATEWAY}/{name}/load", params=params, timeout=180)
+            params = {}
+            if language:
+                params["language"] = language
+            if direction:
+                params["direction"] = direction
+            if swap:
+                params["swap"] = "true"
+            r = requests.post(f"{GATEWAY}/{name}/load", params=params or None, timeout=180)
             r.raise_for_status()
+            # 2026-08-23: track NMT's own loaded direction here, not in run_nmt() -- every
+            # real load() call site for "nmt" (run_nmt(), _reload_asr_then_nmt(), run_asr()'s
+            # eager reload) goes through this one method, so this is the single place that
+            # can't be missed. `direction=None` here means "both directions" (the pre-split
+            # default), same value NMTEngine.load()'s own `self.direction` would end up with.
+            if name == "nmt":
+                self._nmt_loaded_direction = direction
         else:
             # Real system-wide before/after delta, same measurement this orchestrator process
             # already trusts for real_used_bytes elsewhere (psutil.virtual_memory(), valid
@@ -517,7 +545,7 @@ class MemoryOrchestrator:
         self._log(f"        {name} ready in {duration:.2f}s")
         self._record_event(name, "load", duration)
 
-    def _load_async(self, name, reason, language=None):
+    def _load_async(self, name, reason, language=None, direction=None):
         """Fire-and-forget -- only meaningful for worker components (Ollama's own load call
         is already fast enough, ~0.5-5s, that a fire-and-forget path isn't worth the extra
         state to track; TTS's ~3.2s load is the one that actually benefits, see Rule 5).
@@ -527,12 +555,23 @@ class MemoryOrchestrator:
         docstring for why that changed) -- passing the turn's real target language here is
         what keeps Rule 5's whole point (real load cost hidden in the agent's own downtime,
         not paid inline at first synthesis) intact after that fix, instead of trading the
-        memory waste for latency regression."""
+        memory waste for latency regression.
+
+        `direction=` (2026-08-23) -- NMT's own equivalent, see _load()'s own comment. Sets
+        `self._nmt_loaded_direction` optimistically the moment this fires, same "fire-and-
+        forget, no confirmation wait" spirit as the rest of this method -- a caller relying on
+        NMT actually being ready still has to go through _await_async_load()/run_nmt()'s own
+        loaded-state check same as before, this only keeps the *tracked direction* from going
+        stale while that's in flight."""
         self._log(f"LOAD    {name:9s} <- {reason} (async, fire-and-forget)")
         params = {"mode": "async"}
         if language:
             params["language"] = language
+        if direction:
+            params["direction"] = direction
         requests.post(f"{GATEWAY}/{name}/load", params=params, timeout=10)
+        if name == "nmt":
+            self._nmt_loaded_direction = direction
 
     def _await_async_load(self, name, timeout=30):
         """Blocks until `name` finishes an in-flight async load. If it's already LOADED by
@@ -579,6 +618,11 @@ class MemoryOrchestrator:
         if name in WORKER_COMPONENTS:
             r = requests.post(f"{GATEWAY}/{name}/unload", params={"full": str(full).lower()}, timeout=60)
             r.raise_for_status()
+            # 2026-08-23: mirrors _load()'s own tracking -- every real unload of "nmt" (kill_
+            # worker() is a full process kill, see gateway.py's own comment, so there's no
+            # partial state to preserve) genuinely clears whatever direction was loaded.
+            if name == "nmt":
+                self._nmt_loaded_direction = None
         else:
             requests.post(f"{GATEWAY}/agent/unload", json={"model": OLLAMA_COMPONENTS[name]}, timeout=30)
             # The gateway's /agent/unload doesn't poll to confirm -- Ollama's own unload HTTP
@@ -979,6 +1023,16 @@ class MemoryOrchestrator:
             # and already safely handles "NMT not loaded" via its own _make_room_for() (real
             # eviction + real-memory check), so nothing breaks; this turn's NMT stage just pays
             # a real (small) synchronous load cost there instead of finding it pre-warmed.
+            #
+            # direction="indic-en" (2026-08-23): this reload exists purely to pre-warm NMT for
+            # the call that runs moments after this returns -- run_nmt(f"{language}->EN", ...)
+            # -- which is always the indic-en direction (this is the transcribe-then-translate
+            # side of a turn, never the answer-translation side). See run_nmt()'s own
+            # docstring for the full direction-split reasoning; PREDICTED_LOAD_COST_BYTES["nmt"]
+            # (900MB) is still the old both-directions figure, so this headroom check is now
+            # conservative (real single-direction cost is roughly half that) rather than
+            # dangerous -- a real, deliberate looseness, not re-tuned here since erring toward
+            # skipping this optional reload is always safe (see the fallback path above).
             snap = self.snapshot()
             predicted = config.PREDICTED_LOAD_COST_BYTES.get("nmt", 0)
             headroom = min(snap["available_bytes"], snap["real_available_bytes"])
@@ -988,18 +1042,69 @@ class MemoryOrchestrator:
                            f"real={snap['real_available_bytes']/1e9:.2f}GB) -- run_nmt() will "
                            f"load it safely when actually needed")
             else:
-                self._load("nmt", reason="evict_nmt_first: reloading NMT after ASR load (synchronous)")
+                self._load("nmt", reason="evict_nmt_first: reloading NMT after ASR load (synchronous)",
+                           direction="indic-en")
         return result
 
-    def run_nmt(self, direction_label, infer_fn):
+    def run_nmt(self, direction_label, infer_fn, direction=None):
         """NMT loads on first use and stays resident for the rest of the session (2026-08-08
-        policy, mirroring Agent -- see module docstring's "NMT policy"). The old `keep_loaded`
-        parameter is gone -- both call sites always passed `keep_loaded=True` anyway, and the
-        only path that ever unloaded NMT mid-session (Rule 2) has been removed."""
+        policy, mirroring Agent -- see module docstring's "NMT policy") -- still true, but as
+        of 2026-08-23 "resident" now means resident in ONE direction at a time, not both
+        together (see model_loader.py's own NMTEngine.load(direction=...) and __init__'s own
+        comment on `self._nmt_loaded_direction`). The old `keep_loaded` parameter is gone --
+        both call sites always passed `keep_loaded=True` anyway, and the only path that ever
+        unloaded NMT mid-session (Rule 2) has been removed.
+
+        `direction` (2026-08-23, real ask -- direction-split NMT): "indic-en" or "en-indic",
+        which single model this call actually needs. If omitted, derived from
+        `direction_label`'s own existing convention (every real caller already passes
+        "<indic>->EN" or "EN-><indic>"-style labels) as a fallback -- pass it explicitly where
+        you can (gramsahayak_app.py's own two call sites do), this fallback just means a
+        caller that hasn't been updated yet (e.g. an older test script) still gets the real
+        split instead of silently reverting to loading both.
+
+        Real reason for the split, not just "because we can": this project's actual pipeline
+        only ever needs ONE direction at a time -- indic-en right after ASR, en-indic right
+        after the agent, never both in the same instant (confirmed: every real call site
+        passes one or the other, never mixes). Loading both together (~428MB, the pre-split
+        behavior) when only one is ever used at that moment wastes real memory AND real load
+        time on this Jetson's already-tight budget -- measured directly, isolated: 4.52s for
+        both vs 3.53s for one model, even before accounting for the (also now removed) unused
+        indic-indic weight that used to ride along with either.
+
+        Direction-MISMATCH handling is why this method checks `self._nmt_loaded_direction`
+        itself rather than trusting `_is_loaded("nmt")` alone the way the pre-split code did:
+        since `/load` is a no-op once ANYTHING is loaded (worker_base.py's own real gotcha,
+        see its `/load` handler's comment), simply calling `_load("nmt", direction=X)` while
+        the WRONG direction is already resident would silently do nothing -- the model already
+        loaded would just keep serving, and the real translation call below would then hit
+        model_loader.py's own new direction-mismatch RuntimeError instead of translating.
+
+        2026-08-23, real regression found and fixed same day: a mismatch used to be handled
+        with a full `_unload("nmt", ...)` (gateway-level, kills the worker's OS process) THEN
+        a fresh `_load(..., direction=X)` (spawns a brand new process). Confirmed directly on
+        a real 5-turn Jetson run: that cost ~7-8s of pure process-spawn overhead (fresh Python
+        + torch/ctranslate2/onnxruntime imports + a new uvicorn server) EVERY direction change
+        -- NMT(out), which used to be ~1.5s (already resident, pre-split), became ~9-10s (full
+        respawn), paid on top of NMT(in)'s own real cost every single turn. Direction-splitting
+        was supposed to save memory, not add ~8s/turn -- now fixed by asking for an in-process
+        `swap=True` instead (worker_base.py's own `/load?swap=true`, see its own docstring):
+        same worker OS process stays alive the whole session, only the model *inside* it
+        changes, so the ~7-8s process-spawn tax is paid at most once per worker lifetime, not
+        once per direction change. Still gets the real memory win (only one direction's model
+        resident at a time, `_do_unload()`'s own `gc.collect()`/`torch.cuda.empty_cache()`
+        still runs before the new one loads) -- just without re-paying to spin the process back
+        up every time."""
+        if direction is None:
+            direction = "en-indic" if direction_label.startswith("EN->") else "indic-en"
         self._log(f"--- stage: NMT ({direction_label}) " + "-" * 40)
-        if not self._is_loaded("nmt"):
+        if self._is_loaded("nmt") and self._nmt_loaded_direction != direction:
+            self._log(f"        nmt loaded in the wrong direction ({self._nmt_loaded_direction!r}, "
+                       f"need {direction!r}) -- swapping in-process (no respawn)")
+            self._load("nmt", reason=f"translating ({direction_label})", direction=direction, swap=True)
+        elif not self._is_loaded("nmt"):
             self._make_room_for("nmt")
-            self._load("nmt", reason=f"translating ({direction_label})")
+            self._load("nmt", reason=f"translating ({direction_label})", direction=direction)
         else:
             self._log("        nmt already resident")
             # Same real gap already fixed for ASR's own "already loaded" branch -- if NMT is
@@ -1042,6 +1147,51 @@ class MemoryOrchestrator:
             self._log("        embedder already resident")
             return
         self._load("embedder", reason="session start -- loaded once, stays resident all session")
+
+    def ensure_nmt_loaded_for_session(self):
+        """Warm-starts NMT (indic-en direction only) at session start IF real headroom
+        allows -- real ask, 2026-08-23 turn-latency pass 2 (gramsahayak_ux.py's own caller,
+        see its docstring there): without this, turn 1 pays ASR's own inline load AND NMT's
+        own ~9-10s inline cold load on top of the agent's own real work, back to back, with
+        nothing hiding either one. Session start is a genuinely safe moment for this,
+        unlike mid-turn: the GPU is idle here, nothing else contends the way run_agent()'s
+        own docstring found Ollama/PyTorch do during real generation -- this isn't the
+        dangerous "preload during agent generation" pattern, it's before the agent has done
+        any real work at all.
+
+        Warms indic-en specifically, not both directions and not en-indic -- indic-en is the
+        ONLY direction turn 1 ever needs first (right after ASR, before the agent even
+        runs). en-indic is only needed later, after the agent produces its answer, and by
+        then gets its own real ~1s in-process swap (see run_nmt()'s own docstring on the
+        2026-08-23 swap fix) -- warming en-indic here too would spend real memory/time on a
+        direction this exact moment in the pipeline can't use yet, for no benefit.
+
+        Conditional, unlike its ensure_agent_loaded_for_session()/
+        ensure_embedder_loaded_for_session() siblings above (those load unconditionally --
+        every real turn needs Agent/embedder regardless) -- this device is memory-bottomed
+        (agent+embedder+ASR alone can leave well under 1GB real free on a bad day), so when
+        the same min(tracked, real) headroom check every other preload in this class uses
+        says NMT's predicted load doesn't fit, this skips and leaves NMT to run_nmt()'s own
+        proven during-run load path (its own _make_room_for() + eviction ladder) instead of
+        forcing a real OOM here. Also no-ops if NMT is already resident (app restart against
+        a still-running gateway, or this being called twice). Call order from the app:
+        agent -> embedder -> (agent warmup) -> ASR -> this -- NMT last, on purpose, so it's
+        the one real component that yields under tight headroom, not Agent/embedder/ASR (all
+        of which the farmer's very first turn needs regardless of how tight memory is)."""
+        if self._is_loaded("nmt"):
+            self._log("        nmt already resident")
+            return
+        snap = self.snapshot()
+        predicted = config.PREDICTED_LOAD_COST_BYTES.get("nmt", 0)
+        headroom = min(snap["available_bytes"], snap["real_available_bytes"])
+        if headroom < predicted:
+            self._log(f"        skipping nmt warm start -- only {headroom / 1e9:.2f}GB available "
+                       f"(tracked={snap['available_bytes']/1e9:.2f}GB, "
+                       f"real={snap['real_available_bytes']/1e9:.2f}GB, "
+                       f"need ~{predicted / 1e9:.2f}GB) -- it will load during turn 1's own "
+                       f"NMT stage instead, same as before this warm start existed")
+            return
+        self._load("nmt", reason="session warm start -- headroom allows", direction="indic-en")
 
     def run_agent(self, infer_fn, preload_tts=False, tts_language=None):
         """`preload_tts=` default flipped to False (2026-08-12) -- Rule 5 used to preload TTS
@@ -1303,6 +1453,14 @@ class MemoryOrchestrator:
             # exact incident's very next turn loaded NMT fine in the foreground when needed).
             try:
                 self.preload_asr(session_language=session_language, blocking=True)
+                # `self._is_loaded("nmt")` here should reliably mean "still genuinely
+                # unloaded" -- run_tts()'s own evict_nmt_first already unloaded NMT
+                # unconditionally before this background thread was even started (see that
+                # call site), so there's no real path where NMT is resident but in the WRONG
+                # direction by the time this line runs. If that invariant is ever broken, this
+                # branch would skip reloading rather than fix the direction -- flagged here,
+                # not defended against, to keep this already-crash-hardened method's real
+                # control flow unchanged.
                 if self._is_loaded("nmt"):
                     return
                 snap = self.snapshot()
@@ -1312,7 +1470,13 @@ class MemoryOrchestrator:
                     self._log(f"        skipping nmt reload -- only {headroom / 1e9:.2f}GB available "
                                f"(tracked={snap['available_bytes']/1e9:.2f}GB, real={snap['real_available_bytes']/1e9:.2f}GB)")
                     return
-                self._load("nmt", reason="evict_nmt_first: reloading NMT after ASR's sequenced preload")
+                # direction="indic-en" (2026-08-23): this reload prepares NMT for the NEXT
+                # turn, which always starts with ASR -> NMT(<lang>->EN) -- the indic-en
+                # direction, never en-indic (that side is only ever needed later in a turn,
+                # right after the agent, and gets loaded fresh there by run_nmt() itself). See
+                # run_nmt()'s own docstring for the full direction-split reasoning.
+                self._load("nmt", reason="evict_nmt_first: reloading NMT after ASR's sequenced preload",
+                           direction="indic-en")
             except Exception as exc:
                 self._log(f"        *** background ASR-then-NMT sequence failed ({exc!r}) -- "
                            f"non-fatal, next real use just loads synchronously instead ***")

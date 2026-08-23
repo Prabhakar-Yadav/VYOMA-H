@@ -112,7 +112,7 @@ def make_worker_app(name: str, engine_factory: Callable, infer_fn: Callable,
         not fixed here."""
         return psutil.virtual_memory().used
 
-    def _do_load(language=None):
+    def _do_load(language=None, direction=None):
         state["status"] = WorkerState.LOADING
         t0 = time.perf_counter()
         sys_before = _system_used_bytes()
@@ -122,12 +122,21 @@ def make_worker_app(name: str, engine_factory: Callable, infer_fn: Callable,
             # QuantizedMultiLangASR.load() now accept an optional `language=` to eagerly warm
             # exactly one session instead of the lazy-by-default no-op -- same underlying fix
             # for the same mistake in both places (a "load nothing eagerly" change that forgot
-            # preloading still needs a way to ask for one specific thing). NMT's own load()
-            # still takes no arguments (it's one combined load of all 3 translation-direction
-            # models, not per-language) and ignores this entirely -- `**kwargs`-style optional
-            # forwarding, not a signature every worker has to support.
+            # preloading still needs a way to ask for one specific thing).
+            #
+            # `direction=` (2026-08-23): NMT's own equivalent -- model_loader.py's
+            # NMTEngine.load() now accepts direction="indic-en"/"en-indic" to load only that
+            # one required model instead of both (real memory/speed win, see that method's own
+            # docstring). `language` and `direction` are mutually exclusive in practice (only
+            # TTS/ASR use the former, only NMT the latter) but both threaded through here
+            # rather than each worker needing its own copy of this function -- an engine that
+            # doesn't accept a given kwarg simply never has it passed (see the branching
+            # below), same "**kwargs-style optional forwarding, not a signature every worker
+            # has to support" philosophy the original language= comment already established.
             if language is not None:
                 engine.load(language=language)
+            elif direction is not None:
+                engine.load(direction=direction)
             else:
                 engine.load()
             state["engine"] = engine
@@ -177,15 +186,46 @@ def make_worker_app(name: str, engine_factory: Callable, infer_fn: Callable,
         )
 
     @app.post("/load")
-    def load(mode: str = "sync", language: str | None = None):
+    def load(mode: str = "sync", language: str | None = None, direction: str | None = None,
+              swap: bool = False):
+        # direction= (2026-08-23): see _do_load's own comment. Without `swap=true` (below),
+        # NOTE the same real gotcha that comment warns about applies here too -- this whole
+        # branch is skipped if `state` is already LOADED/LOADING in ANY direction, so a second
+        # /load call with a *different* direction than what's currently resident is a silent
+        # no-op, not a reload. The caller (orchestrator.py's run_nmt()) is what has to notice a
+        # direction mismatch and ask for a swap (or call /unload first for the old, full-kill
+        # behavior) -- this endpoint only loads into a genuinely empty state on its own.
+        #
+        # `swap=true` (2026-08-23, real fix for a real regression): in-process direction
+        # change -- releases whatever's currently loaded via `_do_unload()` (same function
+        # `/unload` used to call before "every unload is a full process kill now" replaced it
+        # with `kill_worker()`, see gateway.py's own comment) and falls through to a normal
+        # load, WITHOUT killing this worker's OS process. Real reason this exists, not just a
+        # nicety: the gateway-level full-kill unload+respawn cycle (`/unload` then `/load`, the
+        # ONLY way to change direction before this) costs ~7-8s of real process-spawn overhead
+        # every time (fresh Python interpreter + torch/ctranslate2/onnxruntime imports + a new
+        # uvicorn server) on TOP of the actual ~0.5s model load it's swapping to -- confirmed
+        # directly on a real 5-turn Jetson run, NMT(out) went from ~1.5s (already resident,
+        # pre-split behavior) to ~9-10s (full respawn every turn) once direction-splitting
+        # started forcing a kill+respawn on every single direction change. Paid TWICE a turn
+        # (once per direction), that's worse than the pre-split combined-load design, not
+        # better -- direction-splitting's real win (~214MB less resident at a time instead of
+        # ~428MB) is real but small next to an ~8s regression. Swapping in-process keeps that
+        # same real memory win (only one direction's model ever resident, `_do_unload()`'s own
+        # `gc.collect()` + `torch.cuda.empty_cache()` still runs) without paying process-spawn
+        # cost more than once per worker lifetime. Ignored (no-op re: the swap itself) if
+        # nothing is currently loaded -- falls through to a completely normal load in that
+        # case, same as `swap=False`.
         with lock:
-            if state["status"] in (WorkerState.LOADED, WorkerState.LOADING):
+            if swap and state["status"] == WorkerState.LOADED:
+                _do_unload()
+            elif state["status"] in (WorkerState.LOADED, WorkerState.LOADING):
                 return {"state": state["status"]}
             if mode == "async":
-                threading.Thread(target=_do_load, args=(language,), daemon=True).start()
+                threading.Thread(target=_do_load, args=(language, direction), daemon=True).start()
                 return {"state": WorkerState.LOADING}
             try:
-                _do_load(language)
+                _do_load(language, direction)
             except Exception as exc:
                 raise HTTPException(status_code=500, detail=str(exc))
             return {"state": state["status"], "load_time_sec": state["load_time_sec"]}
