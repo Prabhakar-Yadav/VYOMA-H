@@ -218,6 +218,27 @@ def get_status_audio_path(stage: str, tool_name: str | None = None, language: st
     return None
 
 
+_DEFAULT_FILLER_FILENAME = "default_filler.wav"
+
+
+def get_default_audio_path(language: str = "en") -> str | None:
+    """Default/filler sound played only when no status clip is in flight.
+
+    2026-09-15: `status_audio/<lang>/default_filler.wav` in every language folder
+    (byte-identical copy of the liked Hindi tts_v0 IVR tune). Same tune for all
+    languages -- the per-language copy keeps this resolver's path pattern uniform
+    with get_status_audio_path() (no special-case directory level at call sites).
+    Fallback: `language` -> "en" -> None (caller's cue to stay silent, never
+    crash). No stage/variant args by design: one file, no variants, no TTS pin.
+    Not written by build_status_audio.py (which only emits <key>_vN clips), so a
+    future status-text rebuild can't clobber it."""
+    for lookup_lang in (language, "en"):
+        candidate = os.path.join(_STATUS_AUDIO_DIR, lookup_lang, _DEFAULT_FILLER_FILENAME)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
 def pick_status_variant(key: str, last_used: dict | None = None) -> int:
     """2026-08-16, real feedback: "we can always do a random sample so that it will feel
     genuinely different" -- picks a RANDOM variant index for this key (not sequential
