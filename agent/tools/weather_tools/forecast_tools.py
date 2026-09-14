@@ -19,7 +19,7 @@ from collections import Counter
 
 import pandas as pd
 
-from .db import get_weather_data
+from .db import describe_location, get_weather_data
 
 # --- thresholds -- judgment calls, documented so they're easy to revisit. Rain threshold/window
 # validated against real data (Kerala monsoon-vs-dry-season test in test_forecast_tools.ipynb):
@@ -343,7 +343,12 @@ def get_weather_forecast(
 
     sunlight = _build_highlight(chunks, per_day, sunlight_bucket, sunlight_desc, set(), "Not enough data to summarize sunlight.", use_weekly)
 
-    return {"rain": rain, "comfort": comfort, "wind": wind, "sunlight": sunlight, "flood": flood, "heat_wave": heat_wave}
+    return {"rain": rain, "comfort": comfort, "wind": wind, "sunlight": sunlight, "flood": flood, "heat_wave": heat_wave,
+            # Which place these numbers represent -- district actually resolved, or the
+            # state-average fallback when the district wasn't confidently understood.
+            # The agent must relay this honestly ("using the state average") instead of
+            # re-asking for a place the farmer already gave.
+            "location_resolved": describe_location(**loc)}
 
 
 # ---------------------------------------------------------------------------
@@ -420,7 +425,8 @@ def query_spray_window(
         if flood_groups else "No flood-level rain expected -- no special protection needed for rain-sensitive crops."
     )
 
-    return {"spray_window": spray_text, "skip_watering": watering_text, "rain_protection_warning": flood_text}
+    return {"spray_window": spray_text, "skip_watering": watering_text, "rain_protection_warning": flood_text,
+            "location_resolved": describe_location(**loc)}
 
 
 # ---------------------------------------------------------------------------
@@ -504,7 +510,8 @@ def query_sowing_window(
         drought_parts.append(_label(flat, gc, use_weekly))
     drought_text = ("Extended dry spell risk " + "; ".join(drought_parts) + " -- risky for germination without irrigation.") if drought_parts else "No extended dry-spell risk expected."
 
-    return {"sowing_window": window_text, "flood_warning": flood_text, "drought_warning": drought_text}
+    return {"sowing_window": window_text, "flood_warning": flood_text, "drought_warning": drought_text,
+            "location_resolved": describe_location(**loc)}
 
 
 # ---------------------------------------------------------------------------
@@ -543,7 +550,8 @@ def query_pest_pressure_window(
 
     text = _build_highlight(chunks, per_day, bucket, desc, {"low", "unknown"},
                              "No notable pest-favorable conditions (warm+humid) expected this period.", use_weekly)
-    return {"pest_pressure": text, "caveat": "Generic warm+humid heuristic, not a species-specific pest forecast."}
+    return {"pest_pressure": text, "caveat": "Generic warm+humid heuristic, not a species-specific pest forecast.",
+            "location_resolved": describe_location(**loc)}
 
 
 # ---------------------------------------------------------------------------
@@ -584,4 +592,8 @@ def query_crop_suitability(
         + ("Assess suitability considering: " + "; ".join(concerns) + "." if concerns else
            "No specific sensitivities flagged -- assess generally against the outlook above.")
     )
-    return {"forecast": forecast, "assessment_note": note}
+    return {"forecast": forecast, "assessment_note": note,
+            # Inherited from the inner get_weather_forecast() call above (same location
+            # args, no second lookup) -- top-level copy so the agent sees it without
+            # digging into the nested forecast dict.
+            "location_resolved": forecast.get("location_resolved", "location unknown")}

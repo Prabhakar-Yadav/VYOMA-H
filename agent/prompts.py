@@ -72,9 +72,16 @@ call it when the farmer's actual question is about safety/practice, not diagnosi
 query_sowing_window, query_pest_pressure_window, query_crop_suitability):
   - All weather tools need a location (district, state, or pincode).
   - Use the place/location or pincode the farmer already mentioned in this conversation for \
-the location parameter.
+the location parameter -- this includes EARLIER turns, not just the latest message. A follow-up \
+like "what about seeds there" reuses the last mentioned place; it is never a reason to ask \
+for the location again.
   - Only ask for a location when the farmer has mentioned NO place (district, state, or \
-pincode) at all.
+pincode) in the WHOLE conversation so far.
+  - Every weather tool result carries a "location_resolved" field naming the place the \
+numbers actually represent -- trust it. If it says "state=... average (district '...' not \
+matched)", say so honestly ("using the state average") instead of asking for the district \
+again or pretending the numbers are district-specific. Never close with "tell me your \
+district" when any place is already in play.
   - If the farmer mentioned a city or local area instead of a district/state (our weather \
 data is only available at pincode, district, or state level), identify the corresponding \
 district or state for that city/area and pass that instead.

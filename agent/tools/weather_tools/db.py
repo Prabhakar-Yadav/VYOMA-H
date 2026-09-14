@@ -13,6 +13,8 @@ file rather than depending on a sibling folder outside gramsahayak/.
 """
 from __future__ import annotations
 
+import difflib
+import re
 import sqlite3
 from pathlib import Path
 
@@ -77,6 +79,169 @@ def _cells_for_field(con: sqlite3.Connection, field: str, value: str) -> list[tu
     if not rows:
         raise LocationNotFound(f"No grid cell found for {field}={value!r}.")
     return rows
+
+
+# --- district alias resolution (2026-09-14): transliteration-tolerant matching without a
+# hardcoded alias list. Colloquial English spellings ("Bangalore", "Mysore", "Shimoga") and
+# ASR/NMT garbles ("Shivamanga") never exactly equal the canonical DB names ("BENGALURU
+# URBAN", "MYSURU", "SHIVAMOGGA"), and plain difflib on raw strings actively mis-resolves
+# (measured: "Bangalore" -> BAGALKOTE, "Shivamanga" -> SIVAGANGA in Tamil Nadu). Stripping
+# vowels collapses exactly the transliteration variance (galore/guru, ore/uru, ee/i) while
+# keeping consonant skeletons distinct: bangalore/bengaluru -> bnglr, mysore/mysuru -> msr.
+# Stdlib only (re/difflib), ~539 short names, runs solely on the exact-miss path. ---
+_SKEL_DROP_WORDS = {"urban", "rural", "district", "zila", "zilla", "jilla"}
+
+# Below this, a fuzzy hit is treated as "not understood" and the caller keeps the old
+# behavior (state fallback / LocationNotFound) -- fuzzy can only upgrade a fallback,
+# never convert one into a wrong-district answer. Country-wide (no state to scope by)
+# demands a higher bar since a wrong-state hit is the worst outcome.
+_FUZZY_MIN_SCORE_SCOPED = 0.70
+_FUZZY_MIN_SCORE_COUNTRY = 0.80
+_FUZZY_MIN_MARGIN = 0.05
+
+
+def _skel(name: str) -> str:
+    """Consonant skeleton: lowercase, drop urban/rural-type suffix words, keep a-z,
+    delete vowels (incl. y, a vowel in transliteration). Generic character rule -- no
+    district names encoded. Returns "" if nothing survives (caller treats as no-match)."""
+    words = re.sub(r"[^a-z ]", " ", name.lower()).split()
+    words = [w for w in words if w not in _SKEL_DROP_WORDS]
+    return re.sub(r"[aeiouy]", "", "".join(words))
+
+
+def _district_names(con: sqlite3.Connection, state: str | None = None) -> list[tuple[str, str]]:
+    """Canonical (district, state) pairs from grid_cells -- the pool always has cells,
+    so a hit here can never land on a cell-less name (e.g. BENGALURU RURAL, which has
+    pincodes but zero grid cells)."""
+    if state is not None and state.strip():
+        return con.execute(
+            "SELECT DISTINCT district, state FROM grid_cells WHERE LOWER(state) = LOWER(?)",
+            (state.strip(),),
+        ).fetchall()
+    return con.execute("SELECT DISTINCT district, state FROM grid_cells").fetchall()
+
+
+def _resolve_district(con: sqlite3.Connection, district: str, state: str | None = None) -> tuple[str, str] | None:
+    """Canonical (district, state) for a possibly-aliased district string, or None when
+    not confidently understood (caller keeps the old fallback path). Never raises."""
+    try:
+        want = district.strip()
+        if not want:
+            return None
+        scoped = state is not None and bool(state.strip())
+        pool = _district_names(con, state if scoped else None)
+        if not pool:
+            return None  # unknown state spelling: states stay exact-only, no fuzzy on them
+        # Exact first (case-insensitive) -- preserves today's behavior for canonical names.
+        for d, s in pool:
+            if d.lower() == want.lower():
+                return (d, s)
+        # Fuzzy on consonant skeletons. difflib on raw strings is proven wrong here
+        # (Bangalore->BAGALKOTE, Shivamanga->SIVAGANGA), skeletons fix the measured cases.
+        target = _skel(want)
+        if not target:
+            return None
+        scored = sorted(
+            ((difflib.SequenceMatcher(None, target, _skel(d)).ratio(), d, s) for d, s in pool if _skel(d)),
+            reverse=True,
+        )
+        if not scored:
+            return None
+        (best, best_d, best_s) = scored[0]
+        floor = _FUZZY_MIN_SCORE_SCOPED if scoped or len(pool) <= 60 else _FUZZY_MIN_SCORE_COUNTRY
+        if best < floor:
+            return None
+        if len(scored) > 1 and (best - scored[1][0]) < _FUZZY_MIN_MARGIN:
+            return None  # ambiguous top-2: safer to fall back than to guess
+        return (best_d, best_s)
+    except Exception:
+        return None  # fuzzy must never raise outward -- old path handles it
+
+
+def _cells_for_district(
+    con: sqlite3.Connection, district: str, state: str | None = None
+) -> list[tuple[float, float]]:
+    """District cells honoring an accompanying state (fixes the AURANGABAD-type
+    cross-state averaging today's district-alone lookup does even when the agent passed
+    both). Falls back to the old district-alone averaging when no state was given, so
+    no-state semantics are unchanged. Raises LocationNotFound exactly as before when
+    nothing resolves -- the caller's state-fallback/error path then runs untouched."""
+    if state is not None and state.strip():
+        rows = con.execute(
+            "SELECT DISTINCT grid_lat, grid_lon FROM grid_cells "
+            "WHERE LOWER(district) = LOWER(?) AND LOWER(state) = LOWER(?)",
+            (district.strip(), state.strip()),
+        ).fetchall()
+        if rows:
+            return rows
+        resolved = _resolve_district(con, district, state)
+        if resolved is not None:
+            rows = con.execute(
+                "SELECT DISTINCT grid_lat, grid_lon FROM grid_cells "
+                "WHERE LOWER(district) = LOWER(?) AND LOWER(state) = LOWER(?)",
+                (resolved[0], resolved[1]),
+            ).fetchall()
+            if rows:
+                return rows
+        # Scoped miss (incl. weak fuzzy): raise so the caller falls back to STATE,
+        # never to the old district-alone lookup -- that lookup ignores the state and
+        # would average in another state's same-named district (the AURANGABAD bug).
+        raise LocationNotFound(f"No grid cell found for district={district!r} in state={state!r}.")
+    else:
+        resolved = _resolve_district(con, district, None)
+        if resolved is not None and resolved[0].lower() != district.strip().lower():
+            # Alias hit without a state to scope by: only trust a strong, unambiguous
+            # one (country bar + margin already enforced inside); otherwise keep old path.
+            rows = con.execute(
+                "SELECT DISTINCT grid_lat, grid_lon FROM grid_cells WHERE LOWER(district) = LOWER(?)",
+                (resolved[0],),
+            ).fetchall()
+            if rows:
+                return rows
+    return _cells_for_field(con, "district", district)
+
+
+def describe_location(
+    *,
+    lat: float | None = None,
+    lon: float | None = None,
+    pincode: str | None = None,
+    district: str | None = None,
+    state: str | None = None,
+    db_path: str | Path = DEFAULT_DB_PATH,
+) -> str:
+    """Short truthful label for which place a tool's numbers represent
+    ("district=SHIVAMOGGA, Karnataka" vs "state=Karnataka average (district
+    'Shivamanga' not matched)"). Mirrors get_weather_data()'s own priority
+    (lat/lon > pincode > district > state, with miss fallthrough), sharing
+    _resolve_district with the data path, so the label can never disagree with
+    the cells actually used. Never raises -- worst case "location unknown"."""
+    try:
+        con = sqlite3.connect(db_path)
+        try:
+            if lat is not None and lon is not None:
+                return f"lat/lon=({lat}, {lon})"
+            if pincode is not None and pincode.strip():
+                hit = con.execute(
+                    "SELECT 1 FROM pincode_grid WHERE Pincode = ? LIMIT 1", (pincode.strip(),)
+                ).fetchone()
+                if hit:
+                    return f"pincode={pincode.strip()}"
+                # Miss: falls through exactly like the data path below.
+            if district is not None and district.strip():
+                resolved = _resolve_district(con, district, state)
+                if resolved is not None:
+                    return f"district={resolved[0]}, {resolved[1]}"
+                if state is not None and state.strip():
+                    return f"state={state.strip()} average (district {district.strip()!r} not matched)"
+                return f"district {district.strip()!r} not matched"
+            if state is not None and state.strip():
+                return f"state={state.strip()} average"
+            return "location unknown"
+        finally:
+            con.close()
+    except Exception:
+        return "location unknown"
 
 
 def get_weather_data(
@@ -153,7 +318,10 @@ def get_weather_data(
                 elif mode == "pincode":
                     cells = _cells_for_pincode(con, pincode)
                 elif mode == "district":
-                    cells = _cells_for_field(con, "district", district)
+                    # State-scoped when the caller supplied one (fixes cross-state
+                    # district collisions); miss (incl. weak fuzzy) raises exactly as
+                    # before so the state-fallback below runs untouched.
+                    cells = _cells_for_district(con, district, state if given["state"] else None)
                 else:
                     cells = _cells_for_field(con, "state", state)
                 break
