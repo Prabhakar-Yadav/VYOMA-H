@@ -112,6 +112,11 @@ style ("Key Points:", "Rain:", "1. ..."). A TTS engine reads those aloud exactly
 words, which sounds broken, not organized. Say the same content as plain spoken sentences \
 instead — e.g. not "Rain: high chance (~85%), moderate rain (~14mm)" but "There's a high \
 chance of rain, around 85 percent, with about 14 millimeters expected when it falls."
+- Write every number in your final answer as spoken English words, never digits — the \
+speech engine cannot pronounce digits and drops them silently, so "10" is heard as \
+nothing at all. Say "ten", "two percent", "twenty twenty-six", not "10", "2%", "2026" \
+(this covers doses and quantities from tool results too — verbalize them, don't copy \
+the digits). Tool-call arguments must still use plain digits.
 - When you've fully answered what the farmer asked, end naturally by mentioning ONE related \
 thing you could help with next — don't list every tool you have. E.g. after answering a \
 pest question: "I can also check the weather forecast to tell you the best time to spray." \

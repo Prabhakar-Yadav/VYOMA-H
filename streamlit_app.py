@@ -55,6 +55,7 @@ from api_server import config  # noqa: E402
 from api_server.orchestrator import MemoryOrchestrator, ALL_COMPONENTS  # noqa: E402
 from agent import GramSahayakAgent  # noqa: E402
 from models.text_clean import clean_text  # noqa: E402
+from models.number_expansion import expand_numbers_en  # noqa: E402 -- torch-free, see above
 import test_orchestrated_pipeline as tp  # noqa: E402 -- reused for LANGUAGES/sample text/image/crop_weather_turns()
 
 GATEWAY = f"http://{config.GATEWAY_HOST}:{config.GATEWAY_PORT}"
@@ -410,6 +411,10 @@ def run_pipeline_turn(session, language, audio_bytes=None, typed_english=None,
         english_answer = session.orch.run_agent(_agent_call, tts_language=cfg["tts_name"])
         turn["timings"]["agent_s"] = time.perf_counter() - t0
         english_answer = clean_text(english_answer)
+        # Verbalize numbers pre-NMT (2026-09-14, same fix as run_full_pipeline -- this dev
+        # UI hand-rolls its own NMT call below instead of using it; see
+        # models/number_expansion.py for why digits must not reach TTS).
+        english_answer = expand_numbers_en(english_answer)
         turn["english_answer"] = english_answer
         turn["english_answer_chars"] = len(english_answer)
         with session.lock:

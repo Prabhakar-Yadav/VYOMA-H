@@ -74,6 +74,9 @@ from agent import GramSahayakAgent  # noqa: E402
 # needs torch). play_http_stream is imported lazily below, inside _tts_call_streaming(), so
 # only a --stream-tts run pays that cost.
 from models.text_clean import clean_text  # noqa: E402
+# number_expansion is equally torch-free (stdlib + num2words only) -- safe to import here
+# for the same reason: the pre-NMT expansion below runs on every turn regardless of engine.
+from models.number_expansion import expand_numbers_en  # noqa: E402
 
 GATEWAY = f"http://{config.GATEWAY_HOST}:{config.GATEWAY_PORT}"
 
@@ -483,6 +486,17 @@ def run_full_pipeline(language, orch, agent, play=True, with_image=False, stream
     # no-op safety net for this text, not the only line of defense.
     english_answer = clean_text(english_answer)
     print(f"[PIPE] agent answer (English, markdown-stripped): {english_answer}")
+    # Verbalize numbers BEFORE NMT, not after (added 2026-09-14): MMS-TTS checkpoints
+    # lack digit characters in their vocabs (hi: no 5/6/7/9, en: no 7/8/9, gu: none at
+    # all -- measured directly against every vocab.json), and the VITS tokenizer silently
+    # DROPS those characters, so any digit NMT passes through is missing from the spoken
+    # audio (a "7 drops" dose is heard as just "drops"). NMT was probed live and
+    # translates English number-WORDS into native words with zero digit leaks
+    # ("twenty-five" -> "पँचिश"/"ഇരുപത്തിയഞ്ച്"/"இருபத்தைந்து" for hi/ml/ta), so one
+    # English-only expansion here covers all 15 TTS languages -- see
+    # models/number_expansion.py for the full rationale and edge-case policies.
+    english_answer = expand_numbers_en(english_answer)
+    print(f"[PIPE] agent answer (English, numbers expanded): {english_answer}")
 
     if not english_answer.strip():
         # Real, documented qwen3.5 failure mode (see config.py's AGENT_THINK comment: "sometimes

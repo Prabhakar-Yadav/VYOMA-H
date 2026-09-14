@@ -37,6 +37,20 @@ _INLINE_WHITESPACE_RE = re.compile(r"[ \t]+")
 _BLANK_LINES_RE = re.compile(r"\n{3,}")
 
 
+def _numbered_to_spoken_prefix(m: "re.Match") -> str:
+    """Keeps numbered-list markers as speakable text instead of deleting them.
+
+    Was `_NUMBERED_RE.sub("", text)` (2026-09-14): every "1. ... 2. ... 3. ..." step
+    number in an agent answer was silently deleted -- before NMT (run_full_pipeline
+    cleans the English answer pre-translation) AND before TTS (chunk_text cleans again).
+    Dosage steps lost their numbering on both the screen text and the audio. Replacing
+    the marker with "N, " instead keeps the number in the sentence flow ("1, Remove ..."
+    -> number_expansion -> "one, Remove ..." -> NMT -> spoken "एक, ..."), which is what
+    a farmer listening to steps needs. The comma keeps Moses/NLTK sentence splitting
+    from treating it as a sentence break."""
+    return re.sub(r"\D", "", m.group(0)) + ", "
+
+
 def clean_text(text: str) -> str:
     """Strips common markdown formatting (bold/italic/code/headers/bullets/links/etc.) out of
     agent/NMT output, leaving plain speakable prose. Paragraph breaks (blank lines) are
@@ -49,7 +63,7 @@ def clean_text(text: str) -> str:
     text = _HEADER_RE.sub("", text)
     text = _BLOCKQUOTE_RE.sub("", text)
     text = _BULLET_RE.sub("", text)
-    text = _NUMBERED_RE.sub("", text)
+    text = _NUMBERED_RE.sub(_numbered_to_spoken_prefix, text)
     text = _IMAGE_RE.sub(r"\1", text)
     text = _LINK_RE.sub(r"\1", text)
     text = _BOLD_RE.sub(lambda m: m.group(1) or m.group(2), text)

@@ -54,6 +54,14 @@ sacremoses==0.1.1
 nltk==3.10.0
 regex==2026.7.19
 
+# --- Answer spoken-form (models/number_expansion.py) ---
+# Verbalizes digits in the English agent answer pre-NMT ("10 ml" -> "ten millilitres")
+# because MMS-TTS vocabs lack digit characters and silently drop them from audio.
+# Pure-python, torch-free -- must ALSO be installed in suno-sutra-sw/python/venv, which
+# runs run_full_pipeline() in-process for the GramSahayakUX app (see JETSON_DEPLOYMENT.md
+# §7: pocketinfer's interpreter needs gramsahayak's light deps too).
+num2words==0.5.14
+
 # --- TTS: mms_tts (models/mms_tts/, default engine) + parler (models/tts_exports/,
 # fallback for the 8 India languages MMS-TTS has no checkpoint for -- see
 # api_server/config.MMS_TTS_UNSUPPORTED_INDIAN_LANGUAGES) ---
