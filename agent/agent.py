@@ -198,7 +198,11 @@ def get_status_audio_path(stage: str, tool_name: str | None = None, language: st
     file index is resolved fresh at each fallback step (`% that step's own real variant count`,
     read from STATUS_MESSAGES, the same source build_status_audio.py used to name the files) --
     not assumed to match the ORIGINAL key/language's variant count, since a language with fewer
-    built clips than English is a real, supported degradation, not an error."""
+    built clips than English is a real, supported degradation, not an error.
+
+    `tts` is pinned to v0 (2026-09-14): the liked Hindi tts_v0 clip, copied to every
+    language folder -- only tts_v0 exists per language, so any passed variant_index
+    for "tts" resolves to 0. Other stages keep the normal modulo behavior."""
     key = f"tool:{tool_name}" if stage == "tool" and tool_name else stage
     for lookup_key, lookup_lang in ((key, language), (key, "en"),
                                      ("fallback", language), ("fallback", "en")):
@@ -206,7 +210,7 @@ def get_status_audio_path(stage: str, tool_name: str | None = None, language: st
         variants = entry.get(lookup_lang)
         if not variants:
             continue
-        actual_index = variant_index % len(variants)
+        actual_index = 0 if lookup_key == "tts" else variant_index % len(variants)
         candidate = os.path.join(_STATUS_AUDIO_DIR, lookup_lang,
                                   f"{lookup_key.replace(':', '_')}_v{actual_index}.wav")
         if os.path.isfile(candidate):
